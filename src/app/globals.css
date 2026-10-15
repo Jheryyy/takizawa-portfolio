@@ -1,0 +1,217 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #FF5A1F;
+  --color-tertiary: #FF8552;
+  --color-canvas: #0A0A0A;
+  --color-surface: #141414;
+  --color-elevated: #1C1C1C;
+  --color-hairline: #242424;
+  --color-muted: #9CA3AF;
+
+  --font-display: var(--font-display), 'Inter', sans-serif;
+  --font-sans: var(--font-sans), sans-serif;
+  --font-mono: var(--font-mono), monospace;
+
+  --radius-4xl: 32px;
+  --radius-2-5xl: 20px;
+}
+
+body {
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  font-family: var(--font-sans), 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Light Mode Overrides */
+html.light {
+  --color-canvas: #FAFAFA;
+  --color-surface: #FFFFFF;
+  --color-elevated: #F3F4F6;
+  --color-hairline: #E5E7EB;
+  --color-muted: #171717;
+  color: #000000;
+}
+
+html.light body {
+  background-color: #FAFAFA;
+  color: #000000;
+}
+
+html.light .bg-canvas {
+  background-color: #FAFAFA;
+}
+
+html.light .bg-surface {
+  background-color: #FFFFFF;
+}
+
+html.light .bg-elevated {
+  background-color: #F3F4F6;
+}
+
+html.light .border-hairline {
+  border-color: #E5E7EB;
+}
+
+/* All font colors become black in Light Mode */
+html.light h1,
+html.light h2,
+html.light h3,
+html.light h4,
+html.light h5,
+html.light h6,
+html.light p,
+html.light li,
+html.light label,
+html.light input,
+html.light textarea,
+html.light select,
+html.light .text-muted,
+html.light .text-white,
+html.light .text-white\/95,
+html.light .text-white\/90,
+html.light .text-white\/85,
+html.light .text-white\/80,
+html.light .text-white\/75,
+html.light .text-white\/70,
+html.light .text-white\/60,
+html.light .text-neutral-900,
+html.light .text-neutral-800,
+html.light .text-neutral-700,
+html.light .text-neutral-600,
+html.light .text-neutral-500,
+html.light .text-neutral-400,
+html.light [data-piece],
+html.light [data-word],
+html.light span[data-piece],
+html.light span[data-word],
+html.light .scroll-reveal-text {
+  color: #000000 !important;
+}
+
+/* LogoLoop background is pure white in light mode */
+html.light .hero-logoloop-strip,
+html.light .hero-logoloop-strip > div,
+html.light .hero-logoloop-strip [role="region"],
+html.light .hero-logoloop-strip [role="list"],
+html.light .hero-logoloop-strip [role="listitem"] {
+  background-color: #FFFFFF !important;
+}
+
+/* LogoLoop icons are solid black in light mode */
+html.light [role="listitem"] svg,
+html.light [role="listitem"] svg path {
+  color: #000000 !important;
+  fill: #000000 !important;
+}
+
+/* Preserve crisp contrast on primary buttons and dark media cards */
+html.light .bg-primary,
+html.light .bg-primary *,
+html.light .bg-black,
+html.light .bg-black *,
+html.light .bg-neutral-900,
+html.light .bg-neutral-900 *,
+html.light [class*="from-black"] *,
+html.light [class*="bg-black/"] * {
+  color: #FFFFFF !important;
+}
+
+html.light .text-primary,
+html.light a.text-primary,
+html.light span.text-primary,
+html.light p.text-primary {
+  color: var(--color-primary, #FF5A1F) !important;
+}
+
+/* Orange gradient graduating into pure white at the bottom in light mode */
+html.light .studio-hero-gradient {
+  background: linear-gradient(
+    180deg,
+    #FF5A1F 0%,
+    #FF6E38 18%,
+    #FF8859 36%,
+    #FFA883 54%,
+    #FFCCA8 70%,
+    #FFE6D6 84%,
+    #FFF6F0 93%,
+    #FFFFFF 100%
+  );
+}
+
+/* Ambient studio backdrop inspired by the Framer reference */
+.studio-hero-gradient {
+  background: radial-gradient(
+    circle at 28% 22%,
+    rgba(255, 115, 55, 0.95) 0%,
+    rgba(255, 90, 31, 0.82) 25%,
+    rgba(168, 38, 12, 0.55) 52%,
+    rgba(20, 12, 10, 0.96) 82%,
+    #0D0A09 100%
+  );
+}
+
+.orange-glow-hover:hover {
+  box-shadow: 0 0 28px rgba(255, 90, 31, 0.35);
+}
+
+.card-glow-hover {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+
+.card-glow-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+}
+
+html.dark .card-glow-hover:hover {
+  border-color: rgba(255, 90, 31, 0.5);
+  box-shadow: 0 20px 40px -15px rgba(255, 90, 31, 0.15);
+}
+
+/* Grayscale to subtle contrast on project cards */
+.mono-editorial-img {
+  filter: grayscale(100%) contrast(106%);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+}
+
+.group:hover .mono-editorial-img {
+  transform: scale(1.03);
+  filter: grayscale(15%) contrast(104%);
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0A0A;
+}
+
+html.light ::-webkit-scrollbar-track {
+  background: #F3F4F6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #242424;
+  border-radius: 9999px;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF5A1F;
+}
+
+/* Magic UI Animated Theme Toggler View Transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
