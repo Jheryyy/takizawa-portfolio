@@ -4,6 +4,21 @@ import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { Volume2 } from 'lucide-react';
 
+const GREETINGS = [
+  'Halo',
+  'Hello',
+  'こんにちは',
+  'Hola',
+  'Bonjour',
+  'Ciao',
+  '안녕하세요',
+  'Hallo',
+  '你好',
+  'Olá',
+  'Namaste',
+  'Halo',
+];
+
 export function VideoSplashScreen() {
   const pathname = usePathname();
   const isDashboardRoute = Boolean(
@@ -13,6 +28,7 @@ export function VideoSplashScreen() {
   const [isMounted, setIsMounted] = useState(!isDashboardRoute);
   const [isDismissing, setIsDismissing] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [greetingIndex, setGreetingIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -35,7 +51,7 @@ export function VideoSplashScreen() {
       // Ignore private mode storage restrictions
     }
 
-    // Select video based on initial viewport width
+    // Select mode based on viewport width (< 768px is mobile)
     const isMobileViewport = window.innerWidth < 768;
     setIsMobile(isMobileViewport);
 
@@ -53,8 +69,8 @@ export function VideoSplashScreen() {
     };
     window.addEventListener('music-status', handleMusicStatus);
 
-    // Safety timeout: automatically dismiss faster on mobile (4s) so mobile users aren't delayed, 8s on desktop
-    const timeoutDuration = isMobileViewport ? 4000 : 8000;
+    // Safety timeout: 3.5s on mobile, 8s on desktop
+    const timeoutDuration = isMobileViewport ? 3500 : 8000;
     timeoutRef.current = setTimeout(() => {
       handleDismiss();
     }, timeoutDuration);
@@ -64,7 +80,28 @@ export function VideoSplashScreen() {
       window.removeEventListener('music-status', handleMusicStatus);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, []);
+  }, [isDashboardRoute]);
+
+  // Multilingual cycling exclusively on mobile
+  useEffect(() => {
+    if (!isMounted || !isMobile || isDismissing) return;
+
+    const interval = setInterval(() => {
+      setGreetingIndex((prev) => {
+        if (prev < GREETINGS.length - 1) {
+          return prev + 1;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            handleDismiss();
+          }, 240);
+          return prev;
+        }
+      });
+    }, 180);
+
+    return () => clearInterval(interval);
+  }, [isMounted, isMobile, isDismissing]);
 
   const triggerMusic = () => {
     if (typeof window !== 'undefined') {
@@ -96,7 +133,7 @@ export function VideoSplashScreen() {
       timeoutRef.current = null;
     }
 
-    // Wait for the swipe up animation to complete before unmounting
+    // Wait for the center opening or swipe up animation to complete before unmounting
     setTimeout(() => {
       setIsMounted(false);
     }, 850);
@@ -112,6 +149,55 @@ export function VideoSplashScreen() {
 
   if (!isMounted || isDashboardRoute) return null;
 
+  // 1. MOBILE SPLASH SCREEN: Pure black background, orange multilingual greetings, opening from center
+  if (isMobile) {
+    return (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Welcome Splash Screen"
+        onClick={handleDismiss}
+        className="fixed inset-0 z-[999999] overflow-hidden select-none cursor-pointer"
+      >
+        {/* Left Door Panel - slides -100% to left */}
+        <div
+          className={`absolute inset-y-0 left-0 w-1/2 bg-black transition-transform duration-[850ms] ease-[cubic-bezier(0.77,0,0.175,1)] will-change-transform ${
+            isDismissing ? '-translate-x-full' : 'translate-x-0'
+          }`}
+        />
+
+        {/* Right Door Panel - slides +100% to right */}
+        <div
+          className={`absolute inset-y-0 right-0 w-1/2 bg-black transition-transform duration-[850ms] ease-[cubic-bezier(0.77,0,0.175,1)] will-change-transform ${
+            isDismissing ? 'translate-x-full' : 'translate-x-0'
+          }`}
+        />
+
+        {/* Subtle center line glowing seam before parting */}
+        <div
+          className={`absolute inset-y-0 left-1/2 -translate-x-1/2 w-[1px] bg-gradient-to-b from-transparent via-primary/30 to-transparent transition-opacity duration-300 pointer-events-none z-10 ${
+            isDismissing ? 'opacity-0' : 'opacity-100'
+          }`}
+        />
+
+        {/* Center Content: Multilingual Greetings in Studio Orange */}
+        <div
+          className={`relative z-20 w-full h-full flex items-center justify-center transition-all duration-300 ${
+            isDismissing ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
+          }`}
+        >
+          <div className="flex items-center justify-center px-6">
+            <span className="font-display font-extrabold text-4xl sm:text-5xl text-primary tracking-tight drop-shadow-[0_0_24px_rgba(255,90,31,0.4)]">
+              {GREETINGS[greetingIndex]}
+            </span>
+            <span className="inline-block w-2.5 h-2.5 rounded-full bg-primary ml-2.5 animate-pulse shadow-[0_0_10px_#FF5A1F]" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. DESKTOP SPLASH SCREEN: Cinematic desktop video with skip button
   return (
     <div
       role="dialog"
@@ -124,30 +210,22 @@ export function VideoSplashScreen() {
       }`}
     >
       {/* Background Video Player */}
-      {isMobile !== null && (
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          preload="metadata"
-          disablePictureInPicture
-          disableRemotePlayback
-          onPlay={triggerMusic}
-          onEnded={handleVideoEnded}
-          onError={handleVideoError}
-          className="w-full h-full object-cover select-none pointer-events-none"
-        >
-          {isMobile ? (
-            <source src="/mobile.mp4" type="video/mp4" />
-          ) : (
-            <>
-              <source src="/dekstop.mp4" type="video/mp4" />
-              <source src="/desktop.mp4" type="video/mp4" />
-            </>
-          )}
-        </video>
-      )}
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        preload="metadata"
+        disablePictureInPicture
+        disableRemotePlayback
+        onPlay={triggerMusic}
+        onEnded={handleVideoEnded}
+        onError={handleVideoError}
+        className="w-full h-full object-cover select-none pointer-events-none"
+      >
+        <source src="/dekstop.mp4" type="video/mp4" />
+        <source src="/desktop.mp4" type="video/mp4" />
+      </video>
 
       {/* Subtle Overlay Gradient for Cinematic Feel */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30 pointer-events-none" />
