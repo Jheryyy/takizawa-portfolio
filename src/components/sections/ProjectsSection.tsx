@@ -205,7 +205,7 @@ export function ProjectsSection({
                 onClick={() => setActiveTouchId(isTouchActive ? null : project.id)}
                 className="relative w-[85vw] sm:w-[580px] md:w-[700px] lg:w-[820px] shrink-0 snap-center sm:snap-start aspect-[16/10] sm:aspect-[16/9] rounded-3xl overflow-hidden border border-hairline bg-[#161616] group shadow-md transition-all duration-300 hover:shadow-2xl hover:border-primary/50"
               >
-                {/* Full Card Image (Wide Landscape) */}
+                {/* Full Card Image (Wide Landscape): Monochrome & blur by default, full color on hover/press */}
                 <Image
                   src={project.image}
                   alt={project.title}
@@ -214,7 +214,11 @@ export function ProjectsSection({
                   sizes="(max-width: 768px) 85vw, 820px"
                   loading={idx < 2 ? 'eager' : 'lazy'}
                   quality={85}
-                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none"
+                  className={`object-cover transition-all duration-700 ease-out pointer-events-none ${
+                    isTouchActive
+                      ? 'grayscale-0 blur-0 brightness-100 scale-105'
+                      : 'grayscale blur-[1.5px] contrast-[105%] brightness-[0.85] group-hover:grayscale-0 group-hover:blur-0 group-hover:brightness-100 group-hover:scale-105'
+                  }`}
                 />
 
                 {/* Dark Cinematic Gradient Overlay: Hidden by default, reveals on hover */}
@@ -275,7 +279,7 @@ export function ProjectsSection({
                   }`}
                 >
                   <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono text-white/80">
-                    Hover for info
+                    Hover / Tap to reveal
                   </span>
                 </div>
               </div>
