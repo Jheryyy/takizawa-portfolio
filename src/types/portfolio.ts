@@ -26,6 +26,18 @@ export interface ProjectItem {
   code: string;
 }
 
+export interface GuestbookReply {
+  id: string;
+  parentId: string;
+  name: string;
+  handle: string;
+  role: string;
+  time: string;
+  message: string;
+  likes: number;
+  isAdmin?: boolean;
+}
+
 export interface GuestbookEntry {
   id: string;
   name: string;
@@ -34,4 +46,6 @@ export interface GuestbookEntry {
   time: string;
   message: string;
   likes: number;
+  isAdmin?: boolean;
+  replies?: GuestbookReply[];
 }

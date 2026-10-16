@@ -587,7 +587,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                           href={s.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="sm-socials-link text-[1.1rem] font-medium text-neutral-800 hover:text-[var(--sm-accent,#F97316)] no-underline relative inline-block py-[2px] transition-[color,opacity] duration-300 ease-linear"
+                          className="sm-socials-link text-[1.1rem] font-medium text-black dark:text-neutral-800 hover:text-[var(--sm-accent,#F97316)] no-underline relative inline-block py-[2px] transition-[color,opacity] duration-300 ease-linear"
                           onClick={closeMenu}
                         >
                           {s.label}

@@ -176,10 +176,10 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
 
               <Link
                 href="/about"
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-elevated border border-hairline text-xs font-mono font-bold text-black dark:text-white/80 hover:text-primary hover:border-primary/50 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-elevated border border-hairline text-xs font-mono font-bold text-black dark:text-white hover:text-primary hover:border-primary/50 transition-all cursor-pointer group"
               >
-                <span>Academic Path</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
+                <span className="text-black dark:text-white font-bold">Academic Path</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-black dark:text-white group-hover:text-primary transition-colors" />
               </Link>
             </div>
           </div>

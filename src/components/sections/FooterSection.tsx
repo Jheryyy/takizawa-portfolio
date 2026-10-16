@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Copy } from 'lucide-react';
+import { Copy, Mail } from 'lucide-react';
 import { SiInstagram, SiTiktok } from 'react-icons/si';
 
 interface FooterSectionProps {
@@ -80,21 +80,28 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
               Projects
             </Link>
             <a
+              href="mailto:jherycotakizawa@gmail.com"
+              className="text-black dark:text-white/80 hover:text-primary transition-colors flex items-center gap-1.5"
+            >
+              <Mail className="w-3.5 h-3.5 text-black dark:text-white/80" />
+              <span>Email</span>
+            </a>
+            <a
               href="https://instagram.com/abcdefghijherr"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-[#E4405F] transition-colors flex items-center gap-1.5"
+              className="text-black dark:text-white/80 hover:text-[#E4405F] transition-colors flex items-center gap-1.5"
             >
-              <SiInstagram className="w-3.5 h-3.5" />
+              <SiInstagram className="w-3.5 h-3.5 text-black dark:text-white/80" />
               <span>Instagram</span>
             </a>
             <a
               href="https://www.tiktok.com/@abcdefghijherr"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-primary transition-colors flex items-center gap-1.5"
+              className="text-black dark:text-white/80 hover:text-primary transition-colors flex items-center gap-1.5"
             >
-              <SiTiktok className="w-3.5 h-3.5" />
+              <SiTiktok className="w-3.5 h-3.5 text-black dark:text-white/80" />
               <span>TikTok</span>
             </a>
           </div>
