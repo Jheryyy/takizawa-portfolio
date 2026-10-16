@@ -215,3 +215,20 @@ html.light ::-webkit-scrollbar-thumb {
   animation: none;
   mix-blend-mode: normal;
 }
+
+/* Mobile Performance Optimizations */
+@media (max-width: 767px) {
+  /* Prevent horizontal scroll hitching and improve touch responsiveness */
+  html,
+  body {
+    -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
+  }
+
+  /* Deferred layout and painting for off-screen sections on mobile */
+  #guestbook,
+  #contact {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+  }
+}

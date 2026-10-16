@@ -172,12 +172,13 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
     const scrub = smoothing > 0 ? smoothing : true;
     const span = mode === 'enter' ? Math.max(0.05, duration) : SCRUB_SPAN;
     const gap = Math.max(0, stagger);
+    const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 768;
     const look: RevealLook = {
       effect,
       masked: effect === 'rise' && wrappers.length > 0,
       baseOpacity,
-      blur: enableBlur ? blurStrength : 0,
-      offset: baseOffset,
+      blur: enableBlur && !isMobileDevice ? blurStrength : 0,
+      offset: isMobileDevice ? 0 : baseOffset,
       highlightColor
     };
     const mm = gsap.matchMedia();
@@ -218,7 +219,11 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
       measure();
       pieces.forEach(piece => {
         piece.style.willChange =
-          pieces.length > 80 ? '' : effect === 'fade' && !baseOffset ? 'opacity' : 'opacity, transform';
+          isMobileDevice || pieces.length > 80
+            ? ''
+            : effect === 'fade' && !baseOffset
+            ? 'opacity'
+            : 'opacity, transform';
         piece.style.transformOrigin = effect === 'flip' ? '50% 100%' : '';
       });
       if (look.masked) {

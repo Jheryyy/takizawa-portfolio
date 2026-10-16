@@ -53,10 +53,11 @@ export function VideoSplashScreen() {
     };
     window.addEventListener('music-status', handleMusicStatus);
 
-    // Safety timeout: automatically dismiss after 12s if video stalls or freezes
+    // Safety timeout: automatically dismiss faster on mobile (4s) so mobile users aren't delayed, 8s on desktop
+    const timeoutDuration = isMobileViewport ? 4000 : 8000;
     timeoutRef.current = setTimeout(() => {
       handleDismiss();
-    }, 12000);
+    }, timeoutDuration);
 
     return () => {
       document.body.style.overflow = originalOverflow;
@@ -130,6 +131,8 @@ export function VideoSplashScreen() {
           muted
           playsInline
           preload="metadata"
+          disablePictureInPicture
+          disableRemotePlayback
           onPlay={triggerMusic}
           onEnded={handleVideoEnded}
           onError={handleVideoError}

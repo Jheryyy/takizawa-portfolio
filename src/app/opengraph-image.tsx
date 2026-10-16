@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'Jheryco Takizawa — Frontend Architect & UI/UX Specialist';
+export const alt = 'Jheryco Takizawa Natal Kristiawan — Frontend Developer & UI/UX Architect';
 export const size = {
   width: 1200,
   height: 630,
@@ -83,14 +83,14 @@ export default async function Image() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div
             style={{
-              fontSize: '68px',
+              fontSize: '56px',
               fontWeight: 900,
               color: '#FFFFFF',
               letterSpacing: '-2px',
-              lineHeight: 1.08,
+              lineHeight: 1.1,
             }}
           >
-            Jheryco Takizawa
+            Jheryco Takizawa Natal Kristiawan
           </div>
           <div
             style={{

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import {
   Send,
   Mail,
@@ -10,6 +11,7 @@ import {
   Clock,
   Sparkles,
   ArrowUpRight,
+  RotateCw,
 } from 'lucide-react';
 import { SiInstagram, SiTiktok } from 'react-icons/si';
 import dynamic from 'next/dynamic';
@@ -34,10 +36,22 @@ interface ContactSectionProps {
 export function ContactSection({ onNotifyToast }: ContactSectionProps) {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [shouldLoadLanyard, setShouldLoadLanyard] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
   const lanyardContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    // Only load Three.js Lanyard on desktop viewports (>= 768px)
+    if (typeof window === 'undefined' || isMobile !== false) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -57,7 +71,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
   const [formState, setFormState] = useState({
     name: '',
@@ -134,46 +148,137 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
 
       {/* 2-Column Split: Left (Lanyard Container) | Right (Form & Channels) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
-        {/* Left Column (5 Cols): Unboxed, Free-floating 3D Lanyard */}
+        {/* Left Column (5 Cols): Responsive Interactive Badge */}
         <div className="lg:col-span-5 flex flex-col items-center justify-center relative select-none">
-          {/* Free-floating 3D Lanyard Canvas */}
-          <div
-            ref={lanyardContainerRef}
-            style={{ width: '100%', height: '600px' }}
-            className="relative w-full h-[600px] flex items-center justify-center"
-          >
-            {shouldLoadLanyard ? (
-              <Lanyard
-                frontImage="/card-front.jpg"
-                backImage="/card-back.jpg"
-                strapImage="/band.png"
-                imageFit="cover"
-                cardColor="#ffffff"
-                orientation="portrait"
-                finish="glossy"
-                cornerRadius={0.3}
-                size={0.6}
-                anchor="center"
-                strapLength={0.5}
-                strapColor="#111111"
-                strapWidth={0.65}
-                metal="silver"
-                gravity={1}
-                damping={0.8}
-                elasticity={0.4}
-                breeze={0}
-                interactive
-                intro={false}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  <span className="font-mono text-xs text-black/60 dark:text-muted">Loading 3D Canvas...</span>
+          {isMobile ? (
+            /* Mobile Lightweight Interactive 2.5D Flip Badge (0 WebGL overhead, 60fps, no touch scroll hijack) */
+            <div className="w-full flex flex-col items-center justify-center py-4">
+              {/* Lanyard Top Strap & Clip Decoration */}
+              <div className="flex flex-col items-center relative z-20">
+                {/* Woven Strap Ribbon */}
+                <div className="w-8 h-10 bg-neutral-900 border-x border-white/15 rounded-t-sm shadow-inner flex items-center justify-center overflow-hidden">
+                  <span className="font-mono text-[8px] text-white/30 tracking-widest rotate-90 uppercase select-none">
+                    TAKIZAWA
+                  </span>
+                </div>
+                {/* Metallic Clip */}
+                <div className="w-12 h-3.5 bg-gradient-to-r from-neutral-300 via-neutral-100 to-neutral-400 rounded-sm border border-neutral-400/60 shadow-md -mt-0.5" />
+                {/* Split Swivel Ring */}
+                <div className="w-3.5 h-4.5 rounded-full border-2 border-neutral-300/80 -mt-0.5 z-10" />
+              </div>
+
+              {/* 3D Flip Card Container */}
+              <div
+                onClick={() => setIsCardFlipped((prev) => !prev)}
+                className="relative w-[260px] h-[370px] sm:w-[280px] sm:h-[395px] cursor-pointer group active:scale-[0.98] transition-transform select-none -mt-1.5"
+                style={{
+                  perspective: '1000px',
+                  touchAction: 'pan-y',
+                }}
+              >
+                <div
+                  className="relative w-full h-full duration-700 transition-transform"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transform: isCardFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                  }}
+                >
+                  {/* FRONT SIDE */}
+                  <div
+                    className="absolute inset-0 rounded-2.5xl overflow-hidden shadow-2xl border border-white/20 bg-neutral-950"
+                    style={{
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                    }}
+                  >
+                    {/* Punch slot at top */}
+                    <div className="absolute top-3 inset-x-0 mx-auto w-8 h-2 rounded-full bg-neutral-900 border border-white/20 z-20" />
+                    <Image
+                      src="/card-front.jpg"
+                      alt="Jheryco Takizawa Badge Front"
+                      fill
+                      sizes="280px"
+                      priority
+                      className="object-cover pointer-events-none"
+                    />
+                    {/* Glossy sheen reflection */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5" />
+                  </div>
+
+                  {/* BACK SIDE */}
+                  <div
+                    className="absolute inset-0 rounded-2.5xl overflow-hidden shadow-2xl border border-white/20 bg-neutral-950"
+                    style={{
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                      transform: 'rotateY(180deg)',
+                    }}
+                  >
+                    {/* Punch slot at top */}
+                    <div className="absolute top-3 inset-x-0 mx-auto w-8 h-2 rounded-full bg-neutral-900 border border-white/20 z-20" />
+                    <Image
+                      src="/card-back.jpg"
+                      alt="Jheryco Takizawa Badge Back"
+                      fill
+                      sizes="280px"
+                      className="object-cover pointer-events-none"
+                    />
+                    {/* Glossy sheen reflection */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5" />
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
+
+              {/* Interactive Flip Hint Button */}
+              <button
+                type="button"
+                onClick={() => setIsCardFlipped((prev) => !prev)}
+                className="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface border border-hairline text-[11px] font-mono text-black/70 dark:text-muted hover:text-primary transition-all active:scale-95 shadow-sm"
+              >
+                <RotateCw className="w-3 h-3 text-primary" />
+                <span>Tap badge to flip &bull; 3D</span>
+              </button>
+            </div>
+          ) : (
+            /* Desktop Free-floating 3D Lanyard Canvas */
+            <div
+              ref={lanyardContainerRef}
+              style={{ width: '100%', height: '600px' }}
+              className="relative w-full h-[600px] flex items-center justify-center"
+            >
+              {shouldLoadLanyard ? (
+                <Lanyard
+                  frontImage="/card-front.jpg"
+                  backImage="/card-back.jpg"
+                  strapImage="/band.png"
+                  imageFit="cover"
+                  cardColor="#ffffff"
+                  orientation="portrait"
+                  finish="glossy"
+                  cornerRadius={0.3}
+                  size={0.6}
+                  anchor="center"
+                  strapLength={0.5}
+                  strapColor="#111111"
+                  strapWidth={0.65}
+                  metal="silver"
+                  gravity={1}
+                  damping={0.8}
+                  elasticity={0.4}
+                  breeze={0}
+                  interactive
+                  intro={false}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    <span className="font-mono text-xs text-black/60 dark:text-muted">Loading 3D Canvas...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Clean Direct Contacts underneath without box */}
           <div className="flex items-center justify-center gap-6 text-xs text-black/60 dark:text-muted font-medium pt-2">

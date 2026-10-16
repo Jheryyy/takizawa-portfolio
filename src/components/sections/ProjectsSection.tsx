@@ -100,7 +100,7 @@ export function ProjectsSection({
 
       {/* 3-Column Portrait Project Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredProjects.map((project) => (
+        {filteredProjects.map((project, idx) => (
           <Link
             key={project.id}
             href={`/projects/${project.id}`}
@@ -113,7 +113,9 @@ export function ProjectsSection({
                 src={project.image}
                 alt={project.title}
                 fill
-                sizes="(max-width: 768px) 100vw, 33vw"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                loading={idx < 2 ? 'eager' : 'lazy'}
+                quality={75}
                 className="object-cover mono-editorial-img"
               />
 

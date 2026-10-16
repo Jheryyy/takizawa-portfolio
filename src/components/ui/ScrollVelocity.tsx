@@ -213,7 +213,8 @@ function VelocityText({
   });
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!draggable || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    // Only allow mouse dragging; never hijack pointer capture on touch devices so native mobile vertical scroll flows freely
+    if (!draggable || event.pointerType === 'touch' || (event.pointerType === 'mouse' && event.button !== 0)) return;
     const grab = drag.current;
     grab.active = true;
     grab.pointerId = event.pointerId;

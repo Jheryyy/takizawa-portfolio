@@ -2,10 +2,10 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Jheryco Takizawa — Frontend Architect & UI/UX Specialist',
-    short_name: 'Takizawa',
+    name: 'Jheryco Takizawa Natal Kristiawan — Frontend Developer & UI/UX Architect',
+    short_name: 'Jheryco Takizawa',
     description:
-      'Creative portfolio showcasing high-performance Next.js 15 web applications, dark-mode design systems, and responsive web experiences.',
+      'Portofolio resmi Jheryco Takizawa Natal Kristiawan — Frontend Developer & UI/UX Architect.',
     start_url: '/',
     display: 'standalone',
     background_color: '#09090C',

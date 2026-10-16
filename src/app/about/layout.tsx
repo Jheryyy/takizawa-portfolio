@@ -1,22 +1,22 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'About & Credentials — Jheryco Takizawa',
+  title: 'About Jheryco Takizawa Natal Kristiawan — Credentials & Experience',
   description:
-    'Discover the engineering journey, technical competencies, formal education, and design philosophy of Jheryco Takizawa — Frontend Architect and UI/UX Specialist.',
+    'Profil lengkap, perjalanan rekayasa perangkat lunak, dan filosofi desain Jheryco Takizawa Natal Kristiawan (Jheryco Takizawa), Frontend Developer & UI/UX Architect.',
   alternates: {
     canonical: '/about',
   },
   openGraph: {
-    title: 'About & Credentials — Jheryco Takizawa',
+    title: 'About Jheryco Takizawa Natal Kristiawan — Credentials & Experience',
     description:
-      'Discover the engineering journey, technical competencies, formal education, and design philosophy of Jheryco Takizawa.',
+      'Profil lengkap, perjalanan rekayasa perangkat lunak, dan filosofi desain Jheryco Takizawa Natal Kristiawan (Jheryco Takizawa).',
     url: '/about',
   },
   twitter: {
-    title: 'About & Credentials — Jheryco Takizawa',
+    title: 'About Jheryco Takizawa Natal Kristiawan — Credentials & Experience',
     description:
-      'Discover the engineering journey, technical competencies, and design philosophy of Jheryco Takizawa.',
+      'Profil lengkap dan perjalanan rekayasa perangkat lunak Jheryco Takizawa Natal Kristiawan.',
   },
 };
 
