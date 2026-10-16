@@ -1,16 +1,21 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { Play, Pause, Volume2, VolumeX, Music2 } from 'lucide-react';
 
 export function MusicPlayer() {
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith('/admin') || pathname?.startsWith('/dashboard');
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    if (isAdminRoute) return;
     const audio = new Audio(encodeURI('/The Weeknd, Playboi Carti - Timeless.mp3'));
-    audio.preload = 'auto';
+    audio.preload = 'none';
     audio.volume = 0.55;
     audioRef.current = audio;
 
@@ -51,8 +56,11 @@ export function MusicPlayer() {
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
 
-    // Try to play immediately (during splash screen or initial load)
+    // Try to play on explicit gesture (during splash screen or initial user interaction)
     const tryPlay = () => {
+      if (audio.preload !== 'auto') {
+        audio.preload = 'auto';
+      }
       setStartSecond();
       if (audio.paused) {
         audio
@@ -62,16 +70,13 @@ export function MusicPlayer() {
             cleanupAutoPlayListeners();
           })
           .catch(() => {
-            // Unmuted autoplay blocked by browser policy until user gesture
+            // Autoplay blocked until trusted user gesture
           });
       }
     };
 
-    // Execute immediately on mount
-    tryPlay();
-
-    // Attach interaction listeners to play the very instant the user interacts anywhere
-    const interactionEvents = ['click', 'touchstart', 'keydown', 'pointerdown', 'mousedown', 'scroll'];
+    // Attach interaction listeners to play once user interacts
+    const interactionEvents = ['click', 'touchstart', 'keydown', 'pointerdown'];
 
     const cleanupAutoPlayListeners = () => {
       interactionEvents.forEach(evt => {
@@ -111,6 +116,9 @@ export function MusicPlayer() {
       audio.pause();
       setIsPlaying(false);
     } else {
+      if (audio.preload !== 'auto') {
+        audio.preload = 'auto';
+      }
       if (audio.currentTime < 17) {
         try {
           audio.currentTime = 17;
@@ -135,6 +143,10 @@ export function MusicPlayer() {
     audio.muted = !isMuted;
     setIsMuted(!isMuted);
   };
+
+  if (isAdminRoute) {
+    return null;
+  }
 
   return (
     <aside

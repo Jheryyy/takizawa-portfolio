@@ -87,11 +87,28 @@ const TargetCursor = ({
   settingsRef.current = settings;
 
   useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-    const update = () => setHost(finePointer.matches ? document.body : null);
+    const coarsePointer = window.matchMedia('(pointer: coarse)');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const update = () => {
+      // Only attach cursor host if device has a true fine mouse pointer and user hasn't requested reduced motion
+      const isDesktopMouse = finePointer.matches && !coarsePointer.matches && !reduceMotion.matches;
+      setHost(isDesktopMouse ? document.body : null);
+    };
+
     update();
     finePointer.addEventListener('change', update);
-    return () => finePointer.removeEventListener('change', update);
+    coarsePointer.addEventListener('change', update);
+    reduceMotion.addEventListener('change', update);
+
+    return () => {
+      finePointer.removeEventListener('change', update);
+      coarsePointer.removeEventListener('change', update);
+      reduceMotion.removeEventListener('change', update);
+    };
   }, []);
 
   useEffect(() => {

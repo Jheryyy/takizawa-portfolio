@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import gsap from 'gsap';
 import { AnimatedThemeToggler } from '@/registry/magicui/animated-theme-toggler';
@@ -24,26 +25,34 @@ const socialItems: StaggeredMenuSocialItem[] = [
 ];
 
 export function Navbar() {
+  const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const { triggerTransition } = useLiquidTransition();
 
+  const isAdminRoute = pathname?.startsWith('/admin') || pathname?.startsWith('/dashboard');
+
   useEffect(() => {
     setMounted(true);
-    if (navRef.current) {
+    if (navRef.current && !isAdminRoute) {
       gsap.fromTo(
         navRef.current,
         { y: -24, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.05 }
       );
     }
-  }, []);
+  }, [isAdminRoute]);
 
   const handleNavClick = (href: string, label: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     triggerTransition(href, label);
   };
+
+  // Completely omit Navbar on Admin and Dashboard pages
+  if (isAdminRoute) {
+    return null;
+  }
 
   return (
     <nav

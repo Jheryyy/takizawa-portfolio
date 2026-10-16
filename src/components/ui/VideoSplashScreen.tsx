@@ -1,10 +1,16 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { Volume2 } from 'lucide-react';
 
 export function VideoSplashScreen() {
-  const [isMounted, setIsMounted] = useState(true);
+  const pathname = usePathname();
+  const isDashboardRoute = Boolean(
+    pathname?.startsWith('/admin') || pathname?.startsWith('/dashboard')
+  );
+
+  const [isMounted, setIsMounted] = useState(!isDashboardRoute);
   const [isDismissing, setIsDismissing] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -13,6 +19,22 @@ export function VideoSplashScreen() {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   useEffect(() => {
+    // Never show splash screen on admin or dashboard routes
+    if (isDashboardRoute) {
+      setIsMounted(false);
+      return;
+    }
+
+    // Check if splash screen was already dismissed in this session
+    try {
+      if (typeof window !== 'undefined' && sessionStorage.getItem('splash_dismissed') === 'true') {
+        setIsMounted(false);
+        return;
+      }
+    } catch {
+      // Ignore private mode storage restrictions
+    }
+
     // Select video based on initial viewport width
     const isMobileViewport = window.innerWidth < 768;
     setIsMobile(isMobileViewport);
@@ -54,6 +76,14 @@ export function VideoSplashScreen() {
     setIsDismissing(true);
     document.body.style.overflow = '';
 
+    try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('splash_dismissed', 'true');
+      }
+    } catch {
+      // Ignore
+    }
+
     triggerMusic();
 
     if (typeof window !== 'undefined') {
@@ -79,7 +109,7 @@ export function VideoSplashScreen() {
     handleDismiss();
   };
 
-  if (!isMounted) return null;
+  if (!isMounted || isDashboardRoute) return null;
 
   return (
     <div
@@ -99,7 +129,7 @@ export function VideoSplashScreen() {
           autoPlay
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           onPlay={triggerMusic}
           onEnded={handleVideoEnded}
           onError={handleVideoError}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Send,
   Mail,
@@ -33,6 +33,32 @@ interface ContactSectionProps {
 
 export function ContactSection({ onNotifyToast }: ContactSectionProps) {
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [shouldLoadLanyard, setShouldLoadLanyard] = useState(false);
+  const lanyardContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          setShouldLoadLanyard(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: '350px', // Preload 350px before entering viewport so 3D renders immediately
+      }
+    );
+
+    if (lanyardContainerRef.current) {
+      observer.observe(lanyardContainerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   const [formState, setFormState] = useState({
     name: '',
     email: '',
@@ -111,29 +137,42 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
         {/* Left Column (5 Cols): Unboxed, Free-floating 3D Lanyard */}
         <div className="lg:col-span-5 flex flex-col items-center justify-center relative select-none">
           {/* Free-floating 3D Lanyard Canvas */}
-          <div style={{ width: '100%', height: '600px' }} className="relative w-full h-[600px] flex items-center justify-center">
-            <Lanyard
-              frontImage="/card-front.jpg"
-              backImage="/card-back.jpg"
-              strapImage="/band.png"
-              imageFit="cover"
-              cardColor="#ffffff"
-              orientation="portrait"
-              finish="glossy"
-              cornerRadius={0.3}
-              size={0.6}
-              anchor="center"
-              strapLength={0.5}
-              strapColor="#111111"
-              strapWidth={0.65}
-              metal="silver"
-              gravity={1}
-              damping={0.8}
-              elasticity={0.4}
-              breeze={0}
-              interactive
-              intro={false}
-            />
+          <div
+            ref={lanyardContainerRef}
+            style={{ width: '100%', height: '600px' }}
+            className="relative w-full h-[600px] flex items-center justify-center"
+          >
+            {shouldLoadLanyard ? (
+              <Lanyard
+                frontImage="/card-front.jpg"
+                backImage="/card-back.jpg"
+                strapImage="/band.png"
+                imageFit="cover"
+                cardColor="#ffffff"
+                orientation="portrait"
+                finish="glossy"
+                cornerRadius={0.3}
+                size={0.6}
+                anchor="center"
+                strapLength={0.5}
+                strapColor="#111111"
+                strapWidth={0.65}
+                metal="silver"
+                gravity={1}
+                damping={0.8}
+                elasticity={0.4}
+                breeze={0}
+                interactive
+                intro={false}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <span className="font-mono text-xs text-black/60 dark:text-muted">Loading 3D Canvas...</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Clean Direct Contacts underneath without box */}
