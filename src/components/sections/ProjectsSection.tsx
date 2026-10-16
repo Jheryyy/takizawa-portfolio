@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { ProjectCategory, ProjectItem } from '@/types/portfolio';
 import { projectsData } from '@/data/portfolio-data';
 import { supabase } from '@/lib/supabase';
@@ -17,9 +16,17 @@ interface ProjectsSectionProps {
 export function ProjectsSection({
   selectedCategory,
   onSelectCategory,
-  onSelectProject,
 }: ProjectsSectionProps) {
   const [allProjects, setAllProjects] = useState<ProjectItem[]>(projectsData);
+  const [activeTouchId, setActiveTouchId] = useState<string | null>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Drag-to-scroll state for desktop mouse
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftStart = useRef(0);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -27,7 +34,7 @@ export function ProjectsSection({
         const { data, error } = await supabase
           .from('projects')
           .select('*')
-          .order('project_index', { ascending: true });
+          .order('project_index', { ascending: true }); // Proyek paling baru berada di sebelah kanan
 
         if (!error && data && data.length > 0) {
           const mapped: ProjectItem[] = data.map((d) => ({
@@ -68,93 +75,213 @@ export function ProjectsSection({
     { label: 'Fullstack App', value: 'Fullstack' },
   ];
 
+  const updateScrollButtons = () => {
+    if (!sliderRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
+  };
+
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+    updateScrollButtons();
+    slider.addEventListener('scroll', updateScrollButtons, { passive: true });
+    return () => slider.removeEventListener('scroll', updateScrollButtons);
+  }, [filteredProjects]);
+
+  const scrollPrev = () => {
+    if (sliderRef.current) {
+      const cardWidth = sliderRef.current.clientWidth * 0.75;
+      sliderRef.current.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+    }
+  };
+
+  const scrollNext = () => {
+    if (sliderRef.current) {
+      const cardWidth = sliderRef.current.clientWidth * 0.75;
+      sliderRef.current.scrollBy({ left: cardWidth, behavior: 'smooth' });
+    }
+  };
+
+  // Mouse drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!sliderRef.current) return;
+    isDragging.current = true;
+    startX.current = e.pageX - sliderRef.current.offsetLeft;
+    scrollLeftStart.current = sliderRef.current.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || !sliderRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - sliderRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    sliderRef.current.scrollLeft = scrollLeftStart.current - walk;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    isDragging.current = false;
+  };
+
   return (
-    <section id="projects" className="space-y-10 scroll-mt-24">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <section id="projects" className="space-y-8 scroll-mt-24 select-none">
+      {/* Header with Title, Category Filter & Left/Right Slide Controls */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div className="space-y-2">
-          <p className="text-primary font-display font-semibold text-sm sm:text-base">
-            Selected Works &amp; Case Studies
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+            <p className="text-primary font-mono text-xs font-bold uppercase tracking-widest">
+              Selected Works &bull; Horizontal Showcase
+            </p>
+          </div>
           <h2 className="font-display font-bold text-3xl sm:text-4xl tracking-tight text-black dark:text-white">
             Engineered for Impact
           </h2>
         </div>
 
-        {/* Category Filter Pills */}
-        <div className="flex flex-wrap gap-2">
-          {filterOptions.map((opt) => (
+        {/* Controls: Category Filter + Next/Prev Arrow Buttons */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+            {filterOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => onSelectCategory(opt.value)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  selectedCategory === opt.value
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-surface border border-hairline text-black dark:text-muted hover:text-primary'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Slide Navigation Buttons */}
+          <div className="flex items-center gap-2 pl-2">
             <button
-              key={opt.value}
-              onClick={() => onSelectCategory(opt.value)}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                selectedCategory === opt.value
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-surface border border-hairline text-black dark:text-muted hover:text-primary'
-              }`}
+              type="button"
+              onClick={scrollPrev}
+              disabled={!canScrollLeft}
+              aria-label="Slide to previous projects"
+              className="w-9 h-9 rounded-full bg-surface border border-hairline flex items-center justify-center text-black dark:text-white hover:border-primary hover:text-primary transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm"
             >
-              {opt.label}
+              <ChevronLeft className="w-5 h-5" />
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={scrollNext}
+              disabled={!canScrollRight}
+              aria-label="Slide to next projects"
+              className="w-9 h-9 rounded-full bg-surface border border-hairline flex items-center justify-center text-black dark:text-white hover:border-primary hover:text-primary transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 3-Column Portrait Project Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredProjects.map((project, idx) => (
-          <Link
-            key={project.id}
-            href={`/projects/${project.id}`}
-            onClick={() => onSelectProject?.(project)}
-            className="group cursor-pointer bg-surface border border-hairline rounded-2.5xl overflow-hidden flex flex-col justify-between card-glow-hover shadow-sm"
-          >
-            {/* Portrait 3:3.6 Monochrome Image Card */}
-            <div className="relative aspect-[3/3.6] w-full bg-[#1C1C1C] overflow-hidden">
-              <Image
-                src={project.image}
-                alt={project.title}
-                fill
-                unoptimized={project.image?.startsWith('data:')}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                loading={idx < 2 ? 'eager' : 'lazy'}
-                quality={75}
-                className="object-cover mono-editorial-img"
-              />
+      {/* Horizontal Sliding Carousel Strip: Wide Cards, Latest on Right */}
+      <div className="relative -mx-4 sm:-mx-6 lg:-mx-12 px-4 sm:px-6 lg:px-12">
+        <div
+          ref={sliderRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          onMouseLeave={handleMouseUpOrLeave}
+          className="flex gap-6 sm:gap-8 overflow-x-auto scrollbar-none scroll-smooth snap-x snap-mandatory py-4 cursor-grab active:cursor-grabbing"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+        >
+          {filteredProjects.map((project, idx) => {
+            const isTouchActive = activeTouchId === project.id;
+            return (
+              <div
+                key={project.id}
+                onClick={() => setActiveTouchId(isTouchActive ? null : project.id)}
+                className="relative w-[85vw] sm:w-[580px] md:w-[700px] lg:w-[820px] shrink-0 snap-center sm:snap-start aspect-[16/10] sm:aspect-[16/9] rounded-3xl overflow-hidden border border-hairline bg-[#161616] group shadow-md transition-all duration-300 hover:shadow-2xl hover:border-primary/50"
+              >
+                {/* Full Card Image (Wide Landscape) */}
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  fill
+                  unoptimized={project.image?.startsWith('data:')}
+                  sizes="(max-width: 768px) 85vw, 820px"
+                  loading={idx < 2 ? 'eager' : 'lazy'}
+                  quality={85}
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none"
+                />
 
-              {/* Dark gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                {/* Dark Cinematic Gradient Overlay: Hidden by default, reveals on hover */}
+                <div
+                  className={`absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/25 transition-opacity duration-300 pointer-events-none ${
+                    isTouchActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`}
+                />
 
-              {/* Top Row Badges inside Card */}
-              <div className="absolute top-4 inset-x-4 flex items-center justify-between z-10">
-                <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 font-mono text-xs text-primary font-bold">
-                  {project.index} &bull; {project.category}
-                </span>
-                <span className="w-9 h-9 rounded-full bg-white text-canvas flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:bg-primary group-hover:text-white group-hover:-rotate-45">
-                  <ArrowRight className="w-4 h-4 text-neutral-900 group-hover:text-white" />
-                </span>
-              </div>
+                {/* Top Row Badges: Hidden by default, slides down on hover */}
+                <div
+                  className={`absolute top-5 inset-x-5 sm:top-6 sm:inset-x-6 flex items-center justify-between z-10 transition-all duration-300 pointer-events-none ${
+                    isTouchActive
+                      ? 'opacity-100 translate-y-0'
+                      : 'opacity-0 -translate-y-3 group-hover:opacity-100 group-hover:translate-y-0'
+                  }`}
+                >
+                  <span className="px-3.5 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 font-mono text-xs text-primary font-bold shadow-md">
+                    {project.index} &bull; {project.category}
+                  </span>
+                  <span className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-mono text-white/90 shadow-sm">
+                    {project.timeline}
+                  </span>
+                </div>
 
-              {/* Bottom Title & Tech inside Portrait Card */}
-              <div className="absolute bottom-4 inset-x-4 space-y-2 z-10">
-                <h3 className="font-display font-bold text-xl !text-white leading-tight group-hover:!text-primary transition-colors">
-                  {project.title}
-                </h3>
-                <p className="text-xs !text-white/80 line-clamp-2 leading-relaxed font-sans">
-                  {project.shortDesc}
-                </p>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {project.tech.map((t) => (
-                    <span
-                      key={t}
-                      className="px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-sm text-[10px] font-mono !text-white font-medium"
-                    >
-                      {t}
-                    </span>
-                  ))}
+                {/* Bottom Information (Title, Description, Tech Stack): Hidden by default, reveals on hover */}
+                <div
+                  className={`absolute bottom-5 inset-x-5 sm:bottom-7 sm:inset-x-7 space-y-2.5 z-10 transition-all duration-300 ease-out pointer-events-none ${
+                    isTouchActive
+                      ? 'opacity-100 translate-y-0'
+                      : 'opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0'
+                  }`}
+                >
+                  <h3 className="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight leading-tight drop-shadow-md">
+                    {project.title}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-white/85 line-clamp-2 sm:line-clamp-3 leading-relaxed font-sans max-w-2xl">
+                    {project.shortDesc}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 pt-1.5">
+                    {project.tech.map((t) => (
+                      <span
+                        key={t}
+                        className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-[11px] font-mono text-white font-medium border border-white/10"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Subtle Hover Hint Icon on bottom-right when not hovering */}
+                <div
+                  className={`absolute bottom-4 right-4 z-10 transition-opacity duration-300 ${
+                    isTouchActive ? 'opacity-0' : 'opacity-70 group-hover:opacity-0'
+                  }`}
+                >
+                  <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono text-white/80">
+                    Hover for info
+                  </span>
                 </div>
               </div>
-            </div>
-          </Link>
-        ))}
+            );
+          })}
+        </div>
       </div>
     </section>
   );
