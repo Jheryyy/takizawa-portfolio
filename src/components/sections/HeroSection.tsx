@@ -100,7 +100,7 @@ export function HeroSection({ onSelectCategory }: HeroSectionProps) {
             {/* Left Column: Greeting + Massive H1 */}
             <div className="lg:col-span-7 space-y-3 sm:space-y-3">
               <p className="hero-greeting text-black dark:text-white/80 font-display font-medium text-lg sm:text-2xl tracking-tight">
-                Hey, I&apos;m <span className="font-bold text-primary">Jheryco Takizawa</span>, a
+                Hey, I&apos;m <span className="font-bold text-black dark:text-white">Jheryco Takizawa</span>, a
               </p>
               <h1 className="hero-title font-display font-extrabold text-[40px] sm:text-[66px] md:text-[80px] leading-[1.05] tracking-[-0.04em] text-black dark:text-white dark:drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)] min-h-[90px] sm:min-h-[145px] md:min-h-[175px] flex items-center">
                 <span className="sr-only">Jheryco Takizawa Natal Kristiawan (Jheryco) — </span>
