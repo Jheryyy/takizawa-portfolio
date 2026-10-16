@@ -112,6 +112,7 @@ export function ProjectDetailModal({
                   src={project.image}
                   alt={project.title}
                   fill
+                  unoptimized={project.image?.startsWith('data:')}
                   sizes="(max-width: 1024px) 100vw, 400px"
                   className="object-cover"
                 />

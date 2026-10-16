@@ -180,6 +180,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             src={project.image}
             alt={project.title}
             fill
+            unoptimized={project.image?.startsWith('data:')}
             sizes="100vw"
             priority
             className="object-cover"

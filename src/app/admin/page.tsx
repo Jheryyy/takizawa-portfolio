@@ -199,7 +199,7 @@ export default function AdminDashboardPage() {
       const data = await res.json();
       if (data.success && data.url) {
         setProjectForm((prev) => ({ ...prev, image: data.url }));
-        showNotice(`✅ Gambar tersimpan di folder public/projects/${data.filename}!`);
+        showNotice(`✅ Gambar berhasil diunggah (${data.filename})!`);
         fetchFolderImages();
       } else {
         alert(data.error || 'Gagal mengunggah gambar');
