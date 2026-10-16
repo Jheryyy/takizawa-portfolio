@@ -7,6 +7,7 @@ import TargetCursor from "@/components/ui/TargetCursor";
 import VideoSplashScreen from "@/components/ui/VideoSplashScreen";
 import MusicPlayer from "@/components/ui/MusicPlayer";
 import LiquidTransitionProvider from "@/components/ui/LiquidTransition";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -188,6 +189,7 @@ export default function RootLayout({
             <div className="flex-1 w-full">
               {children}
             </div>
+            <SpeedInsights />
           </LiquidTransitionProvider>
         </ThemeProvider>
       </body>
