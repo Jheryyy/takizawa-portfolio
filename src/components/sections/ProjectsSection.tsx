@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, ArrowUpRight } from 'lucide-react';
 import { ProjectCategory, ProjectItem } from '@/types/portfolio';
 import { projectsData } from '@/data/portfolio-data';
 import { supabase } from '@/lib/supabase';
+import { ProjectDetailModal } from '@/components/ui/ProjectDetailModal';
 
 interface ProjectsSectionProps {
   selectedCategory: ProjectCategory | 'All';
@@ -19,12 +20,14 @@ export function ProjectsSection({
 }: ProjectsSectionProps) {
   const [allProjects, setAllProjects] = useState<ProjectItem[]>(projectsData);
   const [activeTouchId, setActiveTouchId] = useState<string | null>(null);
+  const [selectedModalProject, setSelectedModalProject] = useState<ProjectItem | null>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   // Drag-to-scroll state for desktop mouse
   const isDragging = useRef(false);
+  const isDragMoved = useRef(false);
   const startX = useRef(0);
   const scrollLeftStart = useRef(0);
 
@@ -104,19 +107,42 @@ export function ProjectsSection({
     }
   };
 
+  // Modal navigation handlers
+  const selectedModalIndex = selectedModalProject
+    ? filteredProjects.findIndex((p) => p.id === selectedModalProject.id)
+    : -1;
+  const hasNextModal = selectedModalIndex >= 0 && selectedModalIndex < filteredProjects.length - 1;
+  const hasPrevModal = selectedModalIndex > 0;
+
+  const handleNextModal = () => {
+    if (hasNextModal) {
+      setSelectedModalProject(filteredProjects[selectedModalIndex + 1]);
+    }
+  };
+
+  const handlePrevModal = () => {
+    if (hasPrevModal) {
+      setSelectedModalProject(filteredProjects[selectedModalIndex - 1]);
+    }
+  };
+
   // Mouse drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!sliderRef.current) return;
     isDragging.current = true;
+    isDragMoved.current = false;
     startX.current = e.pageX - sliderRef.current.offsetLeft;
     scrollLeftStart.current = sliderRef.current.scrollLeft;
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging.current || !sliderRef.current) return;
-    e.preventDefault();
     const x = e.pageX - sliderRef.current.offsetLeft;
     const walk = (x - startX.current) * 1.5;
+    if (Math.abs(walk) > 6) {
+      isDragMoved.current = true;
+    }
+    e.preventDefault();
     sliderRef.current.scrollLeft = scrollLeftStart.current - walk;
   };
 
@@ -202,10 +228,13 @@ export function ProjectsSection({
             return (
               <div
                 key={project.id}
-                onClick={() => setActiveTouchId(isTouchActive ? null : project.id)}
-                className="relative w-[85vw] sm:w-[580px] md:w-[700px] lg:w-[820px] shrink-0 snap-center sm:snap-start aspect-[16/10] sm:aspect-[16/9] rounded-3xl overflow-hidden border border-hairline bg-[#161616] group shadow-md transition-all duration-300 hover:shadow-2xl hover:border-primary/50"
+                onClick={() => {
+                  if (isDragMoved.current) return;
+                  setSelectedModalProject(project);
+                }}
+                className="relative w-[85vw] sm:w-[580px] md:w-[700px] lg:w-[820px] shrink-0 snap-center sm:snap-start aspect-[16/10] sm:aspect-[16/9] rounded-3xl overflow-hidden border border-hairline bg-[#161616] group shadow-md transition-all duration-300 hover:shadow-2xl hover:border-primary/50 cursor-pointer"
               >
-                {/* Full Card Image (Wide Landscape): Monochrome & blur by default, full color on hover/press */}
+                {/* Full Card Image (Wide Landscape): Optimized without heavy blur filter */}
                 <Image
                   src={project.image}
                   alt={project.title}
@@ -213,11 +242,11 @@ export function ProjectsSection({
                   unoptimized={project.image?.startsWith('data:')}
                   sizes="(max-width: 768px) 85vw, 820px"
                   loading={idx < 2 ? 'eager' : 'lazy'}
-                  quality={85}
-                  className={`object-cover transition-all duration-700 ease-out pointer-events-none ${
+                  quality={75}
+                  className={`object-cover transition-all duration-500 ease-out pointer-events-none will-change-transform ${
                     isTouchActive
-                      ? 'grayscale-0 blur-0 brightness-100 scale-105'
-                      : 'grayscale blur-[1.5px] contrast-[105%] brightness-[0.85] group-hover:grayscale-0 group-hover:blur-0 group-hover:brightness-100 group-hover:scale-105'
+                      ? 'grayscale-0 brightness-100 scale-105'
+                      : 'grayscale contrast-[105%] brightness-[0.88] group-hover:grayscale-0 group-hover:brightness-100 group-hover:scale-105'
                   }`}
                 />
 
@@ -244,7 +273,7 @@ export function ProjectsSection({
                   </span>
                 </div>
 
-                {/* Bottom Information (Title, Description, Tech Stack): Hidden by default, reveals on hover */}
+                {/* Bottom Information (Title, Description, Tech Stack & Detail Button) */}
                 <div
                   className={`absolute bottom-5 inset-x-5 sm:bottom-7 sm:inset-x-7 space-y-2.5 z-10 transition-all duration-300 ease-out pointer-events-none ${
                     isTouchActive
@@ -260,15 +289,29 @@ export function ProjectsSection({
                     {project.shortDesc}
                   </p>
 
-                  <div className="flex flex-wrap gap-1.5 pt-1.5">
-                    {project.tech.map((t) => (
-                      <span
-                        key={t}
-                        className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-[11px] font-mono text-white font-medium border border-white/10"
-                      >
-                        {t}
-                      </span>
-                    ))}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                    <div className="flex flex-wrap gap-1.5">
+                      {project.tech.map((t) => (
+                        <span
+                          key={t}
+                          className="px-2.5 sm:px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-[10px] sm:text-[11px] font-mono text-white font-medium border border-white/10"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedModalProject(project);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary hover:bg-tertiary text-white font-mono text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer pointer-events-auto"
+                    >
+                      <span>Detail</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
 
@@ -279,7 +322,7 @@ export function ProjectsSection({
                   }`}
                 >
                   <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono text-white/80">
-                    Hover / Tap to reveal
+                    Hover / Klik untuk Detail
                   </span>
                 </div>
               </div>
@@ -287,6 +330,17 @@ export function ProjectsSection({
           })}
         </div>
       </div>
+
+      {/* Project Detail Popup Modal */}
+      <ProjectDetailModal
+        project={selectedModalProject}
+        isOpen={Boolean(selectedModalProject)}
+        onClose={() => setSelectedModalProject(null)}
+        onNext={handleNextModal}
+        onPrev={handlePrevModal}
+        hasNext={hasNextModal}
+        hasPrev={hasPrevModal}
+      />
     </section>
   );
 }

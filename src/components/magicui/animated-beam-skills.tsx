@@ -52,8 +52,25 @@ export function AnimatedBeamSkills({ className }: { className?: string }) {
   const div6Ref = useRef<HTMLDivElement>(null);
   const div7Ref = useRef<HTMLDivElement>(null);
 
+  const [isInView, setIsInView] = useState(false);
+
   useEffect(() => {
     setMounted(true);
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setIsInView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { rootMargin: '100px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const isLight = mounted && resolvedTheme === 'light';
@@ -117,85 +134,90 @@ export function AnimatedBeamSkills({ className }: { className?: string }) {
         </div>
       </div>
 
-      {/* Animated Beams: Left to Center */}
-      <AnimatedBeam
-        containerRef={containerRef}
-        fromRef={div1Ref}
-        toRef={div4Ref}
-        curvature={-65}
-        endYOffset={-10}
-        pathColor={pathColor}
-        pathOpacity={pathOpacity}
-        gradientStartColor="#FF5A1F"
-        gradientStopColor="#FF8552"
-        duration={4.2}
-      />
-      <AnimatedBeam
-        containerRef={containerRef}
-        fromRef={div2Ref}
-        toRef={div4Ref}
-        pathColor={pathColor}
-        pathOpacity={pathOpacity}
-        gradientStartColor="#FF5A1F"
-        gradientStopColor="#FF8552"
-        duration={3.8}
-        delay={0.2}
-      />
-      <AnimatedBeam
-        containerRef={containerRef}
-        fromRef={div3Ref}
-        toRef={div4Ref}
-        curvature={65}
-        endYOffset={10}
-        pathColor={pathColor}
-        pathOpacity={pathOpacity}
-        gradientStartColor="#FF5A1F"
-        gradientStopColor="#FF8552"
-        duration={4.5}
-        delay={0.4}
-      />
+      {/* Animated Beams: Render only when within viewport */}
+      {isInView && (
+        <>
+          {/* Animated Beams: Left to Center */}
+          <AnimatedBeam
+            containerRef={containerRef}
+            fromRef={div1Ref}
+            toRef={div4Ref}
+            curvature={-65}
+            endYOffset={-10}
+            pathColor={pathColor}
+            pathOpacity={pathOpacity}
+            gradientStartColor="#FF5A1F"
+            gradientStopColor="#FF8552"
+            duration={4.2}
+          />
+          <AnimatedBeam
+            containerRef={containerRef}
+            fromRef={div2Ref}
+            toRef={div4Ref}
+            pathColor={pathColor}
+            pathOpacity={pathOpacity}
+            gradientStartColor="#FF5A1F"
+            gradientStopColor="#FF8552"
+            duration={3.8}
+            delay={0.2}
+          />
+          <AnimatedBeam
+            containerRef={containerRef}
+            fromRef={div3Ref}
+            toRef={div4Ref}
+            curvature={65}
+            endYOffset={10}
+            pathColor={pathColor}
+            pathOpacity={pathOpacity}
+            gradientStartColor="#FF5A1F"
+            gradientStopColor="#FF8552"
+            duration={4.5}
+            delay={0.4}
+          />
 
-      {/* Animated Beams: Right to Center (Reverse flow) */}
-      <AnimatedBeam
-        containerRef={containerRef}
-        fromRef={div5Ref}
-        toRef={div4Ref}
-        curvature={-65}
-        endYOffset={-10}
-        reverse
-        pathColor={pathColor}
-        pathOpacity={pathOpacity}
-        gradientStartColor="#FF5A1F"
-        gradientStopColor="#FF8552"
-        duration={4.2}
-        delay={0.1}
-      />
-      <AnimatedBeam
-        containerRef={containerRef}
-        fromRef={div6Ref}
-        toRef={div4Ref}
-        reverse
-        pathColor={pathColor}
-        pathOpacity={pathOpacity}
-        gradientStartColor="#FF5A1F"
-        gradientStopColor="#FF8552"
-        duration={3.8}
-        delay={0.3}
-      />
-      <AnimatedBeam
-        containerRef={containerRef}
-        fromRef={div7Ref}
-        toRef={div4Ref}
-        curvature={65}
-        endYOffset={10}
-        reverse
-        pathColor={pathColor}
-        pathOpacity={pathOpacity}
-        gradientStartColor="#FF5A1F"
-        gradientStopColor="#FF8552"
-        duration={4.5}
-        delay={0.5}
-      />
+          {/* Animated Beams: Right to Center (Reverse flow) */}
+          <AnimatedBeam
+            containerRef={containerRef}
+            fromRef={div5Ref}
+            toRef={div4Ref}
+            curvature={-65}
+            endYOffset={-10}
+            reverse
+            pathColor={pathColor}
+            pathOpacity={pathOpacity}
+            gradientStartColor="#FF5A1F"
+            gradientStopColor="#FF8552"
+            duration={4.2}
+            delay={0.1}
+          />
+          <AnimatedBeam
+            containerRef={containerRef}
+            fromRef={div6Ref}
+            toRef={div4Ref}
+            reverse
+            pathColor={pathColor}
+            pathOpacity={pathOpacity}
+            gradientStartColor="#FF5A1F"
+            gradientStopColor="#FF8552"
+            duration={3.8}
+            delay={0.3}
+          />
+          <AnimatedBeam
+            containerRef={containerRef}
+            fromRef={div7Ref}
+            toRef={div4Ref}
+            curvature={65}
+            endYOffset={10}
+            reverse
+            pathColor={pathColor}
+            pathOpacity={pathOpacity}
+            gradientStartColor="#FF5A1F"
+            gradientStopColor="#FF8552"
+            duration={4.5}
+            delay={0.5}
+          />
+        </>
+      )}
     </div>
   );
 }
