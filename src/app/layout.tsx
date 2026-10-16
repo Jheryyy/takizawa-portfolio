@@ -109,6 +109,9 @@ export const metadata: Metadata = {
     icon: '/card-front.jpg',
     apple: '/card-front.jpg',
   },
+  verification: {
+    google: ['google285a3d20eceda9a1', 'google285a3d20eceda9a1.html'],
+  },
 };
 
 const jsonLd = {
