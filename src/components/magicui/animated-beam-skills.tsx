@@ -90,13 +90,13 @@ export function AnimatedBeamSkills({ className }: { className?: string }) {
         {/* Left Column: Frontend Core */}
         <div className="flex flex-col items-center justify-between gap-6 sm:gap-9">
           <Circle ref={div1Ref} label="Next.js">
-            <SiNextdotjs className="w-5 h-5 sm:w-6 sm:h-6 text-black dark:text-white" />
+            <SiNextdotjs aria-hidden="true" title="Next.js" className="w-5 h-5 sm:w-6 sm:h-6 text-black dark:text-white" />
           </Circle>
           <Circle ref={div2Ref} label="React 19">
-            <SiReact className="w-5 h-5 sm:w-6 sm:h-6 text-[#00D8FF] dark:text-[#61DAFB]" />
+            <SiReact aria-hidden="true" title="React 19" className="w-5 h-5 sm:w-6 sm:h-6 text-[#00D8FF] dark:text-[#61DAFB]" />
           </Circle>
           <Circle ref={div3Ref} label="TypeScript">
-            <SiTypescript className="w-5 h-5 sm:w-6 sm:h-6 text-[#3178C6]" />
+            <SiTypescript aria-hidden="true" title="TypeScript" className="w-5 h-5 sm:w-6 sm:h-6 text-[#3178C6]" />
           </Circle>
         </div>
 
@@ -123,13 +123,13 @@ export function AnimatedBeamSkills({ className }: { className?: string }) {
         {/* Right Column: Styling, Design & Runtime */}
         <div className="flex flex-col items-center justify-between gap-6 sm:gap-9">
           <Circle ref={div5Ref} label="Tailwind">
-            <SiTailwindcss className="w-5 h-5 sm:w-6 sm:h-6 text-[#38BDF8]" />
+            <SiTailwindcss aria-hidden="true" title="Tailwind CSS" className="w-5 h-5 sm:w-6 sm:h-6 text-[#38BDF8]" />
           </Circle>
           <Circle ref={div6Ref} label="Figma">
-            <SiFigma className="w-5 h-5 sm:w-6 sm:h-6 text-[#F24E1E]" />
+            <SiFigma aria-hidden="true" title="Figma" className="w-5 h-5 sm:w-6 sm:h-6 text-[#F24E1E]" />
           </Circle>
           <Circle ref={div7Ref} label="Node.js">
-            <SiNodedotjs className="w-5 h-5 sm:w-6 sm:h-6 text-[#5FA04E]" />
+            <SiNodedotjs aria-hidden="true" title="Node.js" className="w-5 h-5 sm:w-6 sm:h-6 text-[#5FA04E]" />
           </Circle>
         </div>
       </div>

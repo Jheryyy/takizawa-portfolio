@@ -176,7 +176,7 @@ export function ProjectsSection({
                 onClick={() => onSelectCategory(opt.value)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   selectedCategory === opt.value
-                    ? 'bg-primary text-white shadow-sm'
+                    ? 'bg-primary text-neutral-950 font-black shadow-sm'
                     : 'bg-surface border border-hairline text-black dark:text-muted hover:text-primary'
                 }`}
               >

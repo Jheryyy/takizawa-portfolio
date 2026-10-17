@@ -360,13 +360,13 @@ export function GuestbookSection({ onNotifyToast }: GuestbookSectionProps) {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full group flex items-center justify-between bg-primary hover:bg-tertiary text-white font-semibold text-sm pl-6 pr-2 py-2 rounded-full orange-glow-hover transition-all cursor-pointer shadow-md disabled:opacity-50"
+              className="w-full group flex items-center justify-between bg-primary hover:bg-tertiary text-neutral-950 font-bold text-sm pl-6 pr-2 py-2 rounded-full orange-glow-hover transition-all cursor-pointer shadow-md disabled:opacity-50"
             >
-              <span className="text-white font-bold">
+              <span className="text-neutral-950 font-black">
                 {submitting ? 'Mengirim...' : 'Sign Guestbook'}
               </span>
-              <span className="w-9 h-9 rounded-full bg-white text-canvas flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
-                <Send className="w-4 h-4 text-canvas" />
+              <span className="w-9 h-9 rounded-full bg-neutral-950 text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
+                <Send className="w-4 h-4 text-white" />
               </span>
             </button>
           </form>
@@ -440,7 +440,7 @@ export function GuestbookSection({ onNotifyToast }: GuestbookSectionProps) {
                         }}
                         className={`px-2.5 py-1 rounded-full border text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer ${
                           replyingToId === entry.id
-                            ? 'bg-primary text-white border-primary font-bold'
+                            ? 'bg-primary text-neutral-950 border-primary font-black'
                             : 'bg-elevated border-hairline text-black dark:text-muted hover:text-primary hover:border-primary/50'
                         }`}
                       >
@@ -519,7 +519,7 @@ export function GuestbookSection({ onNotifyToast }: GuestbookSectionProps) {
                         <button
                           type="submit"
                           disabled={submittingReply}
-                          className="px-4 py-1.5 rounded-lg bg-primary hover:bg-tertiary text-white font-mono text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                          className="px-4 py-1.5 rounded-lg bg-primary hover:bg-tertiary text-neutral-950 font-mono text-xs font-black transition-all shadow-sm cursor-pointer disabled:opacity-50"
                         >
                           {submittingReply ? 'Mengirim...' : 'Kirim Balasan'}
                         </button>
@@ -564,8 +564,8 @@ export function GuestbookSection({ onNotifyToast }: GuestbookSectionProps) {
 
                                 {/* Exclusive ADMIN Badge */}
                                 {reply.isAdmin && (
-                                  <span className="px-2 py-0.5 rounded-full bg-primary text-white font-mono text-[9px] font-bold uppercase tracking-wider shadow-xs flex items-center gap-1">
-                                    <ShieldCheck className="w-2.5 h-2.5" />
+                                  <span className="px-2 py-0.5 rounded-full bg-primary text-neutral-950 font-mono text-[9px] font-black uppercase tracking-wider shadow-xs flex items-center gap-1">
+                                    <ShieldCheck className="w-2.5 h-2.5 text-neutral-950" />
                                     ADMIN
                                   </span>
                                 )}

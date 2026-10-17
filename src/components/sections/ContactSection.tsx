@@ -257,10 +257,10 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3 rounded-full bg-primary hover:bg-tertiary text-white font-medium text-sm transition-all duration-300 orange-glow-hover cursor-pointer shadow-md disabled:opacity-60"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3 rounded-full bg-primary hover:bg-tertiary text-neutral-950 font-bold text-sm transition-all duration-300 orange-glow-hover cursor-pointer shadow-md disabled:opacity-60"
             >
-              <span>{submitting ? 'Sending...' : 'Send Message'}</span>
-              <Send className="w-4 h-4 text-white" />
+              <span className="font-bold text-neutral-950">{submitting ? 'Sending...' : 'Send Message'}</span>
+              <Send className="w-4 h-4 text-neutral-950" />
             </button>
           </form>
 
@@ -294,7 +294,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-canvas border border-hairline hover:border-[#E4405F]/60 text-xs font-mono text-black dark:text-white transition-all shadow-xs group"
               >
-                <SiInstagram className="w-3.5 h-3.5 text-[#E4405F]" />
+                <SiInstagram aria-hidden="true" title="Instagram" className="w-3.5 h-3.5 text-[#E4405F]" />
                 <span className="text-black dark:text-white font-medium">@abcdefghijherr</span>
                 <ArrowUpRight className="w-3 h-3 text-black dark:text-neutral-400 group-hover:text-[#E4405F]" />
               </a>
@@ -306,7 +306,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-canvas border border-hairline hover:border-black/60 dark:hover:border-white/60 text-xs font-mono text-black dark:text-white transition-all shadow-xs group"
               >
-                <SiTiktok className="w-3.5 h-3.5 text-black dark:text-white" />
+                <SiTiktok aria-hidden="true" title="TikTok" className="w-3.5 h-3.5 text-black dark:text-white" />
                 <span className="text-black dark:text-white font-medium">abcdefghijherr</span>
                 <ArrowUpRight className="w-3 h-3 text-black dark:text-neutral-400 group-hover:text-primary" />
               </a>

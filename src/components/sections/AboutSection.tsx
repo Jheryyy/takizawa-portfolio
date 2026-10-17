@@ -82,7 +82,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
               stagger={0.022}
               duration={0.8}
               smoothing={0}
-              baseOpacity={isLight ? 0.35 : 0.18}
+              baseOpacity={isLight ? 0.65 : 0.6}
               baseRotation={0}
               baseOffset={0}
               enableBlur={!isLight}
@@ -102,7 +102,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
               stagger={0.02}
               duration={0.8}
               smoothing={0}
-              baseOpacity={isLight ? 0.35 : 0.18}
+              baseOpacity={isLight ? 0.65 : 0.6}
               baseRotation={0}
               baseOffset={0}
               enableBlur={false}
@@ -124,11 +124,11 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
                 <Link
                   href="/about"
                   onClick={() => onOpenDetailAbout?.()}
-                  className="group inline-flex items-center gap-3 bg-primary hover:bg-tertiary text-white font-medium text-xs sm:text-sm pl-5 pr-1.5 py-1.5 rounded-full orange-glow-hover transition-all cursor-pointer shadow-md"
+                  className="group inline-flex items-center gap-3 bg-primary hover:bg-tertiary text-neutral-950 font-bold text-xs sm:text-sm pl-5 pr-1.5 py-1.5 rounded-full orange-glow-hover transition-all cursor-pointer shadow-md"
                 >
-                  <span className="text-white">Detail Profile &amp; CV</span>
-                  <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white text-canvas flex items-center justify-center transition-transform duration-300 group-hover:-rotate-45">
-                    <ArrowUpRight className="w-4 h-4 text-canvas" />
+                  <span className="text-neutral-950 font-black">Detail Profile &amp; CV</span>
+                  <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center transition-transform duration-300 group-hover:-rotate-45">
+                    <ArrowUpRight className="w-4 h-4 text-white" />
                   </span>
                 </Link>
               </div>

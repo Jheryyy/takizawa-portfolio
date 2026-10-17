@@ -73,7 +73,7 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
             <Link href="/#home" className="hover:text-primary transition-colors">
               Home
             </Link>
-            <Link href="/about" className="hover:text-primary transition-colors">
+            <Link href="/#about" className="hover:text-primary transition-colors">
               About
             </Link>
             <Link href="/#projects" className="hover:text-primary transition-colors">
@@ -92,7 +92,7 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
               rel="noreferrer"
               className="text-black dark:text-white/80 hover:text-[#E4405F] transition-colors flex items-center gap-1.5"
             >
-              <SiInstagram className="w-3.5 h-3.5 text-black dark:text-white/80" />
+              <SiInstagram aria-hidden="true" title="Instagram" className="w-3.5 h-3.5 text-black dark:text-white/80" />
               <span>Instagram</span>
             </a>
             <a
@@ -101,7 +101,7 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
               rel="noreferrer"
               className="text-black dark:text-white/80 hover:text-primary transition-colors flex items-center gap-1.5"
             >
-              <SiTiktok className="w-3.5 h-3.5 text-black dark:text-white/80" />
+              <SiTiktok aria-hidden="true" title="TikTok" className="w-3.5 h-3.5 text-black dark:text-white/80" />
               <span>TikTok</span>
             </a>
           </div>
