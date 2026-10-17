@@ -124,11 +124,10 @@ export function Navbar() {
             <AnimatedThemeToggler
               theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
               onThemeChange={setTheme}
-              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border transition-all duration-300 shadow-sm ${
-                resolvedTheme === 'dark'
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border transition-all duration-300 shadow-sm ${resolvedTheme === 'dark'
                   ? 'bg-[#1C1C1C] border-amber-400/30 text-amber-400 hover:border-amber-400 hover:bg-[#252525] hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]'
                   : 'bg-white border-neutral-300 text-black hover:border-black hover:bg-neutral-50 shadow-sm'
-              }`}
+                }`}
             />
           )}
 

@@ -163,11 +163,10 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
                   <button
                     key={cat}
                     onClick={() => setActiveSkillCategory(cat)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all capitalize cursor-pointer ${
-                      activeSkillCategory === cat
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all capitalize cursor-pointer ${activeSkillCategory === cat
                         ? 'bg-primary text-white shadow-sm'
                         : 'text-black dark:text-muted hover:text-primary'
-                    }`}
+                      }`}
                   >
                     {cat === 'uiux' ? 'UI/UX' : cat}
                   </button>

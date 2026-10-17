@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: dark;
+}
+
 @theme {
   --color-primary: #FF5A1F;
   --color-tertiary: #FF8552;
@@ -26,6 +32,7 @@ body {
 
 /* Light Mode Overrides */
 html.light {
+  color-scheme: light;
   --color-canvas: #FAFAFA;
   --color-surface: #FFFFFF;
   --color-elevated: #F3F4F6;
@@ -93,7 +100,7 @@ html.light .scroll-reveal-text {
 
 /* LogoLoop background is pure white in light mode */
 html.light .hero-logoloop-strip,
-html.light .hero-logoloop-strip > div,
+html.light .hero-logoloop-strip>div,
 html.light .hero-logoloop-strip [role="region"],
 html.light .hero-logoloop-strip [role="list"],
 html.light .hero-logoloop-strip [role="listitem"] {
@@ -128,29 +135,25 @@ html.light p.text-primary {
 
 /* Orange gradient graduating into pure white at the bottom in light mode */
 html.light .studio-hero-gradient {
-  background: linear-gradient(
-    180deg,
-    #FF5A1F 0%,
-    #FF6E38 18%,
-    #FF8859 36%,
-    #FFA883 54%,
-    #FFCCA8 70%,
-    #FFE6D6 84%,
-    #FFF6F0 93%,
-    #FFFFFF 100%
-  );
+  background: linear-gradient(180deg,
+      #FF5A1F 0%,
+      #FF6E38 18%,
+      #FF8859 36%,
+      #FFA883 54%,
+      #FFCCA8 70%,
+      #FFE6D6 84%,
+      #FFF6F0 93%,
+      #FFFFFF 100%);
 }
 
 /* Ambient studio backdrop inspired by the Framer reference */
 .studio-hero-gradient {
-  background: radial-gradient(
-    circle at 28% 22%,
-    rgba(255, 115, 55, 0.95) 0%,
-    rgba(255, 90, 31, 0.82) 25%,
-    rgba(168, 38, 12, 0.55) 52%,
-    rgba(20, 12, 10, 0.96) 82%,
-    #0D0A09 100%
-  );
+  background: radial-gradient(circle at 28% 22%,
+      rgba(255, 115, 55, 0.95) 0%,
+      rgba(255, 90, 31, 0.82) 25%,
+      rgba(168, 38, 12, 0.55) 52%,
+      rgba(20, 12, 10, 0.96) 82%,
+      #0D0A09 100%);
 }
 
 .orange-glow-hover:hover {
@@ -218,6 +221,7 @@ html.light ::-webkit-scrollbar-thumb {
 
 /* Mobile Performance Optimizations */
 @media (max-width: 767px) {
+
   /* Prevent horizontal scroll hitching and improve touch responsiveness */
   html,
   body {

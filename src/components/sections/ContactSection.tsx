@@ -143,9 +143,9 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
             {shouldLoadLanyard ? (
               <div className="w-full h-full relative flex items-center justify-center">
                 <Lanyard
-                  frontImage="/card-front.jpg"
-                  backImage="/card-back.jpg"
-                  strapImage="/band.png"
+                  frontImage="/card-front.webp"
+                  backImage="/card-back.webp"
+                  strapImage="/band.webp"
                   imageFit="cover"
                   cardColor="#ffffff"
                   orientation="portrait"

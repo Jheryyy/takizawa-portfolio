@@ -1,11 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/layout/Navbar";
-import TargetCursor from "@/components/ui/TargetCursor";
-import VideoSplashScreen from "@/components/ui/VideoSplashScreen";
-import MusicPlayer from "@/components/ui/MusicPlayer";
+import { ClientEnhancements } from "@/components/layout/ClientEnhancements";
 import LiquidTransitionProvider from "@/components/ui/LiquidTransition";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -31,6 +29,11 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://jtakizawa.my.id';
+
+export const viewport: Viewport = {
+  themeColor: '#0A0A0A',
+  colorScheme: 'dark',
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -106,8 +109,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/card-front.jpg',
-    apple: '/card-front.jpg',
+    icon: '/card-front.webp',
+    apple: '/card-front.webp',
   },
   verification: {
     google: ['google285a3d20eceda9a1', 'google285a3d20eceda9a1.html'],
@@ -139,7 +142,7 @@ const jsonLd = {
       ],
       jobTitle: 'Frontend Developer & UI/UX Architect',
       url: siteUrl,
-      image: `${siteUrl}/card-front.jpg`,
+      image: `${siteUrl}/card-front.webp`,
       email: 'mailto:jherycotakizawa@gmail.com',
       alumniOf: {
         '@type': 'EducationalOrganization',
@@ -191,7 +194,7 @@ const jsonLd = {
       about: {
         '@id': `${siteUrl}/#person`,
       },
-      primaryImageOfPage: `${siteUrl}/card-front.jpg`,
+      primaryImageOfPage: `${siteUrl}/card-front.webp`,
     },
   ],
 };
@@ -214,19 +217,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <LiquidTransitionProvider>
-            <MusicPlayer />
-            <VideoSplashScreen />
-            <TargetCursor
-              spinDuration={0}
-              hideDefaultCursor
-              parallaxOn
-              hoverDuration={0.35}
-              size={30}
-              cornerSize={10}
-              thickness={1.5}
-              padding={8}
-              targetSelector="a, button, input, textarea, select, [role='button'], .cursor-target"
-            />
+            <ClientEnhancements />
             <Navbar />
             <div className="flex-1 w-full">
               {children}

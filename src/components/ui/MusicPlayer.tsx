@@ -36,7 +36,7 @@ export function MusicPlayer() {
     const handleEnded = () => {
       try {
         audio.currentTime = 17;
-        audio.play().catch(() => {});
+        audio.play().catch(() => { });
       } catch {
         // Ignored
       }
@@ -56,52 +56,12 @@ export function MusicPlayer() {
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
 
-    // Try to play on explicit gesture (during splash screen or initial user interaction)
-    const tryPlay = () => {
-      if (audio.preload !== 'auto') {
-        audio.preload = 'auto';
-      }
-      setStartSecond();
-      if (audio.paused) {
-        audio
-          .play()
-          .then(() => {
-            setIsPlaying(true);
-            cleanupAutoPlayListeners();
-          })
-          .catch(() => {
-            // Autoplay blocked until trusted user gesture
-          });
-      }
-    };
-
-    // Attach interaction listeners to play once user interacts
-    const interactionEvents = ['click', 'touchstart', 'keydown', 'pointerdown'];
-
-    const cleanupAutoPlayListeners = () => {
-      interactionEvents.forEach(evt => {
-        window.removeEventListener(evt, tryPlay);
-      });
-    };
-
-    interactionEvents.forEach(evt => {
-      window.addEventListener(evt, tryPlay, { passive: true, once: true });
-    });
-
-    const handleStartMusicEvent = () => {
-      tryPlay();
-    };
-
-    window.addEventListener('start-music', handleStartMusicEvent);
-
     return () => {
       audio.removeEventListener('loadedmetadata', setStartSecond);
       audio.removeEventListener('canplay', setStartSecond);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
-      window.removeEventListener('start-music', handleStartMusicEvent);
-      cleanupAutoPlayListeners();
       audio.pause();
       audio.src = '';
     };
@@ -173,24 +133,20 @@ export function MusicPlayer() {
         {/* Animated Sound Wave Equalizer Bars */}
         <div className="flex items-end gap-1 h-4 px-0.5 shrink-0">
           <span
-            className={`w-0.5 rounded-full bg-primary transition-all duration-200 ${
-              isPlaying ? 'animate-[bounce_0.8s_ease-in-out_infinite] h-3.5' : 'h-1.5 opacity-40'
-            }`}
+            className={`w-0.5 rounded-full bg-primary transition-all duration-200 ${isPlaying ? 'animate-[bounce_0.8s_ease-in-out_infinite] h-3.5' : 'h-1.5 opacity-40'
+              }`}
           />
           <span
-            className={`w-0.5 rounded-full bg-primary transition-all duration-200 ${
-              isPlaying ? 'animate-[bounce_1.1s_ease-in-out_0.2s_infinite] h-4' : 'h-2 opacity-40'
-            }`}
+            className={`w-0.5 rounded-full bg-primary transition-all duration-200 ${isPlaying ? 'animate-[bounce_1.1s_ease-in-out_0.2s_infinite] h-4' : 'h-2 opacity-40'
+              }`}
           />
           <span
-            className={`w-0.5 rounded-full bg-primary transition-all duration-200 ${
-              isPlaying ? 'animate-[bounce_0.9s_ease-in-out_0.4s_infinite] h-2.5' : 'h-1 opacity-40'
-            }`}
+            className={`w-0.5 rounded-full bg-primary transition-all duration-200 ${isPlaying ? 'animate-[bounce_0.9s_ease-in-out_0.4s_infinite] h-2.5' : 'h-1 opacity-40'
+              }`}
           />
           <span
-            className={`w-0.5 rounded-full bg-primary transition-all duration-200 ${
-              isPlaying ? 'animate-[bounce_1.2s_ease-in-out_0.1s_infinite] h-3.5' : 'h-2 opacity-40'
-            }`}
+            className={`w-0.5 rounded-full bg-primary transition-all duration-200 ${isPlaying ? 'animate-[bounce_1.2s_ease-in-out_0.1s_infinite] h-3.5' : 'h-2 opacity-40'
+              }`}
           />
         </div>
 
