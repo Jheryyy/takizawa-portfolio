@@ -77,42 +77,42 @@ export function Navbar() {
           <Link
             href="/#home"
             onClick={handleNavClick('/#home', 'HOME')}
-            className="hover:text-primary transition-colors cursor-pointer"
+            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
           >
             Home
           </Link>
           <Link
             href="/#about"
             onClick={handleNavClick('/#about', 'ABOUT')}
-            className="hover:text-primary transition-colors cursor-pointer"
+            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
           >
             About
           </Link>
           <Link
             href="/about"
             onClick={handleNavClick('/about', 'DETAIL')}
-            className="hover:text-primary transition-colors cursor-pointer"
+            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
           >
             Detail
           </Link>
           <Link
             href="/#projects"
             onClick={handleNavClick('/#projects', 'PROJECTS')}
-            className="hover:text-primary transition-colors cursor-pointer"
+            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
           >
             Projects
           </Link>
           <Link
             href="/#guestbook"
             onClick={handleNavClick('/#guestbook', 'GUESTBOOK')}
-            className="hover:text-primary transition-colors cursor-pointer"
+            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
           >
             Guestbook
           </Link>
           <Link
             href="/#contact"
             onClick={handleNavClick('/#contact', 'CONTACT')}
-            className="hover:text-primary transition-colors cursor-pointer"
+            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
           >
             Contact
           </Link>

@@ -199,65 +199,69 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90">
+                <label htmlFor="contact-name" className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90 cursor-pointer">
                   Your Name <span className="text-primary">*</span>
                 </label>
                 <input
+                  id="contact-name"
                   type="text"
                   required
                   placeholder="e.g. Alex Pratama"
                   value={formState.name}
                   onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors"
+                  className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90">
+                <label htmlFor="contact-email" className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90 cursor-pointer">
                   Email Address <span className="text-primary">*</span>
                 </label>
                 <input
+                  id="contact-email"
                   type="email"
                   required
                   placeholder="alex@company.com"
                   value={formState.email}
                   onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors"
+                  className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90">
+              <label htmlFor="contact-subject" className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90 cursor-pointer">
                 Subject / Project Interest
               </label>
               <input
+                id="contact-subject"
                 type="text"
                 placeholder="e.g. Frontend Engineering Collaboration"
                 value={formState.subject}
                 onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors"
+                className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90">
+              <label htmlFor="contact-message" className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90 cursor-pointer">
                 Message <span className="text-primary">*</span>
               </label>
               <textarea
+                id="contact-message"
                 required
                 rows={4}
                 placeholder="Tell me about your idea, timeline, or requirements..."
                 value={formState.message}
                 onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm resize-none transition-colors"
+                className="w-full px-4 py-3 min-h-[120px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm resize-none transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3 rounded-full bg-primary hover:bg-tertiary text-neutral-950 font-bold text-sm transition-all duration-300 orange-glow-hover cursor-pointer shadow-md disabled:opacity-60"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3 min-h-[48px] rounded-full bg-primary hover:bg-tertiary text-neutral-950 font-bold text-sm transition-all duration-300 orange-glow-hover cursor-pointer shadow-md disabled:opacity-60"
             >
               <span className="font-bold text-neutral-950">{submitting ? 'Sending...' : 'Send Message'}</span>
               <Send className="w-4 h-4 text-neutral-950" />
@@ -292,6 +296,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 href="https://instagram.com/abcdefghijherr"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Instagram"
                 className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-[#E4405F]/60 text-xs font-mono text-black dark:text-white transition-all shadow-xs group"
               >
                 <SiInstagram aria-hidden="true" title="Instagram" className="w-3.5 h-3.5 text-[#E4405F]" />
@@ -304,6 +309,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 href="https://www.tiktok.com/@abcdefghijherr"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="TikTok"
                 className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-black/60 dark:hover:border-white/60 text-xs font-mono text-black dark:text-white transition-all shadow-xs group"
               >
                 <SiTiktok aria-hidden="true" title="TikTok" className="w-3.5 h-3.5 text-black dark:text-white" />

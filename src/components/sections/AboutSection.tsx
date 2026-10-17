@@ -62,7 +62,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
               stagger={0.06}
               duration={0.8}
               smoothing={0}
-              baseOpacity={isLight ? 0.35 : 0.18}
+              baseOpacity={isLight ? 0.65 : 0.6}
               baseRotation={0}
               baseOffset={0}
               enableBlur={!isLight}
@@ -171,8 +171,8 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
                   <button
                     key={cat}
                     onClick={() => setActiveSkillCategory(cat)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all capitalize cursor-pointer ${activeSkillCategory === cat
-                        ? 'bg-primary text-white shadow-sm'
+                    className={`px-3.5 py-1.5 min-h-[36px] rounded-full text-xs font-semibold transition-all capitalize cursor-pointer ${activeSkillCategory === cat
+                        ? 'bg-primary text-neutral-950 font-bold shadow-sm'
                         : 'text-black dark:text-muted hover:text-primary'
                       }`}
                   >
