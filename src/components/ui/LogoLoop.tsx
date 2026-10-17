@@ -309,7 +309,7 @@ export const LogoLoop = React.memo<LogoLoopProps>(
     }, [effectiveHoverSpeed]);
 
     const renderLogoItem = useCallback(
-      (item: LogoItem, key: React.Key) => {
+      (item: LogoItem, key: React.Key, isDuplicate = false) => {
         if (renderItem) {
           return (
             <li
@@ -379,6 +379,7 @@ export const LogoLoop = React.memo<LogoLoopProps>(
             aria-label={itemAriaLabel || 'logo link'}
             target="_blank"
             rel="noreferrer noopener"
+            tabIndex={isDuplicate ? -1 : undefined}
           >
             {content}
           </a>
@@ -410,10 +411,13 @@ export const LogoLoop = React.memo<LogoLoopProps>(
             className={cx('flex items-center', isVertical && 'flex-col')}
             key={`copy-${copyIndex}`}
             role="list"
-            aria-hidden={copyIndex > 0}
+            aria-hidden={copyIndex > 0 ? true : undefined}
+            inert={copyIndex > 0 ? true : undefined}
             ref={copyIndex === 0 ? seqRef : undefined}
           >
-            {logos.map((item, itemIndex) => renderLogoItem(item, `${copyIndex}-${itemIndex}`))}
+            {logos.map((item, itemIndex) =>
+              renderLogoItem(item, `${copyIndex}-${itemIndex}`, copyIndex > 0)
+            )}
           </ul>
         )),
       [copyCount, logos, renderLogoItem, isVertical]

@@ -348,12 +348,12 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
     <Component
       ref={containerRef as any}
       className={`my-5 ${containerClassName}`}
-      aria-label={text ?? undefined}
     >
+      {text && <span className="sr-only">{text}</span>}
       <span
         ref={textRef}
         className={`block leading-[1.6] ${defaultSize} ${textClassName}`}
-        aria-hidden={text === null ? undefined : true}
+        aria-hidden={text ? true : undefined}
       >
         {splitText ?? children}
       </span>

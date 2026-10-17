@@ -7,7 +7,6 @@ import { X, ArrowUpRight } from 'lucide-react';
 function GithubIcon({ className }: { className?: string }) {
   return (
     <svg
-      role="img"
       viewBox="0 0 24 24"
       fill="currentColor"
       className={className}

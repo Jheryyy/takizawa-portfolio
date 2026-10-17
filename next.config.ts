@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
       "lucide-react",
       "react-icons",
       "motion",
+      "gsap",
+      "three",
+      "@react-three/fiber",
+      "@react-three/drei",
     ],
   },
   images: {

@@ -1,16 +1,38 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { ProjectCategory } from '@/types/portfolio';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
-import { CrossedScrollVelocity } from '@/components/sections/CrossedScrollVelocity';
-import { GuestbookSection } from '@/components/sections/GuestbookSection';
-import { ContactSection } from '@/components/sections/ContactSection';
 import { FooterSection } from '@/components/sections/FooterSection';
 import { Toast } from '@/components/ui/Toast';
 import ScrollStack, { ScrollStackItem } from '@/components/ui/ScrollStack';
+
+const CrossedScrollVelocity = dynamic(
+  () => import('@/components/sections/CrossedScrollVelocity').then((mod) => mod.CrossedScrollVelocity),
+  {
+    loading: () => <div className="min-h-[170px]" />,
+    ssr: false,
+  }
+);
+
+const GuestbookSection = dynamic(
+  () => import('@/components/sections/GuestbookSection').then((mod) => mod.GuestbookSection),
+  {
+    loading: () => <div className="min-h-[300px]" />,
+    ssr: false,
+  }
+);
+
+const ContactSection = dynamic(
+  () => import('@/components/sections/ContactSection').then((mod) => mod.ContactSection),
+  {
+    loading: () => <div className="min-h-[400px]" />,
+    ssr: false,
+  }
+);
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<ProjectCategory | 'All'>('All');

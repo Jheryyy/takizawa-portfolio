@@ -68,6 +68,8 @@ export function HeroSection({ onSelectCategory }: HeroSectionProps) {
           duration: 0.75,
           stagger: 0.08,
           ease: 'power2.out',
+          force3D: true,
+          clearProps: 'transform',
         },
         '-=0.45'
       );
@@ -163,65 +165,73 @@ export function HeroSection({ onSelectCategory }: HeroSectionProps) {
           <div className="relative z-20 mt-16 sm:mt-24 pt-8 pb-10 sm:pb-16 border-t border-neutral-300/60 dark:border-white/10 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             <button
               type="button"
-              className="hero-service-item group text-left cursor-pointer focus:outline-none transition-transform duration-300 hover:-translate-y-0.5"
+              className="hero-service-item group text-left cursor-pointer focus:outline-none will-change-transform min-h-[48px] py-1"
               onClick={() => handleServiceClick('Frontend Web')}
             >
-              <p className="font-mono text-xs font-extrabold text-primary tracking-wider transition-colors group-hover:text-tertiary">
-                01
-              </p>
-              <p className="mt-1.5 text-xs sm:text-sm font-bold text-black dark:text-white/90 group-hover:text-primary transition-colors">
-                Frontend Engineering
-              </p>
-              <p className="text-[11px] text-black/70 dark:text-muted mt-0.5 line-clamp-1 font-medium">
-                Next.js 15 &bull; React 19 &bull; TS
-              </p>
+              <div className="transition-transform duration-300 group-hover:-translate-y-0.5">
+                <p className="font-mono text-xs font-extrabold text-primary tracking-wider transition-colors group-hover:text-tertiary">
+                  01
+                </p>
+                <p className="mt-1.5 text-xs sm:text-sm font-bold text-neutral-900 dark:text-white/90 group-hover:text-primary transition-colors">
+                  Frontend Engineering
+                </p>
+                <p className="text-[11px] text-neutral-600 dark:text-neutral-400 mt-0.5 line-clamp-1 font-medium">
+                  Next.js 15 &bull; React 19 &bull; TS
+                </p>
+              </div>
             </button>
 
             <button
               type="button"
-              className="hero-service-item group text-left cursor-pointer focus:outline-none transition-transform duration-300 hover:-translate-y-0.5"
+              className="hero-service-item group text-left cursor-pointer focus:outline-none will-change-transform min-h-[48px] py-1"
               onClick={() => handleServiceClick('UI/UX Case Study')}
             >
-              <p className="font-mono text-xs font-extrabold text-primary tracking-wider transition-colors group-hover:text-tertiary">
-                02
-              </p>
-              <p className="mt-1.5 text-xs sm:text-sm font-bold text-black dark:text-white/90 group-hover:text-primary transition-colors">
-                UI/UX Architecture
-              </p>
-              <p className="text-[11px] text-black/70 dark:text-muted mt-0.5 line-clamp-1 font-medium">
-                Figma &bull; Design Tokens &bull; a11y
-              </p>
+              <div className="transition-transform duration-300 group-hover:-translate-y-0.5">
+                <p className="font-mono text-xs font-extrabold text-primary tracking-wider transition-colors group-hover:text-tertiary">
+                  02
+                </p>
+                <p className="mt-1.5 text-xs sm:text-sm font-bold text-neutral-900 dark:text-white/90 group-hover:text-primary transition-colors">
+                  UI/UX Architecture
+                </p>
+                <p className="text-[11px] text-neutral-600 dark:text-neutral-400 mt-0.5 line-clamp-1 font-medium">
+                  Figma &bull; Design Tokens &bull; a11y
+                </p>
+              </div>
             </button>
 
             <button
               type="button"
-              className="hero-service-item group text-left cursor-pointer focus:outline-none transition-transform duration-300 hover:-translate-y-0.5"
+              className="hero-service-item group text-left cursor-pointer focus:outline-none will-change-transform min-h-[48px] py-1"
               onClick={() => handleServiceClick('Fullstack')}
             >
-              <p className="font-mono text-xs font-extrabold text-primary tracking-wider transition-colors group-hover:text-tertiary">
-                03
-              </p>
-              <p className="mt-1.5 text-xs sm:text-sm font-bold text-black dark:text-white/90 group-hover:text-primary transition-colors">
-                Interactive Web Apps
-              </p>
-              <p className="text-[11px] text-black/70 dark:text-muted mt-0.5 line-clamp-1 font-medium">
-                Fullstack &bull; APIs &bull; Motion
-              </p>
+              <div className="transition-transform duration-300 group-hover:-translate-y-0.5">
+                <p className="font-mono text-xs font-extrabold text-primary tracking-wider transition-colors group-hover:text-tertiary">
+                  03
+                </p>
+                <p className="mt-1.5 text-xs sm:text-sm font-bold text-neutral-900 dark:text-white/90 group-hover:text-primary transition-colors">
+                  Interactive Web Apps
+                </p>
+                <p className="text-[11px] text-neutral-600 dark:text-neutral-400 mt-0.5 line-clamp-1 font-medium">
+                  Fullstack &bull; APIs &bull; Motion
+                </p>
+              </div>
             </button>
 
             <Link
               href="/about"
-              className="hero-service-item group text-left cursor-pointer focus:outline-none block transition-transform duration-300 hover:-translate-y-0.5"
+              className="hero-service-item group text-left cursor-pointer focus:outline-none block will-change-transform min-h-[48px] py-1"
             >
-              <p className="font-mono text-xs font-extrabold text-primary tracking-wider transition-colors group-hover:text-tertiary">
-                04
-              </p>
-              <p className="mt-1.5 text-xs sm:text-sm font-bold text-black dark:text-white/90 group-hover:text-primary transition-colors">
-                Credentials &amp; About
-              </p>
-              <p className="text-[11px] text-black/70 dark:text-muted mt-0.5 line-clamp-1 font-medium">
-                Full Resume &bull; Education &bull; Path
-              </p>
+              <div className="transition-transform duration-300 group-hover:-translate-y-0.5">
+                <p className="font-mono text-xs font-extrabold text-primary tracking-wider transition-colors group-hover:text-tertiary">
+                  04
+                </p>
+                <p className="mt-1.5 text-xs sm:text-sm font-bold text-neutral-900 dark:text-white/90 group-hover:text-primary transition-colors">
+                  Credentials &amp; About
+                </p>
+                <p className="text-[11px] text-neutral-600 dark:text-neutral-400 mt-0.5 line-clamp-1 font-medium">
+                  Full Resume &bull; Education &bull; Path
+                </p>
+              </div>
             </Link>
           </div>
         </div>

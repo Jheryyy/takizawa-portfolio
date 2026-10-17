@@ -181,10 +181,20 @@ export const ScrollStack = ({
       const offset = settings.itemStackDistance;
       const heights = slots.map(slot => slot.offsetHeight);
       const tops = slots.map(slot => slot.getBoundingClientRect().top);
+      const innerTop = inner.getBoundingClientRect().top;
+      const scrollPos = readScroll();
       const lastPin = stackTop + (slots.length - 1) * offset;
       const padTop = windowed ? 0 : stackTop;
       const endHeight =
         settings.holdDistance + (windowed ? 0 : Math.max(0, viewHeight - lastPin - heights[heights.length - 1]));
+
+      let flow = innerTop - viewTop + scrollPos + padTop;
+      points = heights.map((height, i) => {
+        const point = flow - stackTop - i * offset;
+        flow += height + settings.itemDistance;
+        return point;
+      });
+      reach = Math.max(40, (heights[0] + settings.itemDistance - offset) / 2);
 
       let moved = write('padTop', padTop, value => {
         inner.style.paddingTop = `${value}px`;
@@ -193,14 +203,6 @@ export const ScrollStack = ({
         write('endHeight', endHeight, value => {
           end.style.height = `${value}px`;
         }) || moved;
-
-      let flow = inner.getBoundingClientRect().top - viewTop + readScroll() + padTop;
-      points = heights.map((height, i) => {
-        const point = flow - stackTop - i * offset;
-        flow += height + settings.itemDistance;
-        return point;
-      });
-      reach = Math.max(40, (heights[0] + settings.itemDistance - offset) / 2);
 
       const depths = slots.map(() => 0);
       let lastCover = 0;

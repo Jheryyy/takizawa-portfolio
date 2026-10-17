@@ -162,13 +162,13 @@ export function MusicPlayer() {
         <button
           type="button"
           onClick={toggleMute}
-          className="p-1 rounded-full text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors cursor-pointer shrink-0 ml-0.5"
+          className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0"
           aria-label={isMuted ? 'Unmute music' : 'Mute music'}
         >
           {isMuted ? (
-            <VolumeX className="w-3.5 h-3.5 text-red-500" />
+            <VolumeX className="w-4 h-4 text-red-500" />
           ) : (
-            <Volume2 className="w-3.5 h-3.5" />
+            <Volume2 className="w-4 h-4" />
           )}
         </button>
       </div>

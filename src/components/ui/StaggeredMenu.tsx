@@ -483,7 +483,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
               aria-label="Main navigation header"
             >
               {!hideLogo ? (
-                <div className="sm-logo flex items-center select-none pointer-events-auto" aria-label="Logo">
+                <div className="sm-logo flex items-center select-none pointer-events-auto">
                   {logoUrl ? (
                     <img
                       src={logoUrl}
@@ -527,6 +527,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
             className="staggered-menu-panel absolute top-0 right-0 h-full bg-white flex flex-col p-[6em_2em_2.5em_2.5em] overflow-y-auto z-10 backdrop-blur-[16px] pointer-events-auto shadow-2xl"
             style={{ WebkitBackdropFilter: 'blur(16px)' }}
             aria-hidden={!open}
+            inert={!open ? true : undefined}
           >
             <div className="sm-panel-inner flex-1 flex flex-col justify-between gap-6">
               <ul
@@ -541,6 +542,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                         className="sm-panel-item relative text-black font-extrabold text-[2.75rem] sm:text-[3.5rem] cursor-pointer leading-tight tracking-[-1.5px] uppercase transition-[background,color] duration-150 ease-linear inline-block no-underline pr-[1.4em] hover:text-[var(--sm-accent,#F97316)]"
                         href={it.link}
                         aria-label={it.ariaLabel}
+                        tabIndex={open ? 0 : -1}
                         data-index={idx + 1}
                         onClick={(e) => {
                           if (onItemClick) {
@@ -559,7 +561,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                     </li>
                   ))
                 ) : (
-                  <li className="sm-panel-itemWrap relative overflow-hidden leading-none" aria-hidden="true">
+                  <li className="sm-panel-itemWrap relative overflow-hidden leading-none">
                     <span className="sm-panel-item relative text-black font-semibold text-[3.5rem] cursor-pointer leading-none tracking-[-2px] uppercase transition-[background,color] duration-150 ease-linear inline-block no-underline pr-[1.4em]">
                       <span className="sm-panel-itemLabel inline-block [transform-origin:50%_100%] will-change-transform">
                         No items
@@ -570,7 +572,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
               </ul>
 
               {displaySocials && socialItems && socialItems.length > 0 && (
-                <div
+                <nav
                   className="sm-socials mt-auto pt-8 border-t border-neutral-200 flex flex-col gap-3"
                   aria-label="Social links"
                 >
@@ -587,6 +589,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                           href={s.link}
                           target="_blank"
                           rel="noopener noreferrer"
+                          tabIndex={open ? 0 : -1}
                           className="sm-socials-link text-[1.1rem] font-medium text-black dark:text-neutral-800 hover:text-[var(--sm-accent,#F97316)] no-underline relative inline-block py-[2px] transition-[color,opacity] duration-300 ease-linear"
                           onClick={closeMenu}
                         >
@@ -595,7 +598,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                       </li>
                     ))}
                   </ul>
-                </div>
+                </nav>
               )}
             </div>
           </aside>

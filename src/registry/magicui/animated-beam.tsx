@@ -94,9 +94,17 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
       setPathD(d)
     }
 
+    let rafId: number | null = null
+    const scheduleUpdate = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        updatePath()
+      })
+    }
+
     const resizeObserver = new ResizeObserver((entries) => {
       for (const _ of entries) {
-        updatePath()
+        scheduleUpdate()
       }
     })
 
@@ -104,13 +112,14 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
       resizeObserver.observe(containerRef.current)
     }
 
-    updatePath()
+    scheduleUpdate()
 
-    window.addEventListener("resize", updatePath)
+    window.addEventListener("resize", scheduleUpdate)
 
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
       resizeObserver.disconnect()
-      window.removeEventListener("resize", updatePath)
+      window.removeEventListener("resize", scheduleUpdate)
     }
   }, [
     containerRef,
