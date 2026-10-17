@@ -12,12 +12,11 @@ export function MusicPlayer() {
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    if (isAdminRoute) return;
+  const getAudio = () => {
+    if (audioRef.current) return audioRef.current;
     const audio = new Audio(encodeURI('/The Weeknd, Playboi Carti - Timeless.mp3'));
     audio.preload = 'none';
     audio.volume = 0.55;
-    audioRef.current = audio;
 
     const setStartSecond = () => {
       try {
@@ -56,29 +55,27 @@ export function MusicPlayer() {
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
 
+    audioRef.current = audio;
+    return audio;
+  };
+
+  useEffect(() => {
     return () => {
-      audio.removeEventListener('loadedmetadata', setStartSecond);
-      audio.removeEventListener('canplay', setStartSecond);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('play', handlePlay);
-      audio.removeEventListener('pause', handlePause);
-      audio.pause();
-      audio.src = '';
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
     };
   }, []);
 
   const togglePlay = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    const audio = audioRef.current;
-    if (!audio) return;
+    const audio = getAudio();
 
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
     } else {
-      if (audio.preload !== 'auto') {
-        audio.preload = 'auto';
-      }
       if (audio.currentTime < 17) {
         try {
           audio.currentTime = 17;

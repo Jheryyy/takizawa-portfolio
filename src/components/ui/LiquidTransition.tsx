@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import gsap from 'gsap';
 
 interface LiquidTransitionContextType {
   triggerTransition: (href: string, label?: string) => void;
@@ -30,7 +29,7 @@ export function LiquidTransitionProvider({ children }: { children: React.ReactNo
   const layer1Ref = useRef<SVGPathElement>(null);
   const layer2Ref = useRef<SVGPathElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const timelineRef = useRef<any>(null);
 
   // Helper to build path string from state
   const buildPath = (topY: number, c1: number, c2: number, botY: number) => {
@@ -69,7 +68,7 @@ export function LiquidTransitionProvider({ children }: { children: React.ReactNo
     }
   }, [pathname, router]);
 
-  const triggerTransition = useCallback((href: string, label?: string) => {
+  const triggerTransition = useCallback(async (href: string, label?: string) => {
     if (isTransitioning) return;
 
     // Detect section or page label if not passed
@@ -95,6 +94,8 @@ export function LiquidTransitionProvider({ children }: { children: React.ReactNo
     }
 
     setIsTransitioning(true);
+
+    const { default: gsap } = await import('gsap');
 
     // Initial values: both layers are below the viewport
     const l1 = { topY: 100, c1: 100, c2: 100, botY: 100 };

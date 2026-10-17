@@ -134,6 +134,7 @@ export const ScrollStack = ({
     const inner = innerRef.current;
     const end = endRef.current;
     if (!root || !inner || !end) return undefined;
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return undefined;
 
     const windowed = useWindowScroll;
     const target = windowed ? window : root;
@@ -375,7 +376,7 @@ export const ScrollStack = ({
               )}
               <div
                 data-stack-slot=""
-                className="sticky"
+                className="static md:sticky"
                 style={{
                   top: index === 0 ? 0 : `calc(${toLength(stackPosition)} + ${index * itemStackDistance}px)`,
                   marginBottom: (items.length - 1 - index) * itemStackDistance,
