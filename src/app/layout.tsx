@@ -207,7 +207,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://bpzsqyqyhawwosoyfveb.supabase.co" crossOrigin="" />
+        <link rel="preconnect" href="https://bpzsqyqyhawwosoyfveb.supabase.co" />
         <link rel="dns-prefetch" href="https://bpzsqyqyhawwosoyfveb.supabase.co" />
         <script
           type="application/ld+json"

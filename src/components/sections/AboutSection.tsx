@@ -7,12 +7,20 @@ import {
   Cpu,
   ArrowUpRight,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { SkillCategory } from '@/types/portfolio';
 import { skillsData } from '@/data/portfolio-data';
 import { techLogos } from '@/data/tech-logos';
 import LogoLoop from '@/components/ui/LogoLoop';
 import ScrollReveal from '@/components/ui/ScrollReveal';
-import { AnimatedBeamSkills } from '@/components/magicui/animated-beam-skills';
+
+const AnimatedBeamSkills = dynamic(
+  () => import('@/components/magicui/animated-beam-skills').then((mod) => mod.AnimatedBeamSkills),
+  {
+    loading: () => <div className="min-h-[260px] w-full" />,
+    ssr: false,
+  }
+);
 
 interface AboutSectionProps {
   onOpenDetailAbout?: () => void;

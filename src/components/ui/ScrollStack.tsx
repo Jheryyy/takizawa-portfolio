@@ -247,7 +247,7 @@ export const ScrollStack = ({
         if (done) settings.onStackComplete?.();
       }
 
-      if (moved) schedule();
+      // ResizeObserver already handles container geometry changes; do not force back-to-back rAF layout cycle
     };
 
     const schedule = () => {

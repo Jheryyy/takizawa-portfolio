@@ -131,21 +131,6 @@ export function GuestbookSection({ onNotifyToast }: GuestbookSectionProps) {
 
   useEffect(() => {
     fetchApprovedGuestbook();
-
-    const channel = supabase
-      .channel('guestbook-feed')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'guestbook' },
-        () => {
-          fetchApprovedGuestbook();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [fetchApprovedGuestbook]);
 
   const handleSubmit = async (e: React.FormEvent) => {

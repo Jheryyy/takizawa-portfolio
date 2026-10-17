@@ -120,13 +120,13 @@ export function MusicPlayer() {
         <button
           type="button"
           onClick={togglePlay}
-          className="w-8 h-8 rounded-full bg-primary hover:bg-tertiary text-white flex items-center justify-center transition-transform hover:scale-110 active:scale-95 shadow-md shrink-0 cursor-pointer"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-primary hover:bg-tertiary text-white flex items-center justify-center transition-transform hover:scale-110 active:scale-95 shadow-md shrink-0 cursor-pointer"
           aria-label={isPlaying ? 'Pause music' : 'Play music'}
         >
           {isPlaying ? (
-            <Pause className="w-3.5 h-3.5 fill-white text-white" />
+            <Pause className="w-4 h-4 fill-white text-white" />
           ) : (
-            <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
+            <Play className="w-4 h-4 fill-white text-white ml-0.5" />
           )}
         </button>
 
@@ -162,7 +162,7 @@ export function MusicPlayer() {
         <button
           type="button"
           onClick={toggleMute}
-          className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0"
           aria-label={isMuted ? 'Unmute music' : 'Mute music'}
         >
           {isMuted ? (

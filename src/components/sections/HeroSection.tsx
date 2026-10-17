@@ -30,16 +30,16 @@ export function HeroSection({ onSelectCategory }: HeroSectionProps) {
       // 1. Initial greeting fade & lift
       tl.fromTo(
         '.hero-greeting',
-        { y: 22, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8 }
+        { y: 16, opacity: 0.3 },
+        { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out', clearProps: 'transform' }
       );
 
-      // 2. Display Title (H1) smooth upward emergence
+      // 2. Display Title (H1) smooth upward emergence - keep visible from frame 0 for instant LCP
       tl.fromTo(
         '.hero-title',
-        { y: 38, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.05, ease: 'power4.out' },
-        '-=0.65'
+        { y: 18 },
+        { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', clearProps: 'transform' },
+        '-=0.45'
       );
 
       // 3. Right Column: Quote & value proposition

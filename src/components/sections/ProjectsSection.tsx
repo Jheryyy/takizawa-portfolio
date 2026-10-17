@@ -2,11 +2,16 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Sparkles, ArrowUpRight } from 'lucide-react';
 import { ProjectCategory, ProjectItem } from '@/types/portfolio';
 import { projectsData } from '@/data/portfolio-data';
 import { supabase } from '@/lib/supabase';
-import { ProjectDetailModal } from '@/components/ui/ProjectDetailModal';
+
+const ProjectDetailModal = dynamic(
+  () => import('@/components/ui/ProjectDetailModal').then((mod) => mod.ProjectDetailModal),
+  { ssr: false }
+);
 
 interface ProjectsSectionProps {
   selectedCategory: ProjectCategory | 'All';

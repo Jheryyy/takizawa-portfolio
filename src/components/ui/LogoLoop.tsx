@@ -258,15 +258,19 @@ export const LogoLoop = React.memo<LogoLoopProps>(
             containerRef.current.style.height = `${targetHeight}px`;
         }
         if (sequenceHeight > 0) {
-          setSeqHeight(Math.ceil(sequenceHeight));
+          const targetHeight = Math.ceil(sequenceHeight);
+          setSeqHeight(prev => (prev === targetHeight ? prev : targetHeight));
           const viewport = containerRef.current?.clientHeight ?? parentHeight ?? sequenceHeight;
           const copiesNeeded = Math.ceil(viewport / sequenceHeight) + ANIMATION_CONFIG.COPY_HEADROOM;
-          setCopyCount(Math.max(ANIMATION_CONFIG.MIN_COPIES, copiesNeeded));
+          const targetCopies = Math.max(ANIMATION_CONFIG.MIN_COPIES, copiesNeeded);
+          setCopyCount(prev => (prev === targetCopies ? prev : targetCopies));
         }
       } else if (sequenceWidth > 0) {
-        setSeqWidth(Math.ceil(sequenceWidth));
+        const targetWidth = Math.ceil(sequenceWidth);
+        setSeqWidth(prev => (prev === targetWidth ? prev : targetWidth));
         const copiesNeeded = Math.ceil(containerWidth / sequenceWidth) + ANIMATION_CONFIG.COPY_HEADROOM;
-        setCopyCount(Math.max(ANIMATION_CONFIG.MIN_COPIES, copiesNeeded));
+        const targetCopies = Math.max(ANIMATION_CONFIG.MIN_COPIES, copiesNeeded);
+        setCopyCount(prev => (prev === targetCopies ? prev : targetCopies));
       }
     }, [isVertical]);
 

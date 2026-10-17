@@ -47,7 +47,7 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
           <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col items-start sm:items-end justify-end gap-4">
             <button
               onClick={handleCopyEmail}
-              className="group inline-flex items-center gap-3 bg-black text-white dark:bg-white dark:text-neutral-900 font-semibold text-sm pl-5 pr-1.5 py-1.5 rounded-full hover:scale-[1.02] transition-all cursor-pointer shadow-md"
+              className="group inline-flex items-center gap-3 bg-black text-white dark:bg-white dark:text-neutral-900 font-semibold text-sm pl-5 pr-2 py-2 min-h-[44px] rounded-full hover:scale-[1.02] transition-all cursor-pointer shadow-md"
             >
               <span className="text-white dark:text-neutral-900">{email}</span>
               <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center transition-transform group-hover:rotate-12">
@@ -69,19 +69,19 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
             <span className="font-medium text-black dark:text-muted">Crafted with Next.js 15 &bull; Tailwind v4</span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-5 sm:gap-6 font-semibold text-black dark:text-white/80">
-            <Link href="/#home" className="hover:text-primary transition-colors">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6 font-semibold text-black dark:text-white/80">
+            <Link href="/#home" className="hover:text-primary transition-colors py-2 px-1 min-h-[44px] inline-flex items-center">
               Home
             </Link>
-            <Link href="/#about" className="hover:text-primary transition-colors">
+            <Link href="/#about" className="hover:text-primary transition-colors py-2 px-1 min-h-[44px] inline-flex items-center">
               About
             </Link>
-            <Link href="/#projects" className="hover:text-primary transition-colors">
+            <Link href="/#projects" className="hover:text-primary transition-colors py-2 px-1 min-h-[44px] inline-flex items-center">
               Projects
             </Link>
             <a
               href="mailto:jherycotakizawa@gmail.com"
-              className="text-black dark:text-white/80 hover:text-primary transition-colors flex items-center gap-1.5"
+              className="text-black dark:text-white/80 hover:text-primary transition-colors py-2 px-1 min-h-[44px] inline-flex items-center gap-1.5"
             >
               <Mail className="w-3.5 h-3.5 text-black dark:text-white/80" />
               <span>Email</span>
@@ -90,7 +90,7 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
               href="https://instagram.com/abcdefghijherr"
               target="_blank"
               rel="noreferrer"
-              className="text-black dark:text-white/80 hover:text-[#E4405F] transition-colors flex items-center gap-1.5"
+              className="text-black dark:text-white/80 hover:text-[#E4405F] transition-colors py-2 px-1 min-h-[44px] inline-flex items-center gap-1.5"
             >
               <SiInstagram aria-hidden="true" title="Instagram" className="w-3.5 h-3.5 text-black dark:text-white/80" />
               <span>Instagram</span>
@@ -99,7 +99,7 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
               href="https://www.tiktok.com/@abcdefghijherr"
               target="_blank"
               rel="noreferrer"
-              className="text-black dark:text-white/80 hover:text-primary transition-colors flex items-center gap-1.5"
+              className="text-black dark:text-white/80 hover:text-primary transition-colors py-2 px-1 min-h-[44px] inline-flex items-center gap-1.5"
             >
               <SiTiktok aria-hidden="true" title="TikTok" className="w-3.5 h-3.5 text-black dark:text-white/80" />
               <span>TikTok</span>

@@ -155,8 +155,11 @@ export const TextType = ({
   reverseMode = false,
   ...props
 }: TextTypeProps & React.HTMLAttributes<HTMLElement>) => {
+  const textKey = Array.isArray(text) ? text.join('\u0000') : String(text ?? '');
+  const textArray = useMemo(() => textKey.split('\u0000'), [textKey]);
+
   const [textIndex, setTextIndex] = useState(0);
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(() => (startOnVisible ? 0 : graphemes(textArray[0]).length));
   const [selected, setSelected] = useState(0);
   const [typo, setTypo] = useState<Typo | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -173,8 +176,6 @@ export const TextType = ({
   const lastTypo = useRef(-1);
   const onSentenceCompleteRef = useRef(onSentenceComplete);
 
-  const textKey = Array.isArray(text) ? text.join('\u0000') : String(text ?? '');
-  const textArray = useMemo(() => textKey.split('\u0000'), [textKey]);
   const index = textIndex % textArray.length;
   const chars = useMemo(() => graphemes(textArray[index]), [textArray, index]);
   const total = chars.length;

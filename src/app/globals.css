@@ -114,9 +114,7 @@ html.light [role="listitem"] svg path {
   fill: #000000 !important;
 }
 
-/* Preserve crisp contrast on primary buttons and dark media cards */
-html.light .bg-primary,
-html.light .bg-primary *,
+/* Preserve crisp contrast on dark media cards */
 html.light .bg-black,
 html.light .bg-black *,
 html.light .bg-neutral-900,
@@ -124,6 +122,12 @@ html.light .bg-neutral-900 *,
 html.light [class*="from-black"] *,
 html.light [class*="bg-black/"] * {
   color: #FFFFFF !important;
+}
+
+/* Ensure primary orange elements use high-contrast dark text in light mode */
+html.light .bg-primary,
+html.light .bg-primary * {
+  color: #0A0A0A !important;
 }
 
 html.light .text-primary,

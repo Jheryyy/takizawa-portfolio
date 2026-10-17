@@ -275,7 +275,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-canvas border border-hairline hover:border-primary/60 text-xs font-mono text-black dark:text-white transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-primary/60 text-xs font-mono text-black dark:text-white transition-all cursor-pointer shadow-xs"
                 title="Click to copy email address"
               >
                 <Mail className="w-3.5 h-3.5 text-black dark:text-primary" />
@@ -292,7 +292,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 href="https://instagram.com/abcdefghijherr"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-canvas border border-hairline hover:border-[#E4405F]/60 text-xs font-mono text-black dark:text-white transition-all shadow-xs group"
+                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-[#E4405F]/60 text-xs font-mono text-black dark:text-white transition-all shadow-xs group"
               >
                 <SiInstagram aria-hidden="true" title="Instagram" className="w-3.5 h-3.5 text-[#E4405F]" />
                 <span className="text-black dark:text-white font-medium">@abcdefghijherr</span>
@@ -304,7 +304,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 href="https://www.tiktok.com/@abcdefghijherr"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-canvas border border-hairline hover:border-black/60 dark:hover:border-white/60 text-xs font-mono text-black dark:text-white transition-all shadow-xs group"
+                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-black/60 dark:hover:border-white/60 text-xs font-mono text-black dark:text-white transition-all shadow-xs group"
               >
                 <SiTiktok aria-hidden="true" title="TikTok" className="w-3.5 h-3.5 text-black dark:text-white" />
                 <span className="text-black dark:text-white font-medium">abcdefghijherr</span>
