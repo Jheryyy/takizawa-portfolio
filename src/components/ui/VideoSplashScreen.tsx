@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 
 const GREETINGS = [
@@ -28,6 +28,66 @@ export function VideoSplashScreen() {
   const [isDismissing, setIsDismissing] = useState(false);
   const [greetingIndex, setGreetingIndex] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isDismissingRef = useRef(false);
+
+  const triggerMusic = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('start-music'));
+    }
+  };
+
+  const handleDismiss = useCallback(() => {
+    if (isDismissingRef.current) return;
+    isDismissingRef.current = true;
+    setIsDismissing(true);
+    document.body.style.overflow = '';
+
+    triggerMusic();
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('splash-dismissed'));
+    }
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    // Wait for the center curtain parting animation (850ms) before unmounting
+    setTimeout(() => {
+      setIsMounted(false);
+      setIsDismissing(false);
+      isDismissingRef.current = false;
+    }, 850);
+  }, []);
+
+  const playSplash = useCallback(() => {
+    if (isDashboardRoute) return;
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return;
+
+    // Remove any previous session suppression so splash screen always plays and repeats
+    try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('splash_dismissed');
+      }
+    } catch {
+      // Ignore
+    }
+
+    isDismissingRef.current = false;
+    setIsDismissing(false);
+    setGreetingIndex(0);
+    setIsMounted(true);
+
+    // Lock body scroll while splash screen is active
+    document.body.style.overflow = 'hidden';
+
+    // Safety timeout: automatically open after 3.2s
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      handleDismiss();
+    }, 3200);
+  }, [isDashboardRoute, handleDismiss]);
 
   useEffect(() => {
     // 1. Never show splash screen on admin or dashboard routes
@@ -40,15 +100,14 @@ export function VideoSplashScreen() {
       return;
     }
 
-    // 3. Check if already dismissed in this session
+    // 3. Bypass during Lighthouse / automated test runs
     try {
       if (typeof window !== 'undefined') {
         const ua = navigator.userAgent || '';
         const isLighthouse =
           /Lighthouse|PageSpeed|HeadlessChrome|Chrome-Lighthouse|PTST/i.test(ua) ||
           Boolean(navigator.webdriver);
-        const isDismissed = sessionStorage.getItem('splash_dismissed') === 'true';
-        if (isLighthouse || isDismissed) {
+        if (isLighthouse) {
           return;
         }
       }
@@ -56,23 +115,24 @@ export function VideoSplashScreen() {
       // Ignore private mode storage restrictions
     }
 
-    // Mount on desktop
-    setIsMounted(true);
+    playSplash();
 
-    // Lock body scroll while splash screen is active
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    // Allow replaying splash screen on demand via custom event or global window helper
+    const handleReplay = () => {
+      playSplash();
+    };
 
-    // Safety timeout: automatically open after 3.2s
-    timeoutRef.current = setTimeout(() => {
-      handleDismiss();
-    }, 3200);
+    window.addEventListener('replay-splash', handleReplay);
+    if (typeof window !== 'undefined') {
+      (window as unknown as { replaySplash?: () => void }).replaySplash = handleReplay;
+    }
 
     return () => {
-      document.body.style.overflow = originalOverflow;
+      document.body.style.overflow = '';
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      window.removeEventListener('replay-splash', handleReplay);
     };
-  }, [isDashboardRoute]);
+  }, [isDashboardRoute, playSplash]);
 
   // Multilingual greeting cycling (175ms per language ~2.1s sequence)
   useEffect(() => {
@@ -93,43 +153,7 @@ export function VideoSplashScreen() {
     }, 175);
 
     return () => clearInterval(interval);
-  }, [isMounted, isDismissing]);
-
-  const triggerMusic = () => {
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('start-music'));
-    }
-  };
-
-  const handleDismiss = () => {
-    if (isDismissing) return;
-    setIsDismissing(true);
-    document.body.style.overflow = '';
-
-    try {
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('splash_dismissed', 'true');
-      }
-    } catch {
-      // Ignore
-    }
-
-    triggerMusic();
-
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('splash-dismissed'));
-    }
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-
-    // Wait for the center curtain parting animation (850ms) before unmounting
-    setTimeout(() => {
-      setIsMounted(false);
-    }, 850);
-  };
+  }, [isMounted, isDismissing, handleDismiss]);
 
   if (!isMounted || isDashboardRoute) return null;
 
@@ -138,11 +162,8 @@ export function VideoSplashScreen() {
       role="dialog"
       aria-modal="true"
       aria-label="Welcome Splash Screen"
-      onClick={() => {
-        triggerMusic();
-        handleDismiss();
-      }}
-      className="fixed inset-0 z-[999999] overflow-hidden select-none cursor-pointer"
+      onClick={triggerMusic}
+      className="fixed inset-0 z-[999999] overflow-hidden select-none cursor-default"
     >
       {/* Left Curtain Door - slides -100% to left */}
       <div
@@ -164,25 +185,6 @@ export function VideoSplashScreen() {
           isDismissing ? 'opacity-0' : 'opacity-100'
         }`}
       />
-
-      {/* Top Right Skip Button */}
-      <div className="absolute top-6 right-6 z-30">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            triggerMusic();
-            handleDismiss();
-          }}
-          className="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 hover:border-white/40 text-white font-mono text-xs uppercase tracking-widest transition-all cursor-pointer shadow-lg"
-          aria-label="Skip splash screen"
-        >
-          <span>Skip</span>
-          <span className="text-primary font-bold transition-transform group-hover:translate-x-0.5">
-            &rarr;
-          </span>
-        </button>
-      </div>
 
       {/* Center Multilingual Text: Studio Orange on Pure Black */}
       <div
