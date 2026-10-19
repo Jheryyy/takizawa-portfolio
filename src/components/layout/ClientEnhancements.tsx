@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
 const MusicPlayer = dynamic(() => import('@/components/ui/MusicPlayer'), { ssr: false });
-const VideoSplashScreen = dynamic(() => import('@/components/ui/VideoSplashScreen'), { ssr: false });
 const TargetCursor = dynamic(() => import('@/components/ui/TargetCursor'), { ssr: false });
 
 export function ClientEnhancements() {
@@ -22,7 +21,6 @@ export function ClientEnhancements() {
   return (
     <>
       <MusicPlayer />
-      {isDesktop && <VideoSplashScreen />}
       {isDesktop && (
         <TargetCursor
           spinDuration={0}

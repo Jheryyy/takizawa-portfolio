@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/layout/Navbar";
 import { ClientEnhancements } from "@/components/layout/ClientEnhancements";
+import { VideoSplashScreen } from "@/components/ui/VideoSplashScreen";
 import LiquidTransitionProvider from "@/components/ui/LiquidTransition";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -219,6 +220,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <LiquidTransitionProvider>
+            <VideoSplashScreen />
             <ClientEnhancements />
             <Navbar />
             <div className="flex-1 w-full">

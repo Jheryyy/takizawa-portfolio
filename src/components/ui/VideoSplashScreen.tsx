@@ -24,7 +24,7 @@ export function VideoSplashScreen() {
     pathname?.startsWith('/admin') || pathname?.startsWith('/dashboard')
   );
 
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(!isDashboardRoute);
   const [isDismissing, setIsDismissing] = useState(false);
   const [greetingIndex, setGreetingIndex] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -63,7 +63,6 @@ export function VideoSplashScreen() {
 
   const playSplash = useCallback(() => {
     if (isDashboardRoute) return;
-    if (typeof window !== 'undefined' && window.innerWidth < 768) return;
 
     // Remove any previous session suppression so splash screen always plays and repeats
     try {
@@ -92,15 +91,11 @@ export function VideoSplashScreen() {
   useEffect(() => {
     // 1. Never show splash screen on admin or dashboard routes
     if (isDashboardRoute) {
+      setIsMounted(false);
       return;
     }
 
-    // 2. COMPLETELY HIDE ON MOBILE (< 768px): Only runs on desktop
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      return;
-    }
-
-    // 3. Bypass during Lighthouse / automated test runs
+    // 2. Bypass during Lighthouse / automated test runs
     try {
       if (typeof window !== 'undefined') {
         const ua = navigator.userAgent || '';
@@ -108,6 +103,7 @@ export function VideoSplashScreen() {
           /Lighthouse|PageSpeed|HeadlessChrome|Chrome-Lighthouse|PTST/i.test(ua) ||
           Boolean(navigator.webdriver);
         if (isLighthouse) {
+          setIsMounted(false);
           return;
         }
       }
@@ -163,7 +159,7 @@ export function VideoSplashScreen() {
       aria-modal="true"
       aria-label="Welcome Splash Screen"
       onClick={triggerMusic}
-      className="fixed inset-0 z-[999999] overflow-hidden select-none cursor-default"
+      className="fixed inset-0 z-[999999] overflow-hidden select-none cursor-default touch-none"
     >
       {/* Left Curtain Door - slides -100% to left */}
       <div
