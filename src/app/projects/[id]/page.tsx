@@ -80,7 +80,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
   return (
     <div className="relative min-h-screen w-full bg-canvas text-black dark:text-white pt-24 sm:pt-28 flex flex-col justify-between transition-colors">
-      <main className="max-w-7xl mx-auto px-6 sm:px-12 py-10 space-y-12 sm:space-y-16 w-full">
+      <main className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-10 py-10 space-y-12 sm:space-y-16">
         {/* Top Navigation & Breadcrumbs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-hairline">
           <Link

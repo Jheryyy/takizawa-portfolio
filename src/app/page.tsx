@@ -78,8 +78,8 @@ export default function HomePage() {
         </ScrollStackItem>
       </ScrollStack>
 
-      {/* Projects Section */}
-      <main className="w-full max-w-7xl mx-auto px-6 sm:px-12 pt-20 sm:pt-28 pb-10 space-y-28 sm:space-y-36">
+      {/* Projects Section - Full width with pinned horizontal scroll */}
+      <main className="w-full">
         <ProjectsSection
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
@@ -89,13 +89,13 @@ export default function HomePage() {
       {/* Crossed Kinetic Ribbons: Directly beneath Projects */}
       <CrossedScrollVelocity />
 
-      {/* Main Content Area - Bottom: Guestbook */}
-      <div className="w-full max-w-7xl mx-auto px-6 sm:px-12 pb-16 sm:pb-24">
+      {/* Guestbook / Threads Section - Pinned scroll until threads finish, then to Contacts */}
+      <div className="w-full">
         <GuestbookSection onNotifyToast={showToast} />
       </div>
 
       {/* Contact Section: Directly beneath Guestbook */}
-      <div className="w-full max-w-7xl mx-auto px-6 sm:px-12 pb-28 sm:pb-36">
+      <div className="w-full px-4 sm:px-8 lg:px-12 pb-28 sm:pb-36">
         <ContactSection onNotifyToast={showToast} />
       </div>
 

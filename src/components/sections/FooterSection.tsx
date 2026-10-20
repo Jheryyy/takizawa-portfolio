@@ -31,7 +31,7 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
 
   return (
     <footer className="w-full bg-surface border-t border-hairline pt-16 pb-12 transition-colors">
-      <div className="max-w-7xl mx-auto px-6 sm:px-12">
+      <div className="w-full px-4 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-14 border-b border-hairline items-end">
           <div className="lg:col-span-8 space-y-4">
             <p className="font-mono text-xs uppercase tracking-widest text-primary font-bold">

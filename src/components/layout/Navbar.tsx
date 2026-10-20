@@ -11,11 +11,11 @@ import { useLiquidTransition } from '@/components/ui/LiquidTransition';
 
 const menuItems: StaggeredMenuItem[] = [
   { label: 'Home', ariaLabel: 'Go to home page', link: '/#home' },
+  { label: 'Project', ariaLabel: 'View selected projects and case studies', link: '/#projects' },
+  { label: 'Contact', ariaLabel: 'Send a message or get in touch', link: '/#contact' },
   { label: 'About', ariaLabel: 'Scroll to about section', link: '/#about' },
   { label: 'Detail', ariaLabel: 'View full credentials and background', link: '/about' },
-  { label: 'Projects', ariaLabel: 'View selected projects and case studies', link: '/#projects' },
   { label: 'Guestbook', ariaLabel: 'Leave a note or sign guestbook', link: '/#guestbook' },
-  { label: 'Contact', ariaLabel: 'Send a message or get in touch', link: '/#contact' },
 ];
 
 const socialItems: StaggeredMenuSocialItem[] = [
@@ -58,80 +58,104 @@ export function Navbar() {
     <nav
       ref={navRef}
       aria-label="Main Navigation"
-      className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/85 dark:bg-[#0A0A0A]/85 border-b border-neutral-200/80 dark:border-white/10 transition-colors duration-300"
+      className="fixed top-0 left-0 right-0 z-50 bg-transparent"
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 sm:px-12 h-18 sm:h-20">
-        {/* Brand Logo */}
-        <Link
-          href="/#home"
-          onClick={handleNavClick('/#home', 'HOME')}
-          className="font-display font-bold text-xl sm:text-2xl tracking-tight text-black dark:text-white flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-lg group"
-        >
-          <span>
-            Takizawa<span className="text-primary font-normal">blox</span>
-          </span>
-        </Link>
+      <div className="relative w-full flex items-center justify-between px-4 sm:px-8 lg:px-12 h-18 sm:h-20">
+        {/* Left Side: Desktop Links (Home, Project, Contact) or Mobile Theme Toggler */}
+        <div className="flex items-center">
+          {/* Mobile Only: Theme Toggler on Left for balance */}
+          <div className="md:hidden flex items-center">
+            {mounted && (
+              <AnimatedThemeToggler
+                theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
+                onThemeChange={setTheme}
+                className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full border transition-all duration-300 shadow-sm ${
+                  resolvedTheme === 'dark'
+                    ? 'bg-[#1C1C1C]/70 border-amber-400/30 text-amber-400 hover:border-amber-400 hover:bg-[#252525] hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]'
+                    : 'bg-white/80 border-neutral-300 text-black hover:border-black hover:bg-neutral-50 shadow-sm'
+                }`}
+              />
+            )}
+          </div>
 
-        {/* Desktop Quick Navigation Links - Visible on Desktop, Hidden on Mobile */}
-        <div className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-black dark:text-white/85">
+          {/* Desktop Only: Left Navigation Links (Home, Project, Contact) */}
+          <div className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-black dark:text-white/85">
+            <Link
+              href="/#home"
+              onClick={handleNavClick('/#home', 'HOME')}
+              className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
+            >
+              Home
+            </Link>
+            <Link
+              href="/#projects"
+              onClick={handleNavClick('/#projects', 'PROJECTS')}
+              className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
+            >
+              Project
+            </Link>
+            <Link
+              href="/#contact"
+              onClick={handleNavClick('/#contact', 'CONTACT')}
+              className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
+            >
+              Contact
+            </Link>
+          </div>
+        </div>
+
+        {/* Center: Brand Logo - Dead Center & Larger */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
           <Link
             href="/#home"
             onClick={handleNavClick('/#home', 'HOME')}
-            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
+            className="font-display font-extrabold text-2xl sm:text-3xl md:text-3xl lg:text-4xl tracking-tight text-black dark:text-white flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-primary rounded-lg group transition-transform duration-200 hover:scale-105"
           >
-            Home
-          </Link>
-          <Link
-            href="/#about"
-            onClick={handleNavClick('/#about', 'ABOUT')}
-            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
-          >
-            About
-          </Link>
-          <Link
-            href="/about"
-            onClick={handleNavClick('/about', 'DETAIL')}
-            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
-          >
-            Detail
-          </Link>
-          <Link
-            href="/#projects"
-            onClick={handleNavClick('/#projects', 'PROJECTS')}
-            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
-          >
-            Projects
-          </Link>
-          <Link
-            href="/#guestbook"
-            onClick={handleNavClick('/#guestbook', 'GUESTBOOK')}
-            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
-          >
-            Guestbook
-          </Link>
-          <Link
-            href="/#contact"
-            onClick={handleNavClick('/#contact', 'CONTACT')}
-            className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
-          >
-            Contact
+            <span>
+              Takizawa<span className="text-primary font-normal">blox</span>
+            </span>
           </Link>
         </div>
 
-        {/* Right Section: Theme Toggler, Pill CTA & StaggeredMenu (Mobile Only) */}
+        {/* Right Side: Desktop Links (About, Detail, Guestbook) + Theme Toggler, or Mobile StaggeredMenu */}
         <div className="flex items-center gap-3 sm:gap-4">
-          {mounted && (
-            <AnimatedThemeToggler
-              theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
-              onThemeChange={setTheme}
-              className={`w-11 h-11 sm:w-10 sm:h-10 min-w-[44px] min-h-[44px] rounded-full border transition-all duration-300 shadow-sm ${resolvedTheme === 'dark'
-                  ? 'bg-[#1C1C1C] border-amber-400/30 text-amber-400 hover:border-amber-400 hover:bg-[#252525] hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]'
-                  : 'bg-white border-neutral-300 text-black hover:border-black hover:bg-neutral-50 shadow-sm'
+          {/* Desktop Only: Right Navigation Links (About, Detail, Guestbook) + Desktop Theme Toggler */}
+          <div className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-black dark:text-white/85">
+            <Link
+              href="/#about"
+              onClick={handleNavClick('/#about', 'ABOUT')}
+              className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
+            >
+              About
+            </Link>
+            <Link
+              href="/about"
+              onClick={handleNavClick('/about', 'DETAIL')}
+              className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
+            >
+              Detail
+            </Link>
+            <Link
+              href="/#guestbook"
+              onClick={handleNavClick('/#guestbook', 'GUESTBOOK')}
+              className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
+            >
+              Guestbook
+            </Link>
+            {mounted && (
+              <AnimatedThemeToggler
+                theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
+                onThemeChange={setTheme}
+                className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full border transition-all duration-300 shadow-sm ${
+                  resolvedTheme === 'dark'
+                    ? 'bg-[#1C1C1C]/70 border-amber-400/30 text-amber-400 hover:border-amber-400 hover:bg-[#252525] hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]'
+                    : 'bg-white/80 border-neutral-300 text-black hover:border-black hover:bg-neutral-50 shadow-sm'
                 }`}
-            />
-          )}
+              />
+            )}
+          </div>
 
-          {/* StaggeredMenu: ONLY visible on Mobile (< md), hidden on Desktop */}
+          {/* Mobile Only: StaggeredMenu Trigger */}
           <div className="md:hidden flex items-center">
             <StaggeredMenu
               position="right"

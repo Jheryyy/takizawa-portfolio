@@ -224,25 +224,14 @@ export function ProjectDetailModal({
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="p-4 sm:p-6 bg-neutral-50 dark:bg-[#0E0E14] border-t border-neutral-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+        <div className="p-4 sm:p-6 bg-neutral-50 dark:bg-[#0E0E14] border-t border-neutral-200 dark:border-white/10 flex items-center justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-mono font-bold text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+            className="px-6 py-2.5 rounded-xl bg-neutral-200 hover:bg-neutral-300 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-mono font-bold text-neutral-800 dark:text-white transition-colors cursor-pointer"
           >
             Tutup
           </button>
-
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/projects/${project.id}`}
-              onClick={onClose}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary hover:bg-tertiary text-white font-mono text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
-            >
-              <span>Buka Case Study Penuh</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
         </div>
       </div>
     </div>

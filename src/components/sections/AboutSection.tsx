@@ -46,8 +46,8 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
 
   return (
     <section id="about" className="space-y-12 sm:space-y-16 scroll-mt-28 w-full pt-8 sm:pt-14">
-      {/* Editorial 2-Column Bio Split (Contained) */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-12">
+      {/* Editorial 2-Column Bio Split */}
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Left Column: Orange Eyebrow + ScrollReveal H2 */}
           <div className="lg:col-span-5 space-y-4">
@@ -145,8 +145,8 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
         </div>
       </div>
 
-      {/* SKILLS SECTION: Featuring MagicUI AnimatedBeam (Contained) */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 w-full">
+      {/* SKILLS SECTION: Featuring MagicUI AnimatedBeam */}
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-10">
         <div className="bg-surface border border-hairline rounded-2.5xl p-6 sm:p-10 space-y-8 shadow-sm card-glow-hover">
           {/* Header + Category Tabs & Detail Link */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-hairline pb-6">
