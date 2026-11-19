@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { SkillCategory } from '@/types/portfolio';
-import { skillsData } from '@/data/portfolio-data';
+import { skillsData, defaultSiteContent, getStoredSiteContent } from '@/data/portfolio-data';
 import { techLogos } from '@/data/tech-logos';
 import LogoLoop from '@/components/ui/LogoLoop';
 import ScrollReveal from '@/components/ui/ScrollReveal';
@@ -29,18 +29,30 @@ interface AboutSectionProps {
 export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [siteContent, setSiteContent] = useState(defaultSiteContent);
   const [activeSkillCategory, setActiveSkillCategory] = useState<
     'all' | SkillCategory
   >('all');
 
   useEffect(() => {
     setMounted(true);
+    setSiteContent(getStoredSiteContent());
+
+    const handleUpdate = (e: any) => {
+      if (e.detail) {
+        setSiteContent(e.detail);
+      }
+    };
+    window.addEventListener('site-content-updated', handleUpdate);
+    return () => window.removeEventListener('site-content-updated', handleUpdate);
   }, []);
+
+  const currentSkills = siteContent.skills?.length > 0 ? siteContent.skills : skillsData;
 
   const filteredSkills =
     activeSkillCategory === 'all'
-      ? skillsData
-      : skillsData.filter((s) => s.category === activeSkillCategory);
+      ? currentSkills
+      : currentSkills.filter((s) => s.category === activeSkillCategory);
 
   const isLight = mounted && resolvedTheme === 'light';
 
@@ -52,7 +64,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
           {/* Left Column: Orange Eyebrow + ScrollReveal H2 */}
           <div className="lg:col-span-5 space-y-4">
             <p className="text-primary font-display font-semibold text-sm sm:text-base tracking-tight">
-              About &bull; Behind the Code &amp; Canvas
+              {siteContent.aboutEyebrow}
             </p>
             <ScrollReveal
               highlightColor={isLight ? '#000000' : '#FF5A1F'}
@@ -70,11 +82,11 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
               containerClassName="my-0"
               textClassName="font-display font-bold text-3xl sm:text-5xl leading-[1.12] tracking-[-0.02em] text-black dark:text-white"
             >
-              Shaping Digital Experiences That Make Web Simpler
+              {siteContent.aboutTitle}
             </ScrollReveal>
             <div className="pt-2">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-hairline font-mono text-xs text-primary font-bold">
-                SMK Negeri 1 Depok &bull; PPLG
+                {siteContent.aboutSchoolBadge}
               </span>
             </div>
           </div>

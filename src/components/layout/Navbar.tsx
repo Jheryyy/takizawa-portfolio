@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import gsap from 'gsap';
@@ -14,7 +15,7 @@ const menuItems: StaggeredMenuItem[] = [
   { label: 'Project', ariaLabel: 'View selected projects and case studies', link: '/#projects' },
   { label: 'Contact', ariaLabel: 'Send a message or get in touch', link: '/#contact' },
   { label: 'About', ariaLabel: 'Scroll to about section', link: '/#about' },
-  { label: 'Detail', ariaLabel: 'View full credentials and background', link: '/about' },
+  { label: 'Credentials', ariaLabel: 'View full credentials and background', link: '/about' },
   { label: 'Guestbook', ariaLabel: 'Leave a note or sign guestbook', link: '/#guestbook' },
 ];
 
@@ -28,6 +29,8 @@ export function Navbar() {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [showLogo, setShowLogo] = useState(true);
+  const lastScrollYRef = useRef(0);
   const navRef = useRef<HTMLElement>(null);
   const { triggerTransition } = useLiquidTransition();
 
@@ -43,6 +46,31 @@ export function Navbar() {
       );
     }
   }, [isAdminRoute]);
+
+  // Scroll listener: Sembunyikan logo saat scroll ke bawah, munculkan saat scroll ke atas
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY <= 60) {
+        // Berada di posisi paling atas -> selalu tampilkan logo
+        setShowLogo(true);
+      } else if (currentScrollY > lastScrollYRef.current + 8) {
+        // Sedang scroll ke bawah -> sembunyikan logo
+        setShowLogo(false);
+      } else if (currentScrollY < lastScrollYRef.current - 8) {
+        // Sedang scroll ke atas -> munculkan logo
+        setShowLogo(true);
+      }
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleNavClick = (href: string, label: string) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -104,16 +132,40 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Center: Brand Logo - Dead Center & Larger */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
+        {/* Center: Brand Logo - Dead Center & Larger, hides on scroll down, reveals on scroll up */}
+        <div
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out ${
+            showLogo
+              ? 'opacity-100 translate-y-[-50%] scale-100 pointer-events-auto'
+              : 'opacity-0 -translate-y-[120%] scale-90 pointer-events-none'
+          }`}
+        >
           <Link
             href="/#home"
             onClick={handleNavClick('/#home', 'HOME')}
-            className="font-display font-extrabold text-2xl sm:text-3xl md:text-3xl lg:text-4xl tracking-tight text-black dark:text-white flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-primary rounded-lg group transition-transform duration-200 hover:scale-105"
+            className="flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary rounded-xl group p-1"
+            aria-label="Takizawa Logo"
           >
-            <span>
-              Takizawa<span className="text-primary font-normal">blox</span>
-            </span>
+            <div className="relative h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+              {/* Default Logo */}
+              <Image
+                src="/logo.png"
+                alt="Takizawa Logo"
+                width={209}
+                height={209}
+                priority
+                className="w-full h-full object-contain transition-opacity duration-300 group-hover:opacity-0"
+              />
+              {/* Hover Logo (swaps to logos.png on hover/touch) */}
+              <Image
+                src="/logos.png"
+                alt="Takizawa Logo Hover"
+                width={210}
+                height={209}
+                priority
+                className="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              />
+            </div>
           </Link>
         </div>
 
@@ -130,10 +182,10 @@ export function Navbar() {
             </Link>
             <Link
               href="/about"
-              onClick={handleNavClick('/about', 'DETAIL')}
+              onClick={handleNavClick('/about', 'CREDENTIALS')}
               className="hover:text-primary transition-colors cursor-pointer py-2 px-1 min-h-[44px] inline-flex items-center"
             >
-              Detail
+              Credentials
             </Link>
             <Link
               href="/#guestbook"

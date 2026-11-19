@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 
 interface LiquidTransitionContextType {
@@ -314,9 +315,15 @@ export function LiquidTransitionProvider({ children }: { children: React.ReactNo
         >
           <div className="flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl">
             <span className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-ping" />
-            <span className="font-display font-bold text-lg sm:text-xl tracking-tight text-white flex items-center">
-              Takizawa<span className="text-[#FF5A1F]">blox</span>
-            </span>
+            <div className="relative h-10 w-28 flex items-center justify-center overflow-hidden">
+              <Image
+                src="/logo.png"
+                alt="Takizawa Logo"
+                width={669}
+                height={373}
+                className="w-auto h-full max-h-none scale-[2.6] translate-y-[5%] object-contain"
+              />
+            </div>
             {activeLabel && (
               <>
                 <span className="text-white/30 font-mono text-xs">/</span>

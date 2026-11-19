@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Copy, Mail } from 'lucide-react';
 import { SiInstagram, SiTiktok } from 'react-icons/si';
 
@@ -61,10 +62,29 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-black/70 dark:text-muted">
-          <div className="flex items-center gap-2">
-            <span className="font-display font-bold text-black dark:text-white text-sm">
-              Takizawablox
-            </span>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/#home"
+              className="flex items-center group focus:outline-none"
+              aria-label="Takizawa Logo"
+            >
+              <div className="relative h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
+                <Image
+                  src="/logo.png"
+                  alt="Takizawa Logo"
+                  width={209}
+                  height={209}
+                  className="w-full h-full object-contain transition-opacity duration-300 group-hover:opacity-0"
+                />
+                <Image
+                  src="/logos.png"
+                  alt="Takizawa Logo Hover"
+                  width={210}
+                  height={209}
+                  className="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                />
+              </div>
+            </Link>
             <span>&bull;</span>
             <span className="font-medium text-black dark:text-muted">Crafted with Next.js 15 &bull; Tailwind v4</span>
           </div>

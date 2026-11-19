@@ -61,7 +61,8 @@ export function MusicPlayer() {
   useEffect(() => {
     if (isAdminRoute) return;
 
-    const tryPlay = () => {
+    // Listen to manual start request
+    const handleStartMusicEvent = () => {
       const audio = getAudio();
       if (audio.paused) {
         if (audio.currentTime < 17) {
@@ -69,39 +70,14 @@ export function MusicPlayer() {
             audio.currentTime = 17;
           } catch {}
         }
-        audio
-          .play()
-          .then(() => {
-            setIsPlaying(true);
-            cleanupAutoPlayListeners();
-          })
-          .catch(() => {
-            // Autoplay blocked until trusted user gesture
-          });
+        audio.play().catch(() => {});
       }
-    };
-
-    const interactionEvents = ['click', 'touchstart', 'pointerdown'];
-
-    const cleanupAutoPlayListeners = () => {
-      interactionEvents.forEach(evt => {
-        window.removeEventListener(evt, tryPlay);
-      });
-    };
-
-    interactionEvents.forEach(evt => {
-      window.addEventListener(evt, tryPlay, { passive: true, once: true });
-    });
-
-    const handleStartMusicEvent = () => {
-      tryPlay();
     };
 
     window.addEventListener('start-music', handleStartMusicEvent);
 
     return () => {
       window.removeEventListener('start-music', handleStartMusicEvent);
-      cleanupAutoPlayListeners();
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = '';

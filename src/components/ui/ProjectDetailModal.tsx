@@ -17,6 +17,7 @@ import {
   Cpu,
 } from 'lucide-react';
 import { ProjectItem } from '@/types/portfolio';
+import { SiGithub } from 'react-icons/si';
 
 interface ProjectDetailModalProps {
   project: ProjectItem | null;
@@ -224,11 +225,36 @@ export function ProjectDetailModal({
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="p-4 sm:p-6 bg-neutral-50 dark:bg-[#0E0E14] border-t border-neutral-200 dark:border-white/10 flex items-center justify-end">
+        <div className="p-4 sm:p-6 bg-neutral-50 dark:bg-[#0E0E14] border-t border-neutral-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            {project.githubUrl && (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-neutral-200 hover:bg-neutral-300 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-mono font-bold text-neutral-800 dark:text-white transition-colors cursor-pointer"
+              >
+                <SiGithub className="w-3.5 h-3.5" />
+                <span>GitHub</span>
+              </a>
+            )}
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-tertiary text-xs font-mono font-bold text-white transition-all shadow-sm cursor-pointer group"
+              >
+                <span>Live Demo</span>
+                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </a>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2.5 rounded-xl bg-neutral-200 hover:bg-neutral-300 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-mono font-bold text-neutral-800 dark:text-white transition-colors cursor-pointer"
+            className="px-6 py-2 rounded-xl bg-neutral-200 hover:bg-neutral-300 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-mono font-bold text-neutral-800 dark:text-white transition-colors cursor-pointer"
           >
             Tutup
           </button>

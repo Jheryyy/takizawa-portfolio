@@ -10,8 +10,6 @@ const nextConfig: NextConfig = {
       "motion",
       "gsap",
       "three",
-      "@react-three/fiber",
-      "@react-three/drei",
     ],
   },
   images: {

@@ -2,6 +2,7 @@
 
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { gsap } from 'gsap';
 
 export interface StaggeredMenuItem {
@@ -496,7 +497,8 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                   ) : (
                     <Link
                       href="/"
-                      className="font-display font-bold text-xl sm:text-2xl tracking-tight text-white flex items-center gap-2"
+                      className="flex items-center gap-2 focus:outline-none group"
+                      aria-label="Takizawa Logo"
                       onClick={(e) => {
                         if (onItemClick) {
                           e.preventDefault();
@@ -507,9 +509,22 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                         }
                       }}
                     >
-                      <span>
-                        Takizawa<span className="text-primary font-normal">blox</span>
-                      </span>
+                      <div className="relative h-9 w-9 flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
+                        <Image
+                          src="/logo.png"
+                          alt="Takizawa Logo"
+                          width={209}
+                          height={209}
+                          className="w-full h-full object-contain transition-opacity duration-300 group-hover:opacity-0"
+                        />
+                        <Image
+                          src="/logos.png"
+                          alt="Takizawa Logo Hover"
+                          width={210}
+                          height={209}
+                          className="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                        />
+                      </div>
                     </Link>
                   )}
                 </div>

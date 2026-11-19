@@ -147,28 +147,30 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             {/* Action Buttons: Live Demo & GitHub */}
             <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 lg:items-end justify-start pt-2">
               <a
-                href="https://github.com"
+                href={project.githubUrl || 'https://github.com/Jheryyy'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-full bg-surface hover:bg-elevated border border-hairline text-black dark:text-white font-bold text-xs sm:text-sm transition-all shadow-sm w-full sm:w-auto"
-                onClick={() => showToast('Opening GitHub Repository preview...')}
+                onClick={() => showToast('Opening GitHub Repository...')}
               >
                 <GithubIcon className="w-4 h-4" />
                 <span>GitHub Repository</span>
               </a>
 
-              <a
-                href="https://vercel.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center justify-center gap-3 px-6 py-3 rounded-full bg-primary hover:bg-tertiary text-white font-bold text-xs sm:text-sm transition-all shadow-md w-full sm:w-auto"
-                onClick={() => showToast('Opening Live Interactive Demo...')}
-              >
-                <span className="text-white">Live Interactive Demo</span>
-                <span className="w-6 h-6 rounded-full bg-white text-canvas flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                  <ArrowUpRight className="w-3.5 h-3.5 text-canvas" />
-                </span>
-              </a>
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center justify-center gap-3 px-6 py-3 rounded-full bg-primary hover:bg-tertiary text-white font-bold text-xs sm:text-sm transition-all shadow-md w-full sm:w-auto"
+                  onClick={() => showToast('Opening Live Interactive Demo...')}
+                >
+                  <span className="text-white">Live Interactive Demo</span>
+                  <span className="w-6 h-6 rounded-full bg-white text-canvas flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                    <ArrowUpRight className="w-3.5 h-3.5 text-canvas" />
+                  </span>
+                </a>
+              )}
             </div>
           </div>
         </section>

@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { FileText, ArrowRight } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import gsap from 'gsap';
 import { ProjectCategory } from '@/types/portfolio';
+import { defaultSiteContent, getStoredSiteContent } from '@/data/portfolio-data';
 import TextType from '@/components/ui/TextType';
 
 interface HeroSectionProps {
@@ -14,10 +16,19 @@ interface HeroSectionProps {
 export function HeroSection({ onSelectCategory }: HeroSectionProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [siteContent, setSiteContent] = useState(defaultSiteContent);
   const heroContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
+    setSiteContent(getStoredSiteContent());
+
+    const handleUpdate = (e: any) => {
+      if (e.detail) {
+        setSiteContent(e.detail);
+      }
+    };
+    window.addEventListener('site-content-updated', handleUpdate);
 
     if (typeof window === 'undefined' || !heroContainerRef.current) return;
 
@@ -59,7 +70,10 @@ export function HeroSection({ onSelectCategory }: HeroSectionProps) {
       );
     }, heroContainerRef);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      window.removeEventListener('site-content-updated', handleUpdate);
+    };
   }, []);
 
   return (
@@ -76,24 +90,19 @@ export function HeroSection({ onSelectCategory }: HeroSectionProps) {
           {/* Main Greeting & Massive Display Name */}
           <div className="space-y-3 sm:space-y-4 max-w-5xl mx-auto">
             <p className="hero-greeting text-black/75 dark:text-white/75 font-display font-medium text-xl sm:text-3xl md:text-4xl tracking-tight">
-              Hey, I&apos;m
+              {siteContent.heroGreeting}
             </p>
 
             <h1 className="hero-title font-display font-black text-6xl sm:text-8xl md:text-9xl lg:text-[112px] xl:text-[126px] leading-[1.0] tracking-[-0.04em] text-black dark:text-white dark:drop-shadow-[0_8px_28px_rgba(0,0,0,0.4)]">
-              Jheryco Takizawa
+              {siteContent.heroName}
             </h1>
 
             {/* Typing Text: slightly smaller than Jheryco Takizawa, darker tone with dynamic black/white shadow */}
             <div className="hero-typing flex items-center justify-center gap-2 sm:gap-3 font-display font-bold text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#D03E0B] dark:text-[#E04F18] tracking-tight min-h-[48px] sm:min-h-[64px] drop-shadow-[0_4px_14px_rgba(0,0,0,0.6)] [text-shadow:0_3px_12px_rgba(0,0,0,0.65),0_1px_2px_rgba(0,0,0,0.9)] dark:drop-shadow-[0_0_22px_rgba(255,255,255,0.75)] dark:[text-shadow:0_0_20px_rgba(255,255,255,0.85),0_0_40px_rgba(255,255,255,0.45)]">
               <span className="text-black/60 dark:text-white/60 font-semibold text-xl sm:text-3xl md:text-4xl">a</span>
-              <span className="sr-only">Jheryco Takizawa Natal Kristiawan (Jheryco) — </span>
+              <span className="sr-only">{siteContent.heroName} — </span>
               <TextType
-                text={[
-                  'Frontend Developer',
-                  'UI/UX Designer',
-                  'Creative Thinker',
-                  'Web Craftsman',
-                ]}
+                text={siteContent.heroTypingTexts}
                 as="span"
                 typingSpeed={55}
                 initialDelay={400}
@@ -113,29 +122,27 @@ export function HeroSection({ onSelectCategory }: HeroSectionProps) {
 
           {/* Philosophy Section & Action Links - Positioned Below */}
           <div className="hero-philosophy max-w-2xl mx-auto mt-12 sm:mt-16 pt-8 border-t border-neutral-300/40 dark:border-white/10 space-y-4">
-            <h2 className="font-display font-extrabold text-2xl sm:text-3xl leading-snug text-black dark:text-white tracking-tight">
-              Great interfaces should
-              <br className="hidden sm:inline" /> feel invisible.
+            <h2 className="font-display font-extrabold text-2xl sm:text-3xl leading-snug text-black dark:text-white tracking-tight whitespace-pre-line">
+              {siteContent.heroPhilosophyTitle}
             </h2>
             <p className="text-sm sm:text-base text-black/85 dark:text-white/75 leading-relaxed font-sans font-medium max-w-xl mx-auto">
-              From Figma design tokens to scalable Next.js architecture, I craft web
-              experiences that connect, perform, and convert with effortless fluidity.
+              {siteContent.heroPhilosophyDesc}
             </p>
-            <div className="hero-links pt-3 flex items-center justify-center gap-4">
-              <Link
-                href="/#projects"
-                className="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-black hover:text-neutral-800 dark:text-primary dark:hover:text-tertiary transition-colors"
-              >
-                <span className="underline underline-offset-4 decoration-black/40 hover:decoration-black dark:no-underline">Explore Selected Work</span>
-                <span className="font-mono text-xs transition-transform group-hover:translate-x-0.5">&rarr;</span>
-              </Link>
-              <span className="text-neutral-400 dark:text-neutral-600">&bull;</span>
+            <div className="hero-links pt-4 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
               <Link
                 href="/about"
-                className="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-black dark:text-white/90 hover:text-neutral-700 dark:hover:text-primary transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary hover:bg-tertiary text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:shadow-primary/30 hover:scale-[1.02]"
               >
-                <span>Read Profile</span>
-                <span className="font-mono text-xs transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                <FileText className="w-3.5 h-3.5 text-white" />
+                <span>View CV &amp; Credentials</span>
+              </Link>
+
+              <Link
+                href="/#projects"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-surface hover:bg-elevated border border-hairline text-black dark:text-white font-bold text-xs sm:text-sm transition-all shadow-xs hover:scale-[1.02]"
+              >
+                <span>Explore Works</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>

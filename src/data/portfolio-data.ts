@@ -1,4 +1,5 @@
-import { SkillItem, ProjectItem, GuestbookEntry } from '@/types/portfolio';
+import { SkillItem, ProjectItem, GuestbookEntry, SiteContent } from '@/types/portfolio';
+import { supabase } from '@/lib/supabase';
 
 export const skillsData: SkillItem[] = [
   { name: 'Next.js 15 (App Router)', category: 'frontend', level: '94%', tag: 'Core Stack' },
@@ -28,6 +29,8 @@ export const projectsData: ProjectItem[] = [
     problem: 'Crafting responsive user interfaces with seamless accessibility and high FPS animation curves.',
     design: 'Strict 8px design system with semantic dark mode tokens and fluid typography.',
     code: 'Modular architecture powered by Next.js 15 App Router and server actions.',
+    liveUrl: 'https://jtakizawa.my.id',
+    githubUrl: 'https://github.com/Jheryyy',
   },
   {
     id: 'proj-1792137164486',
@@ -45,6 +48,8 @@ export const projectsData: ProjectItem[] = [
     problem: 'Showcasing luxury modern homes with comprehensive building specifications and promotional galleries for prospective buyers.',
     design: 'Clean, elegant editorial presentation with focus on property visuals, location benefits, and user trust.',
     code: 'Fast loading landing page with mobile-first responsive architecture and optimized digital walkthroughs.',
+    liveUrl: 'https://muaradukuhresidence.com',
+    githubUrl: 'https://github.com/Jheryyy',
   },
   {
     id: 'proj-1792140782848',
@@ -62,6 +67,8 @@ export const projectsData: ProjectItem[] = [
     problem: 'Delivering accessible property specs and location advantages for first-time and luxury homebuyers.',
     design: 'Modern housing showcase with high readability, clean spacing, and clear call-to-action touchpoints.',
     code: 'Accessible keyboard navigation, responsive grid layouts, and high performance cross-device compatibility.',
+    liveUrl: 'https://nuraresidence.com',
+    githubUrl: 'https://github.com/Jheryyy',
   },
   {
     id: 'proj-1792140862783',
@@ -79,6 +86,8 @@ export const projectsData: ProjectItem[] = [
     problem: 'Presenting residential facilities and location highlights in an easily navigable format.',
     design: 'Structured bento-style highlights and clear navigation tailored for prospective buyers.',
     code: 'Lightweight styling, fast image rendering, and streamlined lead generation forms.',
+    liveUrl: 'https://citayamasriresidence.com',
+    githubUrl: 'https://github.com/Jheryyy',
   },
   {
     id: 'proj-1792141101939',
@@ -96,6 +105,8 @@ export const projectsData: ProjectItem[] = [
     problem: 'Converting web traffic into product orders for wild forest honey with persuasive copywriting.',
     design: 'Warm, natural color palette with rich typography, guarantee badges, and customer review cards.',
     code: 'High-converting CTA funnels, responsive product package cards, and instant contact routing.',
+    liveUrl: 'https://maduhoniva.com',
+    githubUrl: 'https://github.com/Jheryyy',
   },
 ];
 
@@ -128,3 +139,66 @@ export const initialGuestbookEntries: GuestbookEntry[] = [
     likes: 7,
   },
 ];
+
+export const defaultSiteContent: SiteContent = {
+  heroGreeting: "Hey, I'm",
+  heroName: "Jheryco Takizawa",
+  heroTypingTexts: [
+    'Frontend Developer',
+    'UI/UX Designer',
+    'Creative Thinker',
+    'Web Craftsman',
+  ],
+  heroPhilosophyTitle: 'Great interfaces should\nfeel invisible.',
+  heroPhilosophyDesc:
+    'From Figma design tokens to scalable Next.js architecture, I craft web experiences that connect, perform, and convert with effortless fluidity.',
+  aboutEyebrow: 'About • Behind the Code & Canvas',
+  aboutTitle: 'Shaping Digital Experiences That Make Web Simpler',
+  aboutSchoolBadge: 'SMK Negeri 1 Depok • PPLG',
+  aboutBioP1:
+    'Hello! I am Jheryco Takizawa Natal Kristiawan, a Software Engineering (PPLG) student at SMK Negeri 1 Depok with an immense passion for Web Development and UI/UX Design.',
+  aboutBioP2:
+    'From conceptual wireframes and Figma design tokens to scalable Next.js and TypeScript engineering, I am dedicated to bridging creative intuition with rigorous software craftsmanship.',
+  contactEmail: 'jherycotakizawa@gmail.com',
+  instagramUrl: 'https://instagram.com/abcdefghijherr',
+  tiktokUrl: 'https://www.tiktok.com/@abcdefghijherr',
+  githubUrl: 'https://github.com/Jheryyy',
+  skills: skillsData,
+};
+
+export const getStoredSiteContent = (): SiteContent => {
+  if (typeof window === 'undefined') return defaultSiteContent;
+  try {
+    const raw = localStorage.getItem('takizawa_site_content');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        ...defaultSiteContent,
+        ...parsed,
+        skills: Array.isArray(parsed.skills) && parsed.skills.length > 0 ? parsed.skills : defaultSiteContent.skills,
+      };
+    }
+  } catch (err) {
+    console.warn('Could not read site content from localStorage:', err);
+  }
+  return defaultSiteContent;
+};
+
+export const saveStoredSiteContent = async (content: SiteContent): Promise<void> => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('takizawa_site_content', JSON.stringify(content));
+    window.dispatchEvent(new CustomEvent('site-content-updated', { detail: content }));
+
+    // Try saving to Supabase if site_content table exists
+    try {
+      await supabase
+        .from('site_content')
+        .upsert({ id: 'primary', content: JSON.stringify(content), updated_at: new Date().toISOString() });
+    } catch {
+      // Ignored if table doesn't exist
+    }
+  } catch (err) {
+    console.error('Failed to save site content:', err);
+  }
+};

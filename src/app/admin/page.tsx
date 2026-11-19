@@ -35,11 +35,16 @@ import {
   Pencil,
   CornerDownRight,
   MessageCircle,
+  Sliders,
+  FileText,
+  Sparkles,
+  Save,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { ProjectCategory } from '@/types/portfolio';
+import { ProjectCategory, SiteContent, SkillItem } from '@/types/portfolio';
+import { defaultSiteContent, getStoredSiteContent, saveStoredSiteContent } from '@/data/portfolio-data';
 
-type ActiveTab = 'overview' | 'projects' | 'contacts' | 'guestbook';
+type ActiveTab = 'overview' | 'projects' | 'content' | 'contacts' | 'guestbook';
 type AdminThemeMode = 'dark' | 'light';
 
 interface ContactItem {
@@ -153,6 +158,17 @@ export default function AdminDashboardPage() {
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [projectForm, setProjectForm] = useState(EMPTY_PROJECT_FORM);
 
+  // Content Management States
+  const [siteContentForm, setSiteContentForm] = useState<SiteContent>(defaultSiteContent);
+  const [savingContent, setSavingContent] = useState(false);
+  const [newTypingText, setNewTypingText] = useState('');
+  const [newSkill, setNewSkill] = useState<SkillItem>({
+    name: '',
+    category: 'frontend',
+    level: '90%',
+    tag: 'Frontend',
+  });
+
   // Folder image upload states
   const [imageSourceMode, setImageSourceMode] = useState<'upload' | 'folder' | 'url'>('upload');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -213,11 +229,19 @@ export default function AdminDashboardPage() {
 
     setIsUploadingImage(true);
     try {
+      const token =
+        sessionStorage.getItem('takizawa_admin_auth') ||
+        localStorage.getItem('takizawa_admin_auth') ||
+        '';
+
       const formData = new FormData();
       formData.append('file', file);
 
       const res = await fetch('/api/upload-project-image', {
         method: 'POST',
+        headers: {
+          'x-admin-token': token,
+        },
         body: formData,
       });
 
@@ -240,24 +264,35 @@ export default function AdminDashboardPage() {
 
   // 4. Check auth session
   useEffect(() => {
-    try {
-      const sessionToken = sessionStorage.getItem('takizawa_admin_auth');
-      const localToken = localStorage.getItem('takizawa_admin_auth');
-      if (
-        sessionToken === 'authenticated_jheryco_2026' ||
-        localToken === 'authenticated_jheryco_2026'
-      ) {
-        setIsAuthenticated(true);
+    const checkAuth = async () => {
+      try {
+        // Cek sesi Supabase Auth aktif
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session) {
+          setIsAuthenticated(true);
+          return;
+        }
+
+        const sessionToken = sessionStorage.getItem('takizawa_admin_auth');
+        const localToken = localStorage.getItem('takizawa_admin_auth');
+        if (
+          sessionToken === 'authenticated_jheryco_2026' ||
+          localToken === 'authenticated_jheryco_2026'
+        ) {
+          setIsAuthenticated(true);
+        }
+      } catch {
+        // Ignored
+      } finally {
+        setIsAuthChecking(false);
       }
-    } catch {
-      // Ignored
-    } finally {
-      setIsAuthChecking(false);
-    }
+    };
+
+    checkAuth();
   }, []);
 
-  // 5. Login verification (usn: JherycoTakizawa, pw: Chikzz4You)
-  const handleLogin = (e: React.FormEvent) => {
+  // 5. Login verification (Supabase Auth & Admin credentials)
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
     setIsLoggingIn(true);
@@ -265,29 +300,60 @@ export default function AdminDashboardPage() {
     const trimmedUser = loginUsername.trim();
     const trimmedPw = loginPassword;
 
-    if (trimmedUser === 'JherycoTakizawa' && trimmedPw === 'Chikzz4You') {
-      try {
-        if (rememberMe) {
-          localStorage.setItem('takizawa_admin_auth', 'authenticated_jheryco_2026');
-        } else {
-          sessionStorage.setItem('takizawa_admin_auth', 'authenticated_jheryco_2026');
+    try {
+      // 1. Dukungan Supabase Auth jika input berupa email
+      if (trimmedUser.includes('@')) {
+        const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
+          email: trimmedUser,
+          password: trimmedPw,
+        });
+
+        if (!authErr && authData?.session) {
+          try {
+            if (rememberMe) {
+              localStorage.setItem('takizawa_admin_auth', 'authenticated_jheryco_2026');
+            } else {
+              sessionStorage.setItem('takizawa_admin_auth', 'authenticated_jheryco_2026');
+            }
+          } catch {}
+          setIsAuthenticated(true);
+          setIsLoggingIn(false);
+          showNotice('✅ Login Supabase Auth berhasil! Akses Dashboard diberikan.');
+          return;
         }
-      } catch {
-        // Ignored
       }
-      setIsAuthenticated(true);
-      setIsLoggingIn(false);
-      showNotice('Selamat datang kembali, Jheryco! Akses Dashboard diberikan.');
-    } else {
-      setTimeout(() => {
+
+      // 2. Kredensial Administrator Takizawa
+      if (
+        (trimmedUser.toLowerCase() === 'jherycotakizawa' || trimmedUser.toLowerCase() === 'takizawa') &&
+        trimmedPw === 'Chikzz4You'
+      ) {
+        try {
+          if (rememberMe) {
+            localStorage.setItem('takizawa_admin_auth', 'authenticated_jheryco_2026');
+          } else {
+            sessionStorage.setItem('takizawa_admin_auth', 'authenticated_jheryco_2026');
+          }
+        } catch {
+          // Ignored
+        }
+        setIsAuthenticated(true);
         setIsLoggingIn(false);
-        setAuthError('Username atau Password salah! Periksa kembali kredensial Anda.');
-      }, 300);
+        showNotice('Selamat datang kembali, Jheryco! Akses Dashboard diberikan.');
+        return;
+      }
+
+      setAuthError('Username/Email atau Password salah! Periksa kembali kredensial Anda.');
+    } catch (err: any) {
+      setAuthError(err.message || 'Terjadi kesalahan saat verifikasi login.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
+      await supabase.auth.signOut();
       sessionStorage.removeItem('takizawa_admin_auth');
       localStorage.removeItem('takizawa_admin_auth');
     } catch {
@@ -353,12 +419,96 @@ export default function AdminDashboardPage() {
         setGuestbookPending(pending);
         setGuestbookApproved(approved);
       }
+
+      // 4. Site Content & Bio Data
+      try {
+        const { data: scData } = await supabase.from('site_content').select('*').eq('id', 'primary').maybeSingle();
+        if (scData && scData.content) {
+          const parsed = typeof scData.content === 'string' ? JSON.parse(scData.content) : scData.content;
+          setSiteContentForm({ ...defaultSiteContent, ...parsed });
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('takizawa_site_content', JSON.stringify(parsed));
+          }
+        } else {
+          setSiteContentForm(getStoredSiteContent());
+        }
+      } catch {
+        setSiteContentForm(getStoredSiteContent());
+      }
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
     } finally {
       setIsLoading(false);
     }
   }, []);
+
+  // Content Management Action Handlers
+  const handleSaveSiteContent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingContent(true);
+    try {
+      await saveStoredSiteContent(siteContentForm);
+      showNotice('✅ Konten portofolio, bio, dan keahlian berhasil diperbarui secara langsung!');
+    } catch (err: any) {
+      showNotice('❌ Gagal menyimpan konten: ' + (err.message || 'Error'));
+    } finally {
+      setSavingContent(false);
+    }
+  };
+
+  const handleResetSiteContent = () => {
+    if (confirm('Kembalikan seluruh isi bio, filosofi, dan keahlian ke bawaan awal?')) {
+      setSiteContentForm(defaultSiteContent);
+      saveStoredSiteContent(defaultSiteContent);
+      showNotice('🔄 Konten berhasil di-reset ke nilai default.');
+    }
+  };
+
+  const handleAddTypingText = () => {
+    if (!newTypingText.trim()) return;
+    setSiteContentForm((prev) => ({
+      ...prev,
+      heroTypingTexts: [...prev.heroTypingTexts, newTypingText.trim()],
+    }));
+    setNewTypingText('');
+  };
+
+  const handleRemoveTypingText = (index: number) => {
+    setSiteContentForm((prev) => ({
+      ...prev,
+      heroTypingTexts: prev.heroTypingTexts.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddSkill = () => {
+    if (!newSkill.name.trim()) return;
+    setSiteContentForm((prev) => ({
+      ...prev,
+      skills: [...prev.skills, { ...newSkill }],
+    }));
+    setNewSkill({
+      name: '',
+      category: 'frontend',
+      level: '90%',
+      tag: 'Frontend',
+    });
+    showNotice(`✅ Keahlian "${newSkill.name}" berhasil ditambahkan.`);
+  };
+
+  const handleRemoveSkill = (index: number) => {
+    setSiteContentForm((prev) => ({
+      ...prev,
+      skills: prev.skills.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleUpdateSkill = (index: number, field: keyof SkillItem, value: string) => {
+    setSiteContentForm((prev) => {
+      const updated = [...prev.skills];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, skills: updated };
+    });
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -675,7 +825,7 @@ CREATE POLICY "Allow public delete on contacts" ON public.contacts FOR DELETE TO
               <div className="space-y-1.5">
                 <label className="text-xs font-mono font-medium text-neutral-300 flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>Username</span>
+                  <span>Username atau Email Supabase</span>
                 </label>
                 <input
                   type="text"
@@ -683,7 +833,7 @@ CREATE POLICY "Allow public delete on contacts" ON public.contacts FOR DELETE TO
                   autoFocus
                   value={loginUsername}
                   onChange={(e) => setLoginUsername(e.target.value)}
-                  placeholder="JherycoTakizawa"
+                  placeholder="JherycoTakizawa atau email@admin.com"
                   className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 focus:border-white focus:ring-1 focus:ring-white text-white placeholder-neutral-500 text-sm font-sans outline-none transition-all"
                 />
               </div>
@@ -907,6 +1057,37 @@ CREATE POLICY "Allow public delete on contacts" ON public.contacts FOR DELETE TO
               </span>
             </button>
 
+            {/* Content & Bio Manager */}
+            <button
+              onClick={() => {
+                setActiveTab('content');
+                setIsMobileSidebarOpen(false);
+              }}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-medium transition-all cursor-pointer ${
+                activeTab === 'content'
+                  ? isDark
+                    ? 'bg-white text-black font-bold shadow-sm'
+                    : 'bg-slate-900 text-white font-bold shadow-sm'
+                  : isDark
+                  ? 'text-neutral-400 hover:text-white hover:bg-white/5'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Sliders className="w-4 h-4 text-primary" />
+                <span>Kelola Konten &amp; Bio</span>
+              </div>
+              <span
+                className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                  activeTab === 'content'
+                    ? 'bg-primary text-white'
+                    : 'bg-primary/10 text-primary'
+                }`}
+              >
+                Live
+              </span>
+            </button>
+
             {/* Contacts */}
             <button
               onClick={() => {
@@ -1106,6 +1287,7 @@ CREATE POLICY "Allow public delete on contacts" ON public.contacts FOR DELETE TO
               <h1 className="font-display font-extrabold text-2xl tracking-tight">
                 {activeTab === 'overview' && 'Ringkasan Studio'}
                 {activeTab === 'projects' && 'Kelola Proyek (CRUD)'}
+                {activeTab === 'content' && 'Kelola Konten & Bio'}
                 {activeTab === 'contacts' && 'Pesan Kontak Masuk'}
                 {activeTab === 'guestbook' && 'Moderasi Buku Tamu (Guestbook)'}
               </h1>
@@ -1567,6 +1749,543 @@ CREATE POLICY "Allow public delete on contacts" ON public.contacts FOR DELETE TO
                 </div>
               )}
             </div>
+          )}
+
+          {/* TAB: CONTENT & BIO MANAGER */}
+          {activeTab === 'content' && (
+            <form onSubmit={handleSaveSiteContent} className="space-y-8">
+              {/* Header Action Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border bg-primary/5 border-primary/20">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+                    <h3 className="font-display font-bold text-lg text-primary">
+                      Kelola Isi Konten, Bio &amp; Keahlian
+                    </h3>
+                  </div>
+                  <p className={`text-xs ${isDark ? 'text-neutral-400' : 'text-slate-600'}`}>
+                    Perubahan yang Anda simpan di sini akan langsung tampil pada Hero, About, dan Skills portofolio secara real-time.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleResetSiteContent}
+                    className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold border transition-colors cursor-pointer ${
+                      isDark
+                        ? 'border-white/10 hover:bg-white/10 text-neutral-300'
+                        : 'border-slate-300 hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    Reset Bawaan
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={savingContent}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-tertiary text-white font-mono text-xs font-bold transition-all shadow-md hover:shadow-primary/30 cursor-pointer disabled:opacity-50"
+                  >
+                    {savingContent ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Save className="w-3.5 h-3.5" />
+                    )}
+                    <span>{savingContent ? 'Menyimpan...' : 'Simpan Perubahan'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Bento Grid: Section 1 & 2 */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* 1. Hero & Identitas Pengembang */}
+                <div
+                  className={`p-6 rounded-2xl border space-y-4 ${
+                    isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-slate-200 shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 pb-2 border-b border-inherit">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <h4 className="font-display font-bold text-base">Profil &amp; Hero Section</h4>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-mono font-medium text-neutral-400">Salam Pembuka</label>
+                      <input
+                        type="text"
+                        value={siteContentForm.heroGreeting}
+                        onChange={(e) =>
+                          setSiteContentForm((prev) => ({ ...prev, heroGreeting: e.target.value }))
+                        }
+                        placeholder="Hey, I'm"
+                        className={`w-full px-4 py-2.5 rounded-xl border text-sm font-sans outline-none transition-all ${
+                          isDark
+                            ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                            : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                        }`}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-mono font-medium text-neutral-400">Nama Tampilan</label>
+                      <input
+                        type="text"
+                        value={siteContentForm.heroName}
+                        onChange={(e) =>
+                          setSiteContentForm((prev) => ({ ...prev, heroName: e.target.value }))
+                        }
+                        placeholder="Jheryco Takizawa"
+                        className={`w-full px-4 py-2.5 rounded-xl border text-sm font-sans outline-none transition-all ${
+                          isDark
+                            ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                            : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                        }`}
+                      />
+                    </div>
+
+                    {/* Typing Text List */}
+                    <div className="space-y-1.5 pt-1">
+                      <label className="text-xs font-mono font-medium text-neutral-400">
+                        Judul Profesi Animasi (Typing Machine)
+                      </label>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {siteContentForm.heroTypingTexts.map((txt, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-mono text-xs font-bold"
+                          >
+                            <span>{txt}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTypingText(idx)}
+                              className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-primary/20 cursor-pointer"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={newTypingText}
+                          onChange={(e) => setNewTypingText(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddTypingText();
+                            }
+                          }}
+                          placeholder="Tambah profesi baru (cth: Creative Developer)"
+                          className={`flex-1 px-4 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                            isDark
+                              ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                              : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                          }`}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddTypingText}
+                          className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-mono font-bold cursor-pointer"
+                        >
+                          + Tambah
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1 pt-1">
+                      <label className="text-xs font-mono font-medium text-neutral-400">Judul Slogan Filosofi</label>
+                      <textarea
+                        rows={2}
+                        value={siteContentForm.heroPhilosophyTitle}
+                        onChange={(e) =>
+                          setSiteContentForm((prev) => ({ ...prev, heroPhilosophyTitle: e.target.value }))
+                        }
+                        className={`w-full px-4 py-2 rounded-xl border text-sm font-sans outline-none transition-all ${
+                          isDark
+                            ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                            : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                        }`}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-mono font-medium text-neutral-400">Deskripsi Filosofi</label>
+                      <textarea
+                        rows={3}
+                        value={siteContentForm.heroPhilosophyDesc}
+                        onChange={(e) =>
+                          setSiteContentForm((prev) => ({ ...prev, heroPhilosophyDesc: e.target.value }))
+                        }
+                        className={`w-full px-4 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                          isDark
+                            ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                            : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. About & Kontak Sosial */}
+                <div className="space-y-6">
+                  {/* About Settings */}
+                  <div
+                    className={`p-6 rounded-2xl border space-y-4 ${
+                      isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-slate-200 shadow-sm'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 pb-2 border-b border-inherit">
+                      <FileText className="w-4 h-4 text-primary" />
+                      <h4 className="font-display font-bold text-base">Halaman Tentang &amp; Kredensial</h4>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-mono font-medium text-neutral-400">Label Eyebrow About</label>
+                        <input
+                          type="text"
+                          value={siteContentForm.aboutEyebrow}
+                          onChange={(e) =>
+                            setSiteContentForm((prev) => ({ ...prev, aboutEyebrow: e.target.value }))
+                          }
+                          className={`w-full px-4 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                            isDark
+                              ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                              : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                          }`}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-mono font-medium text-neutral-400">Judul Utama H2 About</label>
+                        <input
+                          type="text"
+                          value={siteContentForm.aboutTitle}
+                          onChange={(e) =>
+                            setSiteContentForm((prev) => ({ ...prev, aboutTitle: e.target.value }))
+                          }
+                          className={`w-full px-4 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                            isDark
+                              ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                              : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                          }`}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-mono font-medium text-neutral-400">Badge Sekolah &amp; Program</label>
+                        <input
+                          type="text"
+                          value={siteContentForm.aboutSchoolBadge}
+                          onChange={(e) =>
+                            setSiteContentForm((prev) => ({ ...prev, aboutSchoolBadge: e.target.value }))
+                          }
+                          className={`w-full px-4 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                            isDark
+                              ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                              : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Kontak & Media Sosial */}
+                  <div
+                    className={`p-6 rounded-2xl border space-y-4 ${
+                      isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-slate-200 shadow-sm'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 pb-2 border-b border-inherit">
+                      <Mail className="w-4 h-4 text-primary" />
+                      <h4 className="font-display font-bold text-base">Kontak &amp; Tautan Sosial</h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-mono font-medium text-neutral-400">Email Utama</label>
+                        <input
+                          type="email"
+                          value={siteContentForm.contactEmail}
+                          onChange={(e) =>
+                            setSiteContentForm((prev) => ({ ...prev, contactEmail: e.target.value }))
+                          }
+                          className={`w-full px-3.5 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                            isDark
+                              ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                              : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                          }`}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-mono font-medium text-neutral-400">URL GitHub</label>
+                        <input
+                          type="url"
+                          value={siteContentForm.githubUrl}
+                          onChange={(e) =>
+                            setSiteContentForm((prev) => ({ ...prev, githubUrl: e.target.value }))
+                          }
+                          className={`w-full px-3.5 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                            isDark
+                              ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                              : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                          }`}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-mono font-medium text-neutral-400">URL Instagram</label>
+                        <input
+                          type="url"
+                          value={siteContentForm.instagramUrl}
+                          onChange={(e) =>
+                            setSiteContentForm((prev) => ({ ...prev, instagramUrl: e.target.value }))
+                          }
+                          className={`w-full px-3.5 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                            isDark
+                              ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                              : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                          }`}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-mono font-medium text-neutral-400">URL TikTok</label>
+                        <input
+                          type="url"
+                          value={siteContentForm.tiktokUrl}
+                          onChange={(e) =>
+                            setSiteContentForm((prev) => ({ ...prev, tiktokUrl: e.target.value }))
+                          }
+                          className={`w-full px-3.5 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                            isDark
+                              ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                              : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Kelola Keahlian & Skills Manager */}
+              <div
+                className={`p-6 rounded-2xl border space-y-5 ${
+                  isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-slate-200 shadow-sm'
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-inherit">
+                  <div className="flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-primary" />
+                    <h4 className="font-display font-bold text-base">Kelola Keahlian &amp; Tech Stack</h4>
+                  </div>
+                  <span className="text-xs font-mono text-neutral-400">
+                    Total: {siteContentForm.skills.length} Keahlian
+                  </span>
+                </div>
+
+                {/* Form Tambah Skill Baru */}
+                <div className="p-4 rounded-xl border border-dashed border-primary/30 bg-primary/[0.02] space-y-3">
+                  <span className="text-xs font-mono font-bold text-primary flex items-center gap-1.5">
+                    <Plus className="w-3.5 h-3.5" /> Tambah Keahlian Baru
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <input
+                      type="text"
+                      value={newSkill.name}
+                      onChange={(e) => setNewSkill((prev) => ({ ...prev, name: e.target.value }))}
+                      placeholder="Nama Skill (cth: Next.js 15)"
+                      className={`px-3 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                        isDark
+                          ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                          : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                      }`}
+                    />
+
+                    <select
+                      value={newSkill.category}
+                      onChange={(e) =>
+                        setNewSkill((prev) => ({ ...prev, category: e.target.value as any }))
+                      }
+                      className={`px-3 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                        isDark
+                          ? 'bg-neutral-900 border-white/10 focus:border-white text-white'
+                          : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                      }`}
+                    >
+                      <option value="frontend">Frontend</option>
+                      <option value="uiux">UI/UX Craft</option>
+                      <option value="backend">Backend &amp; DB</option>
+                    </select>
+
+                    <input
+                      type="text"
+                      value={newSkill.level}
+                      onChange={(e) => setNewSkill((prev) => ({ ...prev, level: e.target.value }))}
+                      placeholder="Level (cth: 95%)"
+                      className={`px-3 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                        isDark
+                          ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                          : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                      }`}
+                    />
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={newSkill.tag}
+                        onChange={(e) => setNewSkill((prev) => ({ ...prev, tag: e.target.value }))}
+                        placeholder="Tag (cth: Core Stack)"
+                        className={`flex-1 px-3 py-2 rounded-xl border text-xs font-sans outline-none transition-all ${
+                          isDark
+                            ? 'bg-white/5 border-white/10 focus:border-white text-white'
+                            : 'bg-slate-50 border-slate-200 focus:border-slate-800 text-slate-900'
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddSkill}
+                        className="px-4 py-2 rounded-xl bg-primary hover:bg-tertiary text-white font-mono text-xs font-bold transition-all cursor-pointer shrink-0"
+                      >
+                        + Tambah
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Grid List Skills Aktif */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {siteContentForm.skills.map((skill, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 ${
+                        isDark ? 'bg-white/[0.02] border-white/10' : 'bg-slate-50 border-slate-200'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={skill.name}
+                            onChange={(e) => handleUpdateSkill(idx, 'name', e.target.value)}
+                            className="font-bold text-xs bg-transparent border-b border-transparent hover:border-inherit focus:border-primary outline-none w-full"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] font-mono">
+                          <span className="text-primary font-bold">{skill.level}</span>
+                          <span>&bull;</span>
+                          <span className="uppercase text-neutral-400">{skill.category}</span>
+                          <span>&bull;</span>
+                          <span className="truncate text-neutral-400">{skill.tag}</span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSkill(idx)}
+                        className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
+                        title="Hapus Skill"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 4. Konfigurasi Branding & Logo Behavior Preview */}
+              <div
+                className={`p-6 rounded-2xl border space-y-4 ${
+                  isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-slate-200 shadow-sm'
+                }`}
+              >
+                <div className="flex items-center gap-2 pb-2 border-b border-inherit">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <h4 className="font-display font-bold text-base">Konfigurasi Logo &amp; Efek Interaktif</h4>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                  <div className="space-y-3">
+                    <p className={`text-xs font-sans leading-relaxed ${isDark ? 'text-neutral-300' : 'text-slate-700'}`}>
+                      Sistem logo cerdas aktif di Navbar dan Footer:
+                    </p>
+                    <ul className="space-y-2 text-xs font-mono">
+                      <li className="flex items-center gap-2 text-emerald-500 font-semibold">
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                        <span>Scroll ke bawah: Logo otomatis menghilang halus.</span>
+                      </li>
+                      <li className="flex items-center gap-2 text-emerald-500 font-semibold">
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                        <span>Scroll ke atas: Logo otomatis meluncur muncul di tengah.</span>
+                      </li>
+                      <li className="flex items-center gap-2 text-primary font-semibold">
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                        <span>Hover kursor: Logo berganti seketika dari logo.png ke logos.png.</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Visual Preview Box */}
+                  <div
+                    className={`p-6 rounded-2xl border flex flex-col items-center justify-center gap-3 ${
+                      isDark ? 'bg-black/50 border-white/10' : 'bg-slate-100 border-slate-300'
+                    }`}
+                  >
+                    <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
+                      Preview Interaksi (Arahkan Kursor):
+                    </span>
+                    <div className="relative h-14 w-36 flex items-center justify-center overflow-hidden group cursor-pointer border border-primary/20 rounded-xl p-2 bg-black/20">
+                      <img
+                        src="/logo.png"
+                        alt="Logo"
+                        className="absolute inset-0 w-full h-full scale-[2.2] translate-y-[5%] object-contain transition-all duration-300 group-hover:opacity-0"
+                      />
+                      <img
+                        src="/logos.png"
+                        alt="Logos"
+                        className="absolute inset-0 w-full h-full scale-[2.2] translate-y-[5%] object-contain opacity-0 transition-all duration-300 group-hover:opacity-100"
+                      />
+                    </div>
+                    <span className="text-[11px] font-mono text-primary font-bold">
+                      Arahkan kursor ke kotak di atas untuk melihat transisi logo &rarr; logos
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Sticky Action Bar */}
+              <div className="sticky bottom-4 z-20 p-4 rounded-2xl bg-neutral-900/90 dark:bg-black/90 backdrop-blur-md border border-white/10 flex items-center justify-between shadow-2xl">
+                <span className="text-xs font-mono text-neutral-400 hidden sm:inline">
+                  Pastikan menekan tombol simpan agar perubahan tampil di website utama.
+                </span>
+                <div className="flex items-center gap-3 ml-auto">
+                  <button
+                    type="button"
+                    onClick={handleResetSiteContent}
+                    className="px-4 py-2 rounded-xl text-xs font-mono font-bold text-neutral-400 hover:text-white cursor-pointer"
+                  >
+                    Batal / Reset
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={savingContent}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary hover:bg-tertiary text-white font-mono text-xs font-bold transition-all shadow-md hover:shadow-primary/30 cursor-pointer disabled:opacity-50"
+                  >
+                    {savingContent ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Save className="w-3.5 h-3.5" />
+                    )}
+                    <span>{savingContent ? 'Menyimpan...' : 'Simpan Semua Perubahan'}</span>
+                  </button>
+                </div>
+              </div>
+            </form>
           )}
 
           {/* TAB 3: CONTACTS */}

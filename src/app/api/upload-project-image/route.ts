@@ -5,6 +5,33 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Autentikasi & Verifikasi Token
+    const adminToken = req.headers.get('x-admin-token');
+    const authHeader = req.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '') || adminToken;
+
+    let isAuthorized = false;
+
+    if (token === 'authenticated_jheryco_2026') {
+      isAuthorized = true;
+    } else if (token) {
+      try {
+        const { data: userData, error: userError } = await supabase.auth.getUser(token);
+        if (!userError && userData.user) {
+          isAuthorized = true;
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: 'Akses ditolak: Anda harus login ke Dashboard Admin untuk mengunggah gambar' },
+        { status: 401 }
+      );
+    }
+
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
 

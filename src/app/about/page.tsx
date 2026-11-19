@@ -17,6 +17,7 @@ import {
   Monitor,
   Heart,
   Compass,
+  Download,
 } from 'lucide-react';
 import { SkillCategory } from '@/types/portfolio';
 import { skillsData } from '@/data/portfolio-data';
@@ -152,6 +153,21 @@ export default function AboutDetailPage() {
                   <span className="font-bold text-black dark:text-white">Figma</span>
                 </li>
               </ul>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.print();
+                    }
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-tertiary text-white font-mono text-xs font-bold transition-all shadow-sm cursor-pointer hover:shadow-primary/30"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download / Print CV</span>
+                </button>
+              </div>
             </div>
           </div>
         </section>

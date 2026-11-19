@@ -42,7 +42,13 @@ export function VideoSplashScreen() {
     setIsDismissing(true);
     document.body.style.overflow = '';
 
-    triggerMusic();
+    try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('splash_dismissed', 'true');
+      }
+    } catch {
+      // Ignore
+    }
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('splash-dismissed'));
@@ -63,15 +69,6 @@ export function VideoSplashScreen() {
 
   const playSplash = useCallback(() => {
     if (isDashboardRoute) return;
-
-    // Remove any previous session suppression so splash screen always plays and repeats
-    try {
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('splash_dismissed');
-      }
-    } catch {
-      // Ignore
-    }
 
     isDismissingRef.current = false;
     setIsDismissing(false);
@@ -95,7 +92,17 @@ export function VideoSplashScreen() {
       return;
     }
 
-    // 2. Bypass during Lighthouse / automated test runs
+    // 2. Check if already dismissed in current session
+    try {
+      if (typeof window !== 'undefined' && sessionStorage.getItem('splash_dismissed') === 'true') {
+        setIsMounted(false);
+        return;
+      }
+    } catch {
+      // Ignore
+    }
+
+    // 3. Bypass during Lighthouse / automated test runs
     try {
       if (typeof window !== 'undefined') {
         const ua = navigator.userAgent || '';
@@ -115,6 +122,11 @@ export function VideoSplashScreen() {
 
     // Allow replaying splash screen on demand via custom event or global window helper
     const handleReplay = () => {
+      try {
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('splash_dismissed');
+        }
+      } catch {}
       playSplash();
     };
 
@@ -158,9 +170,22 @@ export function VideoSplashScreen() {
       role="dialog"
       aria-modal="true"
       aria-label="Welcome Splash Screen"
-      onClick={triggerMusic}
       className="fixed inset-0 z-[999999] overflow-hidden select-none cursor-default touch-none"
     >
+      {/* Top Right Skip Button */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDismiss();
+        }}
+        className={`absolute top-6 right-6 z-30 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/85 hover:text-white font-mono text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer ${
+          isDismissing ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'
+        }`}
+      >
+        SKIP &rarr;
+      </button>
+
       {/* Left Curtain Door - slides -100% to left */}
       <div
         className={`absolute inset-y-0 left-0 w-1/2 bg-black transition-transform duration-[850ms] ease-[cubic-bezier(0.77,0,0.175,1)] will-change-transform ${

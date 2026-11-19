@@ -24,6 +24,8 @@ export interface ProjectItem {
   problem: string;
   design: string;
   code: string;
+  liveUrl?: string;
+  githubUrl?: string;
 }
 
 export interface GuestbookReply {
@@ -48,4 +50,22 @@ export interface GuestbookEntry {
   likes: number;
   isAdmin?: boolean;
   replies?: GuestbookReply[];
+}
+
+export interface SiteContent {
+  heroGreeting: string;
+  heroName: string;
+  heroTypingTexts: string[];
+  heroPhilosophyTitle: string;
+  heroPhilosophyDesc: string;
+  aboutEyebrow: string;
+  aboutTitle: string;
+  aboutSchoolBadge: string;
+  aboutBioP1: string;
+  aboutBioP2: string;
+  contactEmail: string;
+  instagramUrl: string;
+  tiktokUrl: string;
+  githubUrl: string;
+  skills: SkillItem[];
 }
