@@ -119,7 +119,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-          <span className="font-mono text-xs uppercase tracking-widest text-primary font-bold">
+          <span className="font-sans text-xs uppercase tracking-wider text-primary font-bold">
             CONTACT &bull; GET IN TOUCH
           </span>
         </div>
@@ -199,7 +199,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label htmlFor="contact-name" className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90 cursor-pointer">
+                <label htmlFor="contact-name" className="block text-xs font-sans font-bold uppercase tracking-wider text-black dark:text-white/90 cursor-pointer">
                   Your Name <span className="text-primary">*</span>
                 </label>
                 <input
@@ -209,12 +209,12 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                   placeholder="e.g. Alex Pratama"
                   value={formState.name}
                   onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                  className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors"
+                  className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors font-sans"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="contact-email" className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90 cursor-pointer">
+                <label htmlFor="contact-email" className="block text-xs font-sans font-bold uppercase tracking-wider text-black dark:text-white/90 cursor-pointer">
                   Email Address <span className="text-primary">*</span>
                 </label>
                 <input
@@ -224,13 +224,13 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                   placeholder="alex@company.com"
                   value={formState.email}
                   onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                  className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors"
+                  className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors font-sans"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="contact-subject" className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90 cursor-pointer">
+              <label htmlFor="contact-subject" className="block text-xs font-sans font-bold uppercase tracking-wider text-black dark:text-white/90 cursor-pointer">
                 Subject / Project Interest
               </label>
               <input
@@ -239,12 +239,12 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 placeholder="e.g. Frontend Engineering Collaboration"
                 value={formState.subject}
                 onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
-                className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors"
+                className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors font-sans"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="contact-message" className="block text-xs font-mono font-bold uppercase text-black dark:text-white/90 cursor-pointer">
+              <label htmlFor="contact-message" className="block text-xs font-sans font-bold uppercase tracking-wider text-black dark:text-white/90 cursor-pointer">
                 Message <span className="text-primary">*</span>
               </label>
               <textarea
@@ -254,7 +254,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 placeholder="Tell me about your idea, timeline, or requirements..."
                 value={formState.message}
                 onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                className="w-full px-4 py-3 min-h-[120px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm resize-none transition-colors"
+                className="w-full px-4 py-3 min-h-[120px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm resize-none transition-colors font-sans leading-relaxed"
               />
             </div>
 
@@ -270,7 +270,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
 
           {/* Direct Communication Channels Strip */}
           <div className="pt-6 border-t border-hairline space-y-3">
-            <p className="text-xs font-mono font-bold uppercase text-black dark:text-white/80">
+            <p className="text-xs font-sans font-bold uppercase tracking-wider text-black dark:text-white/80">
               Or Connect Directly:
             </p>
 
@@ -279,7 +279,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-primary/60 text-xs font-mono text-black dark:text-white transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-primary/60 text-xs font-sans text-black dark:text-white transition-all cursor-pointer shadow-xs"
                 title="Click to copy email address"
               >
                 <Mail className="w-3.5 h-3.5 text-black dark:text-primary" />
@@ -297,7 +297,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram"
-                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-[#E4405F]/60 text-xs font-mono text-black dark:text-white transition-all shadow-xs group"
+                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-[#E4405F]/60 text-xs font-sans text-black dark:text-white transition-all shadow-xs group"
               >
                 <SiInstagram aria-hidden="true" title="Instagram" className="w-3.5 h-3.5 text-[#E4405F]" />
                 <span className="text-black dark:text-white font-medium">@abcdefghijherr</span>
@@ -310,7 +310,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="TikTok"
-                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-black/60 dark:hover:border-white/60 text-xs font-mono text-black dark:text-white transition-all shadow-xs group"
+                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-black/60 dark:hover:border-white/60 text-xs font-sans text-black dark:text-white transition-all shadow-xs group"
               >
                 <SiTiktok aria-hidden="true" title="TikTok" className="w-3.5 h-3.5 text-black dark:text-white" />
                 <span className="text-black dark:text-white font-medium">abcdefghijherr</span>

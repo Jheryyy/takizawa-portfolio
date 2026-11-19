@@ -227,7 +227,7 @@ export function ProjectsSection({
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-              <p className="text-primary font-mono text-xs font-bold uppercase tracking-widest">
+              <p className="text-primary font-sans text-xs font-bold uppercase tracking-wider">
                 Selected Works &bull; Pinned Showcase
               </p>
             </div>
@@ -329,10 +329,10 @@ export function ProjectsSection({
                         : 'opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'
                     }`}
                   >
-                    <span className="px-3.5 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/20 font-mono text-xs text-primary font-bold shadow-md">
+                    <span className="px-3.5 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/20 font-sans text-xs text-primary font-bold shadow-md">
                       {project.index} &bull; {project.category}
                     </span>
-                    <span className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-mono text-white/90 shadow-sm">
+                    <span className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-sans font-medium text-white/90 shadow-sm">
                       {project.timeline}
                     </span>
                   </div>
@@ -359,7 +359,7 @@ export function ProjectsSection({
                         e.stopPropagation();
                         setSelectedModalProject(project);
                       }}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary hover:bg-tertiary text-white font-mono text-xs font-bold transition-all shadow-lg active:scale-95 cursor-pointer pointer-events-auto self-start sm:self-auto shrink-0"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary hover:bg-tertiary text-white font-sans text-xs font-bold transition-all shadow-lg active:scale-95 cursor-pointer pointer-events-auto self-start sm:self-auto shrink-0"
                     >
                       <span>Detail</span>
                       <ArrowUpRight className="w-4 h-4" />

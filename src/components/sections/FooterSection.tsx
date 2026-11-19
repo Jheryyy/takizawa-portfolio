@@ -35,7 +35,7 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
       <div className="w-full px-4 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-14 border-b border-hairline items-end">
           <div className="lg:col-span-8 space-y-4">
-            <p className="font-mono text-xs uppercase tracking-widest text-primary font-bold">
+            <p className="font-sans text-xs uppercase tracking-wider text-primary font-bold">
               READY TO COLLABORATE
             </p>
             <h2 className="font-display font-extrabold text-4xl sm:text-6xl tracking-[-0.03em] leading-[1.05] text-black dark:text-white">
@@ -55,7 +55,7 @@ export function FooterSection({ onNotifyToast }: FooterSectionProps) {
                 <Copy className="w-4 h-4 text-white" />
               </span>
             </button>
-            <p className="text-xs text-black/70 dark:text-muted font-mono font-medium">
+            <p className="text-xs text-black/70 dark:text-muted font-sans font-medium">
               Click pill to copy email address
             </p>
           </div>

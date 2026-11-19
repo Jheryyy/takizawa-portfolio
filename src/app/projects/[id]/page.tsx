@@ -111,13 +111,13 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         {/* Project Hero Header: Title, Tags & Action CTAs */}
         <section className="space-y-6">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="px-3.5 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-mono font-bold">
+            <span className="px-3.5 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-sans font-bold">
               {project.index} &bull; {project.category}
             </span>
-            <span className="px-3 py-1 rounded-full bg-surface border border-hairline text-black dark:text-neutral-300 text-xs font-mono font-semibold">
+            <span className="px-3 py-1 rounded-full bg-surface border border-hairline text-black dark:text-neutral-300 text-xs font-sans font-semibold">
               {project.timeline}
             </span>
-            <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-bold">
+            <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs font-sans font-bold">
               Outcome: {project.outcome}
             </span>
           </div>
@@ -136,7 +136,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 {project.tech.map((t) => (
                   <span
                     key={t}
-                    className="px-3 py-1 rounded-full bg-surface border border-hairline font-mono text-xs text-primary font-bold shadow-xs"
+                    className="px-3 py-1 rounded-full bg-surface border border-hairline font-sans text-xs text-primary font-bold shadow-xs"
                   >
                     {t}
                   </span>

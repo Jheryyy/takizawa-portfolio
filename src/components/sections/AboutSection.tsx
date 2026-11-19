@@ -85,7 +85,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
               {siteContent.aboutTitle}
             </ScrollReveal>
             <div className="pt-2">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-hairline font-mono text-xs text-primary font-bold">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-hairline font-sans text-xs text-primary font-bold">
                 {siteContent.aboutSchoolBadge}
               </span>
             </div>
@@ -167,7 +167,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
                 <Cpu className="w-5 h-5" />
               </span>
               <div>
-                <span className="font-mono text-[11px] uppercase tracking-wider text-primary font-bold block">
+                <span className="font-sans text-[11px] uppercase tracking-wider text-primary font-bold block">
                   TECHNICAL CRAFT &bull; SKILLS ARCHITECTURE
                 </span>
                 <h3 className="font-display font-bold text-xl sm:text-2xl text-black dark:text-white">
@@ -195,7 +195,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
 
               <Link
                 href="/about"
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-elevated border border-hairline text-xs font-mono font-bold text-black dark:text-white hover:text-primary hover:border-primary/50 transition-all cursor-pointer group"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-elevated border border-hairline text-xs font-sans font-bold text-black dark:text-white hover:text-primary hover:border-primary/50 transition-all cursor-pointer group"
               >
                 <span className="text-black dark:text-white font-bold">Academic Path</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-black dark:text-white group-hover:text-primary transition-colors" />
@@ -206,7 +206,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
           {/* MagicUI AnimatedBeam Centerpiece: Center 'Skill' with Tech Nodes */}
           <div className="rounded-2xl bg-canvas border border-hairline p-4 sm:p-6 overflow-hidden relative">
             <div className="mb-2 text-center">
-              <p className="font-mono text-xs uppercase tracking-widest text-primary font-bold">
+              <p className="font-sans text-xs uppercase tracking-wider text-primary font-bold">
                 INTERACTIVE ARCHITECTURE BEAM
               </p>
               <p className="text-xs text-black/70 dark:text-muted font-sans font-medium">

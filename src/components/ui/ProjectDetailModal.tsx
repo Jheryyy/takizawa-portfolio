@@ -124,16 +124,16 @@ export function ProjectDetailModal({
           {/* Banner Meta Info */}
           <div className="absolute bottom-4 left-5 right-5 sm:left-7 sm:right-7 flex flex-wrap items-center justify-between gap-2 z-10">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-primary text-white font-mono text-xs font-bold shadow-md">
+              <span className="px-3 py-1 rounded-full bg-primary text-white font-sans text-xs font-bold shadow-md">
                 {project.index} &bull; {project.category}
               </span>
-              <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white font-mono text-xs shadow-sm">
+              <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white font-sans text-xs shadow-sm">
                 {project.timeline}
               </span>
             </div>
 
             {project.outcome && (
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/25 border border-emerald-400/40 text-emerald-300 font-mono text-xs font-bold backdrop-blur-md">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/25 border border-emerald-400/40 text-emerald-300 font-sans text-xs font-bold backdrop-blur-md">
                 <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                 {project.outcome}
               </span>
@@ -159,14 +159,14 @@ export function ProjectDetailModal({
           {/* Key Engineering Attributes Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="p-3.5 rounded-2xl bg-neutral-100 dark:bg-white/[0.03] border border-neutral-200 dark:border-white/10 space-y-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold flex items-center gap-1">
+              <span className="text-[10px] font-sans uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold flex items-center gap-1">
                 <User className="w-3 h-3 text-primary" /> Role
               </span>
               <p className="text-xs font-bold text-neutral-900 dark:text-white">{project.role}</p>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-neutral-100 dark:bg-white/[0.03] border border-neutral-200 dark:border-white/10 space-y-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold flex items-center gap-1">
+              <span className="text-[10px] font-sans uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold flex items-center gap-1">
                 <Cpu className="w-3 h-3 text-primary" /> Architecture
               </span>
               <p className="text-xs font-bold text-neutral-900 dark:text-white truncate" title={project.arch}>
@@ -175,7 +175,7 @@ export function ProjectDetailModal({
             </div>
 
             <div className="col-span-2 sm:col-span-1 p-3.5 rounded-2xl bg-neutral-100 dark:bg-white/[0.03] border border-neutral-200 dark:border-white/10 space-y-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold flex items-center gap-1">
+              <span className="text-[10px] font-sans uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold flex items-center gap-1">
                 <Calendar className="w-3 h-3 text-primary" /> Timeline
               </span>
               <p className="text-xs font-bold text-neutral-900 dark:text-white">{project.timeline}</p>
@@ -185,7 +185,7 @@ export function ProjectDetailModal({
           {/* Problem & Solution (if available) */}
           {project.problem && (
             <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-1.5">
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+              <h3 className="text-xs font-sans font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" /> Problem &amp; Challenge
               </h3>
               <p className="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed font-sans">
@@ -197,7 +197,7 @@ export function ProjectDetailModal({
           {/* Design & Implementation (if available) */}
           {project.design && (
             <div className="p-4 rounded-2xl bg-neutral-100 dark:bg-white/[0.02] border border-neutral-200 dark:border-white/10 space-y-1.5">
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
+              <h3 className="text-xs font-sans font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5 text-primary" /> Design &amp; Solution
               </h3>
               <p className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed font-sans">
@@ -208,14 +208,14 @@ export function ProjectDetailModal({
 
           {/* Technologies Used */}
           <div className="space-y-2">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
+            <h3 className="text-xs font-sans font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
               Tech Stack &amp; Tools
             </h3>
             <div className="flex flex-wrap gap-2">
               {project.tech.map((t) => (
                 <span
                   key={t}
-                  className="px-3 py-1 rounded-xl bg-neutral-100 dark:bg-white/10 text-neutral-900 dark:text-white font-mono text-xs font-medium border border-neutral-200 dark:border-white/10"
+                  className="px-3 py-1 rounded-xl bg-neutral-100 dark:bg-white/10 text-neutral-900 dark:text-white font-sans text-xs font-medium border border-neutral-200 dark:border-white/10"
                 >
                   {t}
                 </span>
@@ -232,7 +232,7 @@ export function ProjectDetailModal({
                 href={project.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-neutral-200 hover:bg-neutral-300 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-mono font-bold text-neutral-800 dark:text-white transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-neutral-200 hover:bg-neutral-300 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-sans font-bold text-neutral-800 dark:text-white transition-colors cursor-pointer"
               >
                 <SiGithub className="w-3.5 h-3.5" />
                 <span>GitHub</span>
@@ -243,7 +243,7 @@ export function ProjectDetailModal({
                 href={project.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-tertiary text-xs font-mono font-bold text-white transition-all shadow-sm cursor-pointer group"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-tertiary text-xs font-sans font-bold text-white transition-all shadow-sm cursor-pointer group"
               >
                 <span>Live Demo</span>
                 <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -254,7 +254,7 @@ export function ProjectDetailModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2 rounded-xl bg-neutral-200 hover:bg-neutral-300 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-mono font-bold text-neutral-800 dark:text-white transition-colors cursor-pointer"
+            className="px-6 py-2 rounded-xl bg-neutral-200 hover:bg-neutral-300 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-sans font-bold text-neutral-800 dark:text-white transition-colors cursor-pointer"
           >
             Tutup
           </button>
