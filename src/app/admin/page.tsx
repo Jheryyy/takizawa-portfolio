@@ -464,6 +464,7 @@ export default function AdminDashboardPage() {
           } catch {}
           setIsAuthenticated(true);
           setIsLoggingIn(false);
+          if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('admin-auth-updated'));
           showNotice('✅ Login Supabase Auth berhasil! Akses Dashboard diberikan.');
           return;
         }
@@ -485,6 +486,7 @@ export default function AdminDashboardPage() {
         }
         setIsAuthenticated(true);
         setIsLoggingIn(false);
+        if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('admin-auth-updated'));
         showNotice('Selamat datang kembali, Jheryco! Akses Dashboard diberikan.');
         return;
       }
@@ -508,6 +510,7 @@ export default function AdminDashboardPage() {
     setIsAuthenticated(false);
     setLoginPassword('');
     setAuthError(null);
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('admin-auth-updated'));
     showNotice('Anda telah berhasil keluar dari Dashboard.');
   };
 

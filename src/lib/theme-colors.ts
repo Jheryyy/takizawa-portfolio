@@ -403,18 +403,21 @@ export async function syncThemeToSupabase(config: {
   tertiaryColor?: string;
   colorPresetId?: string;
   themeStyle?: 'solid' | 'glass';
+  mode?: 'dark' | 'light';
 }): Promise<boolean> {
   try {
     const primary = normalizeHex(config.primaryColor);
     const tertiary = config.tertiaryColor ? normalizeHex(config.tertiaryColor) : deriveTertiaryColor(primary);
     const presetId = config.colorPresetId || 'custom';
     const style = config.themeStyle || 'glass';
+    const activeMode = config.mode || (typeof document !== 'undefined' && document.documentElement.classList.contains('light') ? 'light' : 'dark');
 
     const payload = JSON.stringify({
       primaryColor: primary,
       tertiaryColor: tertiary,
       colorPresetId: presetId,
       themeStyle: style,
+      mode: activeMode,
       updated_at: new Date().toISOString(),
     });
 
@@ -455,6 +458,7 @@ export async function fetchRemoteThemeFromSupabase(): Promise<{
   tertiaryColor?: string;
   colorPresetId?: string;
   themeStyle?: 'solid' | 'glass';
+  mode?: 'dark' | 'light';
 } | null> {
   try {
     const { data, error } = await supabase

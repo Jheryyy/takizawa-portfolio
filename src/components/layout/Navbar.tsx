@@ -10,6 +10,7 @@ import { Palette } from 'lucide-react';
 import { AnimatedThemeToggler } from '@/registry/magicui/animated-theme-toggler';
 import StaggeredMenu, { StaggeredMenuItem, StaggeredMenuSocialItem } from '@/components/ui/StaggeredMenu';
 import { useLiquidTransition } from '@/components/ui/LiquidTransition';
+import { isUserAdmin } from '@/lib/theme-colors';
 
 const menuItems: StaggeredMenuItem[] = [
   { label: 'Home', ariaLabel: 'Go to home page', link: '/#home' },
@@ -30,6 +31,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [showLogo, setShowLogo] = useState(true);
   const lastScrollYRef = useRef(0);
   const navRef = useRef<HTMLElement>(null);
@@ -39,6 +41,12 @@ export function Navbar() {
 
   useEffect(() => {
     setMounted(true);
+    setIsAdmin(isUserAdmin());
+    const handleAuthChange = () => setIsAdmin(isUserAdmin());
+    window.addEventListener('admin-auth-updated', handleAuthChange);
+    window.addEventListener('storage', handleAuthChange);
+    window.addEventListener('focus', handleAuthChange);
+
     if (navRef.current && !isAdminRoute) {
       gsap.fromTo(
         navRef.current,
@@ -46,6 +54,12 @@ export function Navbar() {
         { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.05 }
       );
     }
+
+    return () => {
+      window.removeEventListener('admin-auth-updated', handleAuthChange);
+      window.removeEventListener('storage', handleAuthChange);
+      window.removeEventListener('focus', handleAuthChange);
+    };
   }, [isAdminRoute]);
 
   // Scroll listener: Sembunyikan logo saat scroll ke bawah, munculkan saat scroll ke atas
@@ -92,9 +106,9 @@ export function Navbar() {
       <div className="relative w-full flex items-center justify-between px-4 sm:px-8 lg:px-12 h-18 sm:h-20">
         {/* Left Side: Desktop Links (Home, Project, Contact) or Mobile Theme Toggler */}
         <div className="flex items-center">
-          {/* Mobile Only: Theme Toggler & Palette on Left */}
+          {/* Mobile Only: Theme Toggler & Palette on Left (Admin Only) */}
           <div className="md:hidden flex items-center gap-2">
-            {mounted && (
+            {mounted && isAdmin && (
               <>
                 <AnimatedThemeToggler
                   theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
@@ -113,7 +127,7 @@ export function Navbar() {
                       ? 'bg-[#1C1C1C]/70 border-white/15 text-white hover:border-primary/60'
                       : 'bg-white/80 border-neutral-300 text-black hover:border-primary/60 shadow-sm'
                   }`}
-                  title="Kustomisasi Warna & Tema Web"
+                  title="Kustomisasi Warna & Tema Web (Admin)"
                   aria-label="Kustomisasi Warna & Tema Web"
                 >
                   <Palette className="w-4 h-4 text-primary" />
@@ -210,7 +224,7 @@ export function Navbar() {
             >
               Guestbook
             </Link>
-            {mounted && (
+            {mounted && isAdmin && (
               <>
                 <AnimatedThemeToggler
                   theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
@@ -229,7 +243,7 @@ export function Navbar() {
                       ? 'bg-[#1C1C1C]/70 border-white/15 text-white hover:border-primary/60 hover:shadow-[0_0_16px_rgba(255,255,255,0.15)]'
                       : 'bg-white/80 border-neutral-300 text-black hover:border-primary/60 shadow-sm'
                   }`}
-                  title="Kustomisasi Warna & Tema Web"
+                  title="Kustomisasi Warna & Tema Web (Admin)"
                   aria-label="Kustomisasi Warna & Tema Web"
                 >
                   <Palette className="w-4 h-4 text-primary" />

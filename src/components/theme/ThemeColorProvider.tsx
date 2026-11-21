@@ -85,6 +85,13 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
             setThemeStyleState(remote.themeStyle);
             applyThemeStyle(remote.themeStyle);
           }
+          if (remote.mode === 'light') {
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
+          } else if (remote.mode === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+          }
         }
       } catch (err) {
         console.warn('Could not read remote theme from Supabase:', err);
@@ -123,6 +130,13 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
                 setThemeStyleState(msg.themeStyle);
                 applyThemeStyle(msg.themeStyle);
               }
+              if (msg.mode === 'light') {
+                document.documentElement.classList.add('light');
+                document.documentElement.classList.remove('dark');
+              } else if (msg.mode === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+              }
             } catch (err) {
               console.warn('Error applying realtime theme update:', err);
             }
@@ -138,7 +152,11 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
         fetchRemoteTheme();
       }
     };
+    const handleAuthChange = () => {
+      setIsAdmin(isUserAdmin());
+    };
     document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('admin-auth-updated', handleAuthChange);
 
     // Heartbeat poll every 45s as network fallback
     const intervalId = setInterval(() => {
@@ -182,6 +200,7 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
       isCancelled = true;
       supabase.removeChannel(themeChannel);
       document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('admin-auth-updated', handleAuthChange);
       clearInterval(intervalId);
       window.removeEventListener('theme-color-updated', handleThemeUpdate);
       window.removeEventListener('theme-style-updated', handleThemeStyleUpdate);
