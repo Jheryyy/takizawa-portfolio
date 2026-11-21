@@ -71,6 +71,16 @@ export const THEME_COLOR_PRESETS: ThemeColorPreset[] = [
     badge: 'Warm & Editorial',
   },
   {
+    id: 'crystal-glass',
+    name: 'Crystal Glass',
+    label: 'Kaca Kristal (Glassmorphism)',
+    primary: '#38BDF8',
+    tertiary: '#BAE6FD',
+    rgb: '56, 189, 248',
+    description: 'Palet kaca kristal es dengan efek blur transparan, specular gloss, dan refleksi cyan bercahaya.',
+    badge: 'Glassmorphism FX',
+  },
+  {
     id: 'cyan',
     name: 'Cyber Cyan',
     label: 'Cyan Cyberpunk',
@@ -324,4 +334,46 @@ export function getStoredThemeColor(): {
     tertiary: DEFAULT_TERTIARY_COLOR,
     presetId: 'orange',
   };
+}
+
+export const THEME_STYLE_STORAGE_KEY = 'takizawa_theme_style';
+
+/**
+ * Toggles Glassmorphism style (.theme-glass class on html root)
+ */
+export function applyThemeStyle(style: 'solid' | 'glass'): void {
+  if (typeof window === 'undefined') return;
+  const root = document.documentElement;
+  if (style === 'glass') {
+    root.classList.add('theme-glass');
+  } else {
+    root.classList.remove('theme-glass');
+  }
+  try {
+    localStorage.setItem(THEME_STYLE_STORAGE_KEY, style);
+  } catch {
+    // Ignored
+  }
+  window.dispatchEvent(new CustomEvent('theme-style-updated', { detail: { style } }));
+}
+
+/**
+ * Retrieves the stored theme style ('solid' | 'glass')
+ */
+export function getStoredThemeStyle(): 'solid' | 'glass' {
+  if (typeof window === 'undefined') return 'glass';
+  try {
+    const saved = localStorage.getItem(THEME_STYLE_STORAGE_KEY);
+    if (saved === 'solid' || saved === 'glass') return saved;
+    const rawContent = localStorage.getItem('takizawa_site_content');
+    if (rawContent) {
+      const parsed = JSON.parse(rawContent);
+      if (parsed.themeStyle === 'solid' || parsed.themeStyle === 'glass') {
+        return parsed.themeStyle;
+      }
+    }
+  } catch {
+    // Ignored
+  }
+  return 'glass';
 }

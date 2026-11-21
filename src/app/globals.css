@@ -247,3 +247,112 @@ html.light ::-webkit-scrollbar-thumb {
     contain-intrinsic-size: 0 500px;
   }
 }
+
+/* ========================================================
+   FROSTED GLASSMORPHISM THEME STYLES
+   ======================================================== */
+html.theme-glass {
+  --color-surface: rgba(18, 18, 26, 0.68);
+  --color-elevated: rgba(28, 28, 38, 0.78);
+  --color-hairline: rgba(255, 255, 255, 0.14);
+}
+
+html.theme-glass.light {
+  --color-surface: rgba(255, 255, 255, 0.72);
+  --color-elevated: rgba(243, 244, 246, 0.82);
+  --color-hairline: rgba(0, 0, 0, 0.08);
+}
+
+/* Glass surfaces with deep backdrop blur & refraction */
+html.theme-glass .bg-surface,
+html.theme-glass [class*="bg-surface"],
+html.theme-glass .bg-elevated,
+html.theme-glass [class*="bg-elevated"] {
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background-color: var(--color-surface) !important;
+}
+
+html.theme-glass .border-hairline,
+html.theme-glass [class*="border-hairline"] {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+html.theme-glass.light .border-hairline,
+html.theme-glass.light [class*="border-hairline"] {
+  border-color: rgba(0, 0, 0, 0.09) !important;
+}
+
+/* Specular top-border highlight for glassy cards */
+html.theme-glass .p-6.rounded-2\.5xl,
+html.theme-glass .p-8.rounded-2\.5xl,
+html.theme-glass .p-6.rounded-3xl,
+html.theme-glass .p-8.rounded-3xl,
+html.theme-glass .rounded-2xl.border,
+html.theme-glass .rounded-3xl.border,
+html.theme-glass .card-glow-hover,
+html.theme-glass .project-card-item {
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  box-shadow: 0 10px 40px -8px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+html.theme-glass.light .p-6.rounded-2\.5xl,
+html.theme-glass.light .p-8.rounded-2\.5xl,
+html.theme-glass.light .p-6.rounded-3xl,
+html.theme-glass.light .p-8.rounded-3xl,
+html.theme-glass.light .rounded-2xl.border,
+html.theme-glass.light .rounded-3xl.border,
+html.theme-glass.light .card-glow-hover,
+html.theme-glass.light .project-card-item {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Glass shine gradient on hover */
+html.theme-glass .card-glow-hover:hover {
+  border-color: var(--color-primary, #38BDF8) !important;
+  box-shadow: 0 20px 50px -10px rgba(var(--color-primary-rgb, 56, 189, 248), 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Ambient luminous aurora orbs for glass theme */
+.glass-aurora-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.glass-aurora-orb-1 {
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  width: 500px;
+  height: 500px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(var(--color-primary-rgb, 56, 189, 248), 0.18) 0%, transparent 70%);
+  filter: blur(70px);
+  animation: floatOrb 18s ease-in-out infinite alternate;
+}
+
+.glass-aurora-orb-2 {
+  position: absolute;
+  top: 55%;
+  right: 10%;
+  width: 580px;
+  height: 580px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(var(--color-primary-rgb, 56, 189, 248), 0.14) 0%, rgba(139, 92, 246, 0.12) 40%, transparent 70%);
+  filter: blur(85px);
+  animation: floatOrb 22s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(45px, -35px) scale(1.08); }
+  100% { transform: translate(-35px, 45px) scale(0.95); }
+}

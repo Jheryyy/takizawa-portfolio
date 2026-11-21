@@ -53,6 +53,8 @@ import {
   deriveTertiaryColor,
   getStoredThemeColor,
   normalizeHex,
+  applyThemeStyle,
+  getStoredThemeStyle,
 } from '@/lib/theme-colors';
 
 type ActiveTab = 'overview' | 'projects' | 'content' | 'theme' | 'contacts' | 'guestbook';
@@ -185,6 +187,7 @@ export default function AdminDashboardPage() {
   const [selectedPresetId, setSelectedPresetId] = useState<string>('orange');
   const [customHexInput, setCustomHexInput] = useState<string>(DEFAULT_THEME_COLOR);
   const [isSavingThemeColor, setIsSavingThemeColor] = useState<boolean>(false);
+  const [themeStyle, setThemeStyle] = useState<'solid' | 'glass'>('glass');
 
   // Folder image upload states
   const [imageSourceMode, setImageSourceMode] = useState<'upload' | 'folder' | 'url'>('upload');
@@ -201,7 +204,7 @@ export default function AdminDashboardPage() {
     setTimeout(() => setStatusNotice(null), 3500);
   };
 
-  // 1. Load saved theme mode (Dark / Light) & theme accent color
+  // 1. Load saved theme mode (Dark / Light), accent color & glass style
   useEffect(() => {
     try {
       const savedMode = localStorage.getItem('admin_theme_mode') as AdminThemeMode;
@@ -221,6 +224,14 @@ export default function AdminDashboardPage() {
     } catch {
       // Ignored
     }
+
+    try {
+      const savedStyle = getStoredThemeStyle();
+      setThemeStyle(savedStyle);
+      applyThemeStyle(savedStyle);
+    } catch {
+      // Ignored
+    }
   }, []);
 
   const handleToggleTheme = (mode: AdminThemeMode) => {
@@ -233,11 +244,32 @@ export default function AdminDashboardPage() {
     showNotice(mode === 'dark' ? '🌙 Berpindah ke Dark Mode' : '☀️ Berpindah ke Light Mode');
   };
 
+  const handleToggleThemeStyle = (style: 'solid' | 'glass') => {
+    setThemeStyle(style);
+    applyThemeStyle(style);
+    const updated = {
+      ...siteContentForm,
+      themeStyle: style,
+    };
+    setSiteContentForm(updated);
+    saveStoredSiteContent(updated);
+    showNotice(
+      style === 'glass'
+        ? '✨ Mode Frosted Glassmorphism aktif! Kartu & elemen kini bernuansa kaca transparan berkilau.'
+        : '🏛️ Mode Solid Minimalist aktif! Kartu pekat editorial standar.'
+    );
+  };
+
   const handleSelectPresetColor = (preset: ThemeColorPreset) => {
     setSelectedThemeColor(preset.primary);
     setSelectedPresetId(preset.id);
     setCustomHexInput(preset.primary);
     applyThemeColors(preset.primary, preset.tertiary, preset.id);
+
+    if (preset.id === 'crystal-glass') {
+      setThemeStyle('glass');
+      applyThemeStyle('glass');
+    }
   };
 
   const handleCustomHexChange = (val: string) => {
@@ -256,16 +288,18 @@ export default function AdminDashboardPage() {
     try {
       const tertiary = deriveTertiaryColor(selectedThemeColor);
       applyThemeColors(selectedThemeColor, tertiary, selectedPresetId);
+      applyThemeStyle(themeStyle);
 
       const updated = {
         ...siteContentForm,
         primaryColor: selectedThemeColor,
         tertiaryColor: tertiary,
         colorPresetId: selectedPresetId,
+        themeStyle: themeStyle,
       };
       setSiteContentForm(updated);
       await saveStoredSiteContent(updated);
-      showNotice(`✅ Warna website berhasil disimpan dan aktif (${selectedThemeColor})!`);
+      showNotice(`✅ Tema & warna website berhasil disimpan (${selectedThemeColor} • ${themeStyle.toUpperCase()})!`);
     } catch (err: any) {
       showNotice(`❌ Gagal menyimpan warna: ${err.message || 'Error'}`);
     } finally {
@@ -517,6 +551,10 @@ export default function AdminDashboardPage() {
             setSelectedPresetId(parsed.colorPresetId || 'custom');
             applyThemeColors(parsed.primaryColor, parsed.tertiaryColor, parsed.colorPresetId);
           }
+          if (parsed.themeStyle === 'solid' || parsed.themeStyle === 'glass') {
+            setThemeStyle(parsed.themeStyle);
+            applyThemeStyle(parsed.themeStyle);
+          }
           if (typeof window !== 'undefined') {
             localStorage.setItem('takizawa_site_content', JSON.stringify(parsed));
           }
@@ -528,6 +566,10 @@ export default function AdminDashboardPage() {
             setCustomHexInput(stored.primaryColor);
             setSelectedPresetId(stored.colorPresetId || 'custom');
           }
+          if (stored.themeStyle === 'solid' || stored.themeStyle === 'glass') {
+            setThemeStyle(stored.themeStyle);
+            applyThemeStyle(stored.themeStyle);
+          }
         }
       } catch {
         const stored = getStoredSiteContent();
@@ -536,6 +578,10 @@ export default function AdminDashboardPage() {
           setSelectedThemeColor(stored.primaryColor);
           setCustomHexInput(stored.primaryColor);
           setSelectedPresetId(stored.colorPresetId || 'custom');
+        }
+        if (stored.themeStyle === 'solid' || stored.themeStyle === 'glass') {
+          setThemeStyle(stored.themeStyle);
+          applyThemeStyle(stored.themeStyle);
         }
       }
     } catch (err) {
@@ -2564,6 +2610,137 @@ CREATE POLICY "Allow public delete on contacts" ON public.contacts FOR DELETE TO
                       }}
                     >
                       Neon Glow
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION: VISUAL STYLE (GLASSMORPHISM VS SOLID) */}
+              <div
+                className={`p-6 rounded-3xl border transition-all ${
+                  isDark ? 'bg-[#101016] border-white/10' : 'bg-white border-slate-200 shadow-sm'
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-inherit">
+                  <div>
+                    <h3 className="font-display font-bold text-lg flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span>Gaya Visual Tampilan (Theme Style)</span>
+                    </h3>
+                    <p className={`text-xs mt-0.5 ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                      Pilih antara tampilan kaca buram transparan (Frosted Glassmorphism) atau tampilan pekat minimalis (Solid Editorial).
+                    </p>
+                  </div>
+
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-primary/10 text-primary border border-primary/20 self-start sm:self-auto">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
+                    <span>Mode: {themeStyle === 'glass' ? 'Frosted Glass (Aktif)' : 'Solid Minimalist'}</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Option 1: Frosted Glassmorphism */}
+                  <div
+                    onClick={() => handleToggleThemeStyle('glass')}
+                    className={`p-5 rounded-2xl border transition-all cursor-pointer relative overflow-hidden text-left ${
+                      themeStyle === 'glass'
+                        ? 'border-primary ring-2 ring-primary/30 shadow-xl'
+                        : isDark
+                        ? 'border-white/10 hover:border-white/20 bg-white/[0.02]'
+                        : 'border-slate-200 hover:border-slate-300 bg-slate-50'
+                    }`}
+                    style={{
+                      background: themeStyle === 'glass'
+                        ? (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)')
+                        : undefined,
+                      backdropFilter: 'blur(20px)',
+                    }}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shadow-sm">
+                          <Sparkles className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-display font-bold text-base flex items-center gap-1.5">
+                            <span>Frosted Glassmorphism</span>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold">
+                              Glass FX
+                            </span>
+                          </h4>
+                          <span className={`text-[11px] font-sans ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                            Kaca Buram Transparan &amp; Efek Aurora
+                          </span>
+                        </div>
+                      </div>
+
+                      {themeStyle === 'glass' && (
+                        <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs shadow-md">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                      )}
+                    </div>
+
+                    <p className={`text-xs leading-relaxed ${isDark ? 'text-neutral-300' : 'text-slate-600'}`}>
+                      Permukaan kartu semi-transparan berembun dengan <code>backdrop-blur</code> tinggi, garis tepi berkilau (specular shine), dan orbs aurora bercahaya lembut di latar belakang.
+                    </p>
+
+                    <div className="mt-4 pt-3 border-t border-inherit flex items-center gap-2 text-[11px] font-mono">
+                      <span className="px-2 py-0.5 rounded-md bg-white/10 text-white font-semibold">
+                        Backdrop Blur: 28px
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary font-semibold">
+                        Translucent Glass
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Option 2: Solid Minimalist */}
+                  <div
+                    onClick={() => handleToggleThemeStyle('solid')}
+                    className={`p-5 rounded-2xl border transition-all cursor-pointer relative text-left ${
+                      themeStyle === 'solid'
+                        ? 'border-primary ring-2 ring-primary/30 shadow-xl'
+                        : isDark
+                        ? 'border-white/10 hover:border-white/20 bg-white/[0.02]'
+                        : 'border-slate-200 hover:border-slate-300 bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shadow-sm ${
+                          isDark ? 'bg-white/10 border-white/15 text-white' : 'bg-slate-200 border-slate-300 text-slate-800'
+                        }`}>
+                          <Sliders className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-display font-bold text-base">
+                            Solid Editorial
+                          </h4>
+                          <span className={`text-[11px] font-sans ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                            Klasik Pekat &amp; Garis Tegas
+                          </span>
+                        </div>
+                      </div>
+
+                      {themeStyle === 'solid' && (
+                        <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs shadow-md">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                      )}
+                    </div>
+
+                    <p className={`text-xs leading-relaxed ${isDark ? 'text-neutral-300' : 'text-slate-600'}`}>
+                      Tampilan klasik dengan latar kartu solid pekat (deep dark #141414), garis hairline 1px tegas, kontras tinggi tanpa transparansi.
+                    </p>
+
+                    <div className="mt-4 pt-3 border-t border-inherit flex items-center gap-2 text-[11px] font-mono">
+                      <span className={`px-2 py-0.5 rounded-md font-semibold ${isDark ? 'bg-white/10 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                        Solid #141414
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-neutral-500/10 text-neutral-400 font-semibold">
+                        Hairline Border
+                      </span>
                     </div>
                   </div>
                 </div>

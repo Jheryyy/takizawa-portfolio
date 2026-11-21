@@ -207,7 +207,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth" suppressHydrationWarning>
+    <html lang="en" className="dark theme-glass scroll-smooth" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://bpzsqyqyhawwosoyfveb.supabase.co" />
         <link rel="dns-prefetch" href="https://bpzsqyqyhawwosoyfveb.supabase.co" />
@@ -227,6 +227,13 @@ export default function RootLayout({
                   }
                   if (saved && saved.startsWith('#')) {
                     document.documentElement.style.setProperty('--color-primary', saved);
+                  }
+
+                  var savedStyle = localStorage.getItem('takizawa_theme_style');
+                  if (savedStyle === 'solid') {
+                    document.documentElement.classList.remove('theme-glass');
+                  } else {
+                    document.documentElement.classList.add('theme-glass');
                   }
                 } catch(e) {}
               })();

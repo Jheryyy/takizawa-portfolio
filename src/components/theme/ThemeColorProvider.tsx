@@ -9,6 +9,8 @@ import {
   applyThemeColors,
   getStoredThemeColor,
   deriveTertiaryColor,
+  applyThemeStyle,
+  getStoredThemeStyle,
 } from '@/lib/theme-colors';
 import { supabase } from '@/lib/supabase';
 
@@ -17,7 +19,9 @@ interface ThemeColorContextType {
   tertiaryColor: string;
   presetId: string;
   presets: ThemeColorPreset[];
+  themeStyle: 'solid' | 'glass';
   setColor: (hex: string, presetId?: string) => Promise<void>;
+  setThemeStyle: (style: 'solid' | 'glass') => Promise<void>;
   resetColor: () => Promise<void>;
 }
 
@@ -26,7 +30,9 @@ const ThemeColorContext = createContext<ThemeColorContextType>({
   tertiaryColor: DEFAULT_TERTIARY_COLOR,
   presetId: 'orange',
   presets: THEME_COLOR_PRESETS,
+  themeStyle: 'glass',
   setColor: async () => {},
+  setThemeStyle: async () => {},
   resetColor: async () => {},
 });
 
@@ -34,15 +40,21 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
   const [primaryColor, setPrimaryColor] = useState<string>(DEFAULT_THEME_COLOR);
   const [tertiaryColor, setTertiaryColor] = useState<string>(DEFAULT_TERTIARY_COLOR);
   const [presetId, setPresetId] = useState<string>('orange');
+  const [themeStyle, setThemeStyleState] = useState<'solid' | 'glass'>('glass');
 
-  // Initialize and apply theme colors on mount
+  // Initialize and apply theme colors and glass style on mount
   useEffect(() => {
     // 1. Immediately read from localStorage
     const stored = getStoredThemeColor();
+    const storedStyle = getStoredThemeStyle();
+
     setPrimaryColor(stored.primary);
     setTertiaryColor(stored.tertiary);
     setPresetId(stored.presetId);
+    setThemeStyleState(storedStyle);
+
     applyThemeColors(stored.primary, stored.tertiary, stored.presetId);
+    applyThemeStyle(storedStyle);
 
     // 2. Fetch from Supabase site_content in background
     let isCancelled = false;
@@ -66,6 +78,10 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
             setPresetId(remotePreset);
             applyThemeColors(remotePrimary, remoteTertiary, remotePreset);
           }
+          if (parsed.themeStyle === 'solid' || parsed.themeStyle === 'glass') {
+            setThemeStyleState(parsed.themeStyle);
+            applyThemeStyle(parsed.themeStyle);
+          }
         }
       } catch {
         // Silently catch network or offline errors
@@ -83,6 +99,12 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
       }
     };
 
+    const handleThemeStyleUpdate = (e: any) => {
+      if (e.detail && (e.detail.style === 'solid' || e.detail.style === 'glass')) {
+        setThemeStyleState(e.detail.style);
+      }
+    };
+
     const handleSiteContentUpdate = (e: any) => {
       if (e.detail && e.detail.primaryColor) {
         const pColor = e.detail.primaryColor;
@@ -92,14 +114,19 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
         setTertiaryColor(tColor);
         setPresetId(pPreset);
       }
+      if (e.detail && (e.detail.themeStyle === 'solid' || e.detail.themeStyle === 'glass')) {
+        setThemeStyleState(e.detail.themeStyle);
+      }
     };
 
     window.addEventListener('theme-color-updated', handleThemeUpdate);
+    window.addEventListener('theme-style-updated', handleThemeStyleUpdate);
     window.addEventListener('site-content-updated', handleSiteContentUpdate);
 
     return () => {
       isCancelled = true;
       window.removeEventListener('theme-color-updated', handleThemeUpdate);
+      window.removeEventListener('theme-style-updated', handleThemeStyleUpdate);
       window.removeEventListener('site-content-updated', handleSiteContentUpdate);
     };
   }, []);
@@ -153,6 +180,43 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
     }
   }, []);
 
+  const setThemeStyle = useCallback(async (style: 'solid' | 'glass') => {
+    setThemeStyleState(style);
+    applyThemeStyle(style);
+
+    try {
+      const rawContent = localStorage.getItem('takizawa_site_content');
+      let currentContent: any = {};
+      if (rawContent) {
+        try {
+          currentContent = JSON.parse(rawContent);
+        } catch {
+          currentContent = {};
+        }
+      }
+      const updatedContent = {
+        ...currentContent,
+        themeStyle: style,
+      };
+
+      localStorage.setItem('takizawa_site_content', JSON.stringify(updatedContent));
+
+      try {
+        await supabase
+          .from('site_content')
+          .upsert({
+            id: 'primary',
+            content: JSON.stringify(updatedContent),
+            updated_at: new Date().toISOString(),
+          });
+      } catch {
+        // Ignored
+      }
+    } catch {
+      // Ignored
+    }
+  }, []);
+
   const resetColor = useCallback(async () => {
     await setColor(DEFAULT_THEME_COLOR, 'orange');
   }, [setColor]);
@@ -164,10 +228,19 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
         tertiaryColor,
         presetId,
         presets: THEME_COLOR_PRESETS,
+        themeStyle,
         setColor,
+        setThemeStyle,
         resetColor,
       }}
     >
+      {/* Ambient background aura when glass theme is active */}
+      {themeStyle === 'glass' && (
+        <div className="glass-aurora-bg" aria-hidden="true">
+          <div className="glass-aurora-orb-1" />
+          <div className="glass-aurora-orb-2" />
+        </div>
+      )}
       {children}
     </ThemeColorContext.Provider>
   );

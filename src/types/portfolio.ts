@@ -71,4 +71,5 @@ export interface SiteContent {
   primaryColor?: string;
   tertiaryColor?: string;
   colorPresetId?: string;
+  themeStyle?: 'solid' | 'glass';
 }

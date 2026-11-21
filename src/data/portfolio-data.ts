@@ -1,6 +1,6 @@
 import { SkillItem, ProjectItem, GuestbookEntry, SiteContent } from '@/types/portfolio';
 import { supabase } from '@/lib/supabase';
-import { applyThemeColors, DEFAULT_THEME_COLOR, DEFAULT_TERTIARY_COLOR } from '@/lib/theme-colors';
+import { applyThemeColors, applyThemeStyle, DEFAULT_THEME_COLOR, DEFAULT_TERTIARY_COLOR } from '@/lib/theme-colors';
 
 export const skillsData: SkillItem[] = [
   { name: 'Next.js 15 (App Router)', category: 'frontend', level: '94%', tag: 'Core Stack' },
@@ -168,6 +168,7 @@ export const defaultSiteContent: SiteContent = {
   primaryColor: DEFAULT_THEME_COLOR,
   tertiaryColor: DEFAULT_TERTIARY_COLOR,
   colorPresetId: 'orange',
+  themeStyle: 'glass',
 };
 
 export const getStoredSiteContent = (): SiteContent => {
@@ -196,6 +197,10 @@ export const saveStoredSiteContent = async (content: SiteContent): Promise<void>
     // Apply theme colors globally if defined
     if (content.primaryColor) {
       applyThemeColors(content.primaryColor, content.tertiaryColor, content.colorPresetId);
+    }
+
+    if (content.themeStyle) {
+      applyThemeStyle(content.themeStyle);
     }
 
     window.dispatchEvent(new CustomEvent('site-content-updated', { detail: content }));
