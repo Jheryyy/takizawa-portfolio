@@ -24,8 +24,10 @@ import { skillsData } from '@/data/portfolio-data';
 import { FooterSection } from '@/components/sections/FooterSection';
 import { Toast } from '@/components/ui/Toast';
 import ScrollReveal from '@/components/ui/ScrollReveal';
+import { useThemeColor } from '@/components/theme/ThemeColorProvider';
 
 export default function AboutDetailPage() {
+  const { primaryColor } = useThemeColor();
   const [activeSkillCategory, setActiveSkillCategory] = useState<
     'all' | SkillCategory
   >('all');
@@ -82,7 +84,7 @@ export default function AboutDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-8 space-y-4">
               <ScrollReveal
-                highlightColor="#FF5A1F"
+                highlightColor={primaryColor}
                 mode="scrub"
                 splitBy="words"
                 effect="fade"
@@ -101,7 +103,7 @@ export default function AboutDetailPage() {
               </ScrollReveal>
               <ScrollReveal
                 as="p"
-                highlightColor="#FF5A1F"
+                highlightColor={primaryColor}
                 mode="scrub"
                 splitBy="words"
                 effect="fade"
@@ -183,7 +185,7 @@ export default function AboutDetailPage() {
               </span>
             </div>
             <ScrollReveal
-              highlightColor="#FF5A1F"
+              highlightColor={primaryColor}
               mode="scrub"
               splitBy="words"
               effect="fade"

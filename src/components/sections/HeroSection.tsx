@@ -151,7 +151,7 @@ export function HeroSection({ onSelectCategory }: HeroSectionProps) {
                 deleteMode="select"
                 typeEffect="blur"
                 cursorStyle="bar"
-                cursorColor="#FF5A1F"
+                cursorColor={siteContent.primaryColor || '#FF5A1F'}
                 cursorGlide
                 showCursor
                 cursorBlinkDuration={0.6}

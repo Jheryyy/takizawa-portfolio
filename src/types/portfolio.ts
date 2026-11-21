@@ -68,4 +68,7 @@ export interface SiteContent {
   tiktokUrl: string;
   githubUrl: string;
   skills: SkillItem[];
+  primaryColor?: string;
+  tertiaryColor?: string;
+  colorPresetId?: string;
 }

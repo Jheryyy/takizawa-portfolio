@@ -2,6 +2,7 @@
 
 import React, { forwardRef, useRef, useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import { useThemeColor } from '@/components/theme/ThemeColorProvider';
 import { cn } from '@/lib/utils';
 import { AnimatedBeam } from '@/registry/magicui/animated-beam';
 import {
@@ -41,6 +42,7 @@ Circle.displayName = 'Circle';
 
 export function AnimatedBeamSkills({ className }: { className?: string }) {
   const { resolvedTheme } = useTheme();
+  const { primaryColor, tertiaryColor } = useThemeColor();
   const [mounted, setMounted] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -146,8 +148,8 @@ export function AnimatedBeamSkills({ className }: { className?: string }) {
             endYOffset={-10}
             pathColor={pathColor}
             pathOpacity={pathOpacity}
-            gradientStartColor="#FF5A1F"
-            gradientStopColor="#FF8552"
+            gradientStartColor={primaryColor}
+            gradientStopColor={tertiaryColor}
             duration={4.2}
           />
           <AnimatedBeam
@@ -156,8 +158,8 @@ export function AnimatedBeamSkills({ className }: { className?: string }) {
             toRef={div4Ref}
             pathColor={pathColor}
             pathOpacity={pathOpacity}
-            gradientStartColor="#FF5A1F"
-            gradientStopColor="#FF8552"
+            gradientStartColor={primaryColor}
+            gradientStopColor={tertiaryColor}
             duration={3.8}
             delay={0.2}
           />
@@ -169,8 +171,8 @@ export function AnimatedBeamSkills({ className }: { className?: string }) {
             endYOffset={10}
             pathColor={pathColor}
             pathOpacity={pathOpacity}
-            gradientStartColor="#FF5A1F"
-            gradientStopColor="#FF8552"
+            gradientStartColor={primaryColor}
+            gradientStopColor={tertiaryColor}
             duration={4.5}
             delay={0.4}
           />
@@ -185,8 +187,8 @@ export function AnimatedBeamSkills({ className }: { className?: string }) {
             reverse
             pathColor={pathColor}
             pathOpacity={pathOpacity}
-            gradientStartColor="#FF5A1F"
-            gradientStopColor="#FF8552"
+            gradientStartColor={primaryColor}
+            gradientStopColor={tertiaryColor}
             duration={4.2}
             delay={0.1}
           />
@@ -197,8 +199,8 @@ export function AnimatedBeamSkills({ className }: { className?: string }) {
             reverse
             pathColor={pathColor}
             pathOpacity={pathOpacity}
-            gradientStartColor="#FF5A1F"
-            gradientStopColor="#FF8552"
+            gradientStartColor={primaryColor}
+            gradientStopColor={tertiaryColor}
             duration={3.8}
             delay={0.3}
           />
@@ -211,8 +213,8 @@ export function AnimatedBeamSkills({ className }: { className?: string }) {
             reverse
             pathColor={pathColor}
             pathOpacity={pathOpacity}
-            gradientStartColor="#FF5A1F"
-            gradientStopColor="#FF8552"
+            gradientStartColor={primaryColor}
+            gradientStopColor={tertiaryColor}
             duration={4.5}
             delay={0.5}
           />

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
+import { useThemeColor } from '@/components/theme/ThemeColorProvider';
 
 interface LiquidTransitionContextType {
   triggerTransition: (href: string, label?: string) => void;
@@ -23,6 +24,7 @@ interface LiquidTransitionProps {
 export function LiquidTransitionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { primaryColor, tertiaryColor } = useThemeColor();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeLabel, setActiveLabel] = useState<string>('');
 
@@ -283,16 +285,16 @@ export function LiquidTransitionProvider({ children }: { children: React.ReactNo
           <defs>
             {/* Primary Liquid Gradient */}
             <linearGradient id="liquid-accent" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#FFA057" />
-              <stop offset="50%" stopColor="#FF5A1F" />
-              <stop offset="100%" stopColor="#D93800" />
+              <stop offset="0%" stopColor={tertiaryColor} />
+              <stop offset="50%" stopColor={primaryColor} />
+              <stop offset="100%" stopColor={primaryColor} />
             </linearGradient>
             <filter id="liquid-glow" x="-10%" y="-10%" width="120%" height="120%">
-              <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor="#FF5A1F" floodOpacity="0.45" />
+              <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor={primaryColor} floodOpacity="0.45" />
             </filter>
           </defs>
 
-          {/* Underlayer: Vibrant Orange Liquid Wave */}
+          {/* Underlayer: Vibrant Liquid Wave */}
           <path
             ref={layer1Ref}
             fill="url(#liquid-accent)"
@@ -314,7 +316,7 @@ export function LiquidTransitionProvider({ children }: { children: React.ReactNo
           className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-0"
         >
           <div className="flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl">
-            <span className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-ping" />
+            <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
             <div className="relative h-10 w-28 flex items-center justify-center overflow-hidden">
               <Image
                 src="/logo.png"

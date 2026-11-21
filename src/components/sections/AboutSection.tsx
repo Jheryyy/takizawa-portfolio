@@ -67,7 +67,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
               {siteContent.aboutEyebrow}
             </p>
             <ScrollReveal
-              highlightColor={isLight ? '#000000' : '#FF5A1F'}
+              highlightColor={isLight ? '#000000' : (siteContent.primaryColor || '#FF5A1F')}
               mode="scrub"
               splitBy="words"
               effect="fade"
@@ -95,7 +95,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
           <div className="lg:col-span-7 space-y-6 lg:pt-1">
             <ScrollReveal
               as="p"
-              highlightColor={isLight ? '#000000' : '#FF5A1F'}
+              highlightColor={isLight ? '#000000' : (siteContent.primaryColor || '#FF5A1F')}
               mode="scrub"
               splitBy="words"
               effect="fade"
@@ -115,7 +115,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
 
             <ScrollReveal
               as="p"
-              highlightColor={isLight ? '#000000' : '#FF5A1F'}
+              highlightColor={isLight ? '#000000' : (siteContent.primaryColor || '#FF5A1F')}
               mode="scrub"
               splitBy="words"
               effect="fade"

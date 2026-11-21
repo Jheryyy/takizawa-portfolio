@@ -1,5 +1,6 @@
 import { SkillItem, ProjectItem, GuestbookEntry, SiteContent } from '@/types/portfolio';
 import { supabase } from '@/lib/supabase';
+import { applyThemeColors, DEFAULT_THEME_COLOR, DEFAULT_TERTIARY_COLOR } from '@/lib/theme-colors';
 
 export const skillsData: SkillItem[] = [
   { name: 'Next.js 15 (App Router)', category: 'frontend', level: '94%', tag: 'Core Stack' },
@@ -164,6 +165,9 @@ export const defaultSiteContent: SiteContent = {
   tiktokUrl: 'https://www.tiktok.com/@abcdefghijherr',
   githubUrl: 'https://github.com/Jheryyy',
   skills: skillsData,
+  primaryColor: DEFAULT_THEME_COLOR,
+  tertiaryColor: DEFAULT_TERTIARY_COLOR,
+  colorPresetId: 'orange',
 };
 
 export const getStoredSiteContent = (): SiteContent => {
@@ -188,6 +192,12 @@ export const saveStoredSiteContent = async (content: SiteContent): Promise<void>
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem('takizawa_site_content', JSON.stringify(content));
+    
+    // Apply theme colors globally if defined
+    if (content.primaryColor) {
+      applyThemeColors(content.primaryColor, content.tertiaryColor, content.colorPresetId);
+    }
+
     window.dispatchEvent(new CustomEvent('site-content-updated', { detail: content }));
 
     // Try saving to Supabase if site_content table exists

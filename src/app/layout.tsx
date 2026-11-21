@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeColorProvider } from "@/components/theme/ThemeColorProvider";
 import { Navbar } from "@/components/layout/Navbar";
 import { ClientEnhancements } from "@/components/layout/ClientEnhancements";
 import { VideoSplashScreen } from "@/components/ui/VideoSplashScreen";
@@ -211,6 +212,28 @@ export default function RootLayout({
         <link rel="preconnect" href="https://bpzsqyqyhawwosoyfveb.supabase.co" />
         <link rel="dns-prefetch" href="https://bpzsqyqyhawwosoyfveb.supabase.co" />
         <script
+          id="theme-color-initializer"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('takizawa_theme_color');
+                  if (!saved) {
+                    var raw = localStorage.getItem('takizawa_site_content');
+                    if (raw) {
+                      var p = JSON.parse(raw);
+                      if (p && p.primaryColor) saved = p.primaryColor;
+                    }
+                  }
+                  if (saved && saved.startsWith('#')) {
+                    document.documentElement.style.setProperty('--color-primary', saved);
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
@@ -219,15 +242,17 @@ export default function RootLayout({
         className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable} bg-canvas text-neutral-900 dark:text-white antialiased selection:bg-primary selection:text-white transition-colors duration-300 min-h-screen flex flex-col font-sans`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <LiquidTransitionProvider>
-            <VideoSplashScreen />
-            <ClientEnhancements />
-            <Navbar />
-            <div className="flex-1 w-full">
-              {children}
-            </div>
-            <SpeedInsights />
-          </LiquidTransitionProvider>
+          <ThemeColorProvider>
+            <LiquidTransitionProvider>
+              <VideoSplashScreen />
+              <ClientEnhancements />
+              <Navbar />
+              <div className="flex-1 w-full">
+                {children}
+              </div>
+              <SpeedInsights />
+            </LiquidTransitionProvider>
+          </ThemeColorProvider>
         </ThemeProvider>
       </body>
     </html>

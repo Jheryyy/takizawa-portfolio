@@ -4,6 +4,9 @@
 
 :root {
   color-scheme: dark;
+  --color-primary: #FF5A1F;
+  --color-primary-rgb: 255, 90, 31;
+  --color-tertiary: #FF8552;
 }
 
 @theme {
@@ -157,15 +160,15 @@ html.light .studio-hero-gradient {
 /* Ambient studio backdrop inspired by the Framer reference */
 .studio-hero-gradient {
   background: radial-gradient(circle at 28% 22%,
-      rgba(255, 115, 55, 0.95) 0%,
-      rgba(255, 90, 31, 0.82) 25%,
-      rgba(168, 38, 12, 0.55) 52%,
+      rgba(var(--color-primary-rgb, 255, 90, 31), 0.95) 0%,
+      rgba(var(--color-primary-rgb, 255, 90, 31), 0.82) 25%,
+      rgba(var(--color-primary-rgb, 255, 90, 31), 0.40) 52%,
       rgba(20, 12, 10, 0.96) 82%,
       #0D0A09 100%);
 }
 
 .orange-glow-hover:hover {
-  box-shadow: 0 0 28px rgba(255, 90, 31, 0.35);
+  box-shadow: 0 0 28px rgba(var(--color-primary-rgb, 255, 90, 31), 0.35);
 }
 
 .card-glow-hover {
@@ -178,8 +181,8 @@ html.light .studio-hero-gradient {
 }
 
 html.dark .card-glow-hover:hover {
-  border-color: rgba(255, 90, 31, 0.5);
-  box-shadow: 0 20px 40px -15px rgba(255, 90, 31, 0.15);
+  border-color: rgba(var(--color-primary-rgb, 255, 90, 31), 0.5);
+  box-shadow: 0 20px 40px -15px rgba(var(--color-primary-rgb, 255, 90, 31), 0.15);
 }
 
 /* Grayscale to subtle contrast on project cards */
@@ -217,7 +220,7 @@ html.light ::-webkit-scrollbar-thumb {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #FF5A1F;
+  background: var(--color-primary, #FF5A1F);
 }
 
 /* Magic UI Animated Theme Toggler View Transitions */

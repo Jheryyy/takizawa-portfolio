@@ -39,12 +39,23 @@ import {
   FileText,
   Sparkles,
   Save,
+  Palette,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { ProjectCategory, SiteContent, SkillItem } from '@/types/portfolio';
 import { defaultSiteContent, getStoredSiteContent, saveStoredSiteContent } from '@/data/portfolio-data';
+import {
+  THEME_COLOR_PRESETS,
+  DEFAULT_THEME_COLOR,
+  DEFAULT_TERTIARY_COLOR,
+  ThemeColorPreset,
+  applyThemeColors,
+  deriveTertiaryColor,
+  getStoredThemeColor,
+  normalizeHex,
+} from '@/lib/theme-colors';
 
-type ActiveTab = 'overview' | 'projects' | 'content' | 'contacts' | 'guestbook';
+type ActiveTab = 'overview' | 'projects' | 'content' | 'theme' | 'contacts' | 'guestbook';
 type AdminThemeMode = 'dark' | 'light';
 
 interface ContactItem {
@@ -169,6 +180,12 @@ export default function AdminDashboardPage() {
     tag: 'Frontend',
   });
 
+  // Theme Color Customization States
+  const [selectedThemeColor, setSelectedThemeColor] = useState<string>(DEFAULT_THEME_COLOR);
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('orange');
+  const [customHexInput, setCustomHexInput] = useState<string>(DEFAULT_THEME_COLOR);
+  const [isSavingThemeColor, setIsSavingThemeColor] = useState<boolean>(false);
+
   // Folder image upload states
   const [imageSourceMode, setImageSourceMode] = useState<'upload' | 'folder' | 'url'>('upload');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -184,13 +201,23 @@ export default function AdminDashboardPage() {
     setTimeout(() => setStatusNotice(null), 3500);
   };
 
-  // 1. Load saved theme mode (Dark / Light)
+  // 1. Load saved theme mode (Dark / Light) & theme accent color
   useEffect(() => {
     try {
       const savedMode = localStorage.getItem('admin_theme_mode') as AdminThemeMode;
       if (savedMode === 'dark' || savedMode === 'light') {
         setThemeMode(savedMode);
       }
+    } catch {
+      // Ignored
+    }
+
+    try {
+      const savedTheme = getStoredThemeColor();
+      setSelectedThemeColor(savedTheme.primary);
+      setCustomHexInput(savedTheme.primary);
+      setSelectedPresetId(savedTheme.presetId);
+      applyThemeColors(savedTheme.primary, savedTheme.tertiary, savedTheme.presetId);
     } catch {
       // Ignored
     }
@@ -204,6 +231,64 @@ export default function AdminDashboardPage() {
       // Ignored
     }
     showNotice(mode === 'dark' ? '🌙 Berpindah ke Dark Mode' : '☀️ Berpindah ke Light Mode');
+  };
+
+  const handleSelectPresetColor = (preset: ThemeColorPreset) => {
+    setSelectedThemeColor(preset.primary);
+    setSelectedPresetId(preset.id);
+    setCustomHexInput(preset.primary);
+    applyThemeColors(preset.primary, preset.tertiary, preset.id);
+  };
+
+  const handleCustomHexChange = (val: string) => {
+    setCustomHexInput(val);
+    const clean = val.trim();
+    if (/^#?[0-9A-Fa-f]{6}$/.test(clean)) {
+      const normalized = normalizeHex(clean);
+      setSelectedThemeColor(normalized);
+      setSelectedPresetId('custom');
+      applyThemeColors(normalized);
+    }
+  };
+
+  const handleSaveThemeColor = async () => {
+    setIsSavingThemeColor(true);
+    try {
+      const tertiary = deriveTertiaryColor(selectedThemeColor);
+      applyThemeColors(selectedThemeColor, tertiary, selectedPresetId);
+
+      const updated = {
+        ...siteContentForm,
+        primaryColor: selectedThemeColor,
+        tertiaryColor: tertiary,
+        colorPresetId: selectedPresetId,
+      };
+      setSiteContentForm(updated);
+      await saveStoredSiteContent(updated);
+      showNotice(`✅ Warna website berhasil disimpan dan aktif (${selectedThemeColor})!`);
+    } catch (err: any) {
+      showNotice(`❌ Gagal menyimpan warna: ${err.message || 'Error'}`);
+    } finally {
+      setIsSavingThemeColor(false);
+    }
+  };
+
+  const handleResetThemeColor = async () => {
+    const def = THEME_COLOR_PRESETS[0];
+    setSelectedThemeColor(def.primary);
+    setSelectedPresetId(def.id);
+    setCustomHexInput(def.primary);
+    applyThemeColors(def.primary, def.tertiary, def.id);
+
+    const updated = {
+      ...siteContentForm,
+      primaryColor: def.primary,
+      tertiaryColor: def.tertiary,
+      colorPresetId: def.id,
+    };
+    setSiteContentForm(updated);
+    await saveStoredSiteContent(updated);
+    showNotice(`🔄 Berhasil reset warna ke Signature Orange (${def.primary})!`);
   };
 
   // 2. Fetch local folder images from public/projects
@@ -426,14 +511,32 @@ export default function AdminDashboardPage() {
         if (scData && scData.content) {
           const parsed = typeof scData.content === 'string' ? JSON.parse(scData.content) : scData.content;
           setSiteContentForm({ ...defaultSiteContent, ...parsed });
+          if (parsed.primaryColor) {
+            setSelectedThemeColor(parsed.primaryColor);
+            setCustomHexInput(parsed.primaryColor);
+            setSelectedPresetId(parsed.colorPresetId || 'custom');
+            applyThemeColors(parsed.primaryColor, parsed.tertiaryColor, parsed.colorPresetId);
+          }
           if (typeof window !== 'undefined') {
             localStorage.setItem('takizawa_site_content', JSON.stringify(parsed));
           }
         } else {
-          setSiteContentForm(getStoredSiteContent());
+          const stored = getStoredSiteContent();
+          setSiteContentForm(stored);
+          if (stored.primaryColor) {
+            setSelectedThemeColor(stored.primaryColor);
+            setCustomHexInput(stored.primaryColor);
+            setSelectedPresetId(stored.colorPresetId || 'custom');
+          }
         }
       } catch {
-        setSiteContentForm(getStoredSiteContent());
+        const stored = getStoredSiteContent();
+        setSiteContentForm(stored);
+        if (stored.primaryColor) {
+          setSelectedThemeColor(stored.primaryColor);
+          setCustomHexInput(stored.primaryColor);
+          setSelectedPresetId(stored.colorPresetId || 'custom');
+        }
       }
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -927,6 +1030,20 @@ CREATE POLICY "Allow public delete on contacts" ON public.contacts FOR DELETE TO
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Quick theme color button */}
+          <button
+            onClick={() => setActiveTab('theme')}
+            className={`p-2 rounded-xl border transition-all ${
+              isDark ? 'bg-white/10 border-white/15 text-white' : 'bg-slate-100 border-slate-200 text-slate-800'
+            }`}
+            title="Kustomisasi Warna Website"
+          >
+            <span
+              className="w-3.5 h-3.5 rounded-full block border border-white/40 shadow-sm"
+              style={{ backgroundColor: selectedThemeColor }}
+            />
+          </button>
+
           {/* Quick theme toggle */}
           <button
             onClick={() => handleToggleTheme(isDark ? 'light' : 'dark')}
@@ -1086,6 +1203,43 @@ CREATE POLICY "Allow public delete on contacts" ON public.contacts FOR DELETE TO
               >
                 Live
               </span>
+            </button>
+
+            {/* Theme & Color Manager */}
+            <button
+              onClick={() => {
+                setActiveTab('theme');
+                setIsMobileSidebarOpen(false);
+              }}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-medium transition-all cursor-pointer ${
+                activeTab === 'theme'
+                  ? isDark
+                    ? 'bg-white text-black font-bold shadow-sm'
+                    : 'bg-slate-900 text-white font-bold shadow-sm'
+                  : isDark
+                  ? 'text-neutral-400 hover:text-white hover:bg-white/5'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Palette className="w-4 h-4 text-primary" />
+                <span>Tema &amp; Warna Web</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="w-2.5 h-2.5 rounded-full border border-white/20 shadow-sm"
+                  style={{ backgroundColor: selectedThemeColor }}
+                />
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                    activeTab === 'theme'
+                      ? 'bg-primary text-white'
+                      : 'bg-primary/10 text-primary'
+                  }`}
+                >
+                  Live
+                </span>
+              </div>
             </button>
 
             {/* Contacts */}
@@ -1288,15 +1442,36 @@ CREATE POLICY "Allow public delete on contacts" ON public.contacts FOR DELETE TO
                 {activeTab === 'overview' && 'Ringkasan Studio'}
                 {activeTab === 'projects' && 'Kelola Proyek (CRUD)'}
                 {activeTab === 'content' && 'Kelola Konten & Bio'}
+                {activeTab === 'theme' && 'Kustomisasi Tema & Warna Web'}
                 {activeTab === 'contacts' && 'Pesan Kontak Masuk'}
                 {activeTab === 'guestbook' && 'Moderasi Buku Tamu (Guestbook)'}
               </h1>
               <p className={`text-xs font-sans mt-0.5 ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
-                Kelola seluruh konten, proyek, dan respon pengunjung secara real-time.
+                {activeTab === 'theme'
+                  ? 'Ubah palet warna aksen website, efek visual glow, dan tema tampilan secara real-time.'
+                  : 'Kelola seluruh konten, proyek, dan respon pengunjung secara real-time.'}
               </p>
             </div>
 
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setActiveTab('theme')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full border font-mono text-xs transition-all cursor-pointer ${
+                  activeTab === 'theme'
+                    ? 'border-primary ring-2 ring-primary/20 bg-primary/10 text-primary font-bold'
+                    : isDark
+                    ? 'bg-white/5 border-white/10 hover:bg-white/10 text-neutral-300'
+                    : 'bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700'
+                }`}
+                title="Kustomisasi Warna Website"
+              >
+                <span
+                  className="w-2.5 h-2.5 rounded-full shadow-sm"
+                  style={{ backgroundColor: selectedThemeColor }}
+                />
+                <span>Warna: {selectedThemeColor}</span>
+              </button>
               <div
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full border font-mono text-xs ${
                   isDark
@@ -2286,6 +2461,507 @@ CREATE POLICY "Allow public delete on contacts" ON public.contacts FOR DELETE TO
                 </div>
               </div>
             </form>
+          )}
+
+          {/* TAB: THEME & COLOR CUSTOMIZER */}
+          {activeTab === 'theme' && (
+            <div className="space-y-8">
+              {/* Header Action Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border bg-primary/5 border-primary/20">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+                    <h3 className="font-display font-bold text-lg text-primary flex items-center gap-2">
+                      <Palette className="w-5 h-5" />
+                      <span>Kustomisasi Warna &amp; Tema Web Portofolio</span>
+                    </h3>
+                  </div>
+                  <p className={`text-xs ${isDark ? 'text-neutral-400' : 'text-slate-600'}`}>
+                    Ubah warna aksen utama (Primary Accent Color) website portofolio. Warna ini mengatur tombol aksi utama (CTA), nomor indeks, sorotan neon glow, ombak transisi liquid, dan langsung tersimpan ke Supabase database.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleResetThemeColor}
+                    className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold border transition-colors cursor-pointer flex items-center gap-2 ${
+                      isDark
+                        ? 'border-white/10 hover:bg-white/10 text-neutral-300'
+                        : 'border-slate-300 hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Reset Default</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveThemeColor}
+                    disabled={isSavingThemeColor}
+                    className="px-5 py-2.5 rounded-xl text-xs font-mono font-bold bg-primary text-white hover:opacity-90 shadow-lg cursor-pointer flex items-center gap-2"
+                  >
+                    {isSavingThemeColor ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Save className="w-3.5 h-3.5" />
+                    )}
+                    <span>{isSavingThemeColor ? 'Menyimpan...' : 'Simpan & Terapkan'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Banner: Active Color Overview */}
+              <div
+                className={`p-6 rounded-3xl border transition-all ${
+                  isDark ? 'bg-[#101016] border-white/10' : 'bg-white border-slate-200 shadow-sm'
+                }`}
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="w-16 h-16 rounded-2xl shadow-xl border-2 border-white/20 flex items-center justify-center shrink-0 transition-transform duration-300 hover:scale-105"
+                      style={{
+                        backgroundColor: selectedThemeColor,
+                        boxShadow: `0 10px 30px ${selectedThemeColor}40`,
+                      }}
+                    >
+                      <Sparkles className="w-7 h-7 text-white drop-shadow-md" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-mono uppercase tracking-wider font-bold text-primary">
+                          Warna Utama Aktif
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 font-bold">
+                          {selectedPresetId === 'custom' ? 'Kustom' : 'Preset Siap Pakai'}
+                        </span>
+                      </div>
+                      <h4 className="font-display font-extrabold text-2xl tracking-tight mt-0.5">
+                        {THEME_COLOR_PRESETS.find((p) => p.id === selectedPresetId)?.name || 'Custom Theme Accent'}
+                      </h4>
+                      <p className={`text-xs mt-1 font-mono ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                        HEX: <strong className="text-primary font-bold">{selectedThemeColor}</strong> &bull; Tertiary: {deriveTertiaryColor(selectedThemeColor)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Quick Preview Chips */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold text-white bg-primary shadow-sm flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                      <span>CTA Button</span>
+                    </div>
+                    <div className="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-primary/15 text-primary border border-primary/30">
+                      Tag Badge
+                    </div>
+                    <div
+                      className="px-3.5 py-1.5 rounded-full text-xs font-mono border transition-all"
+                      style={{
+                        borderColor: selectedThemeColor,
+                        color: selectedThemeColor,
+                        boxShadow: `0 0 16px ${selectedThemeColor}30`,
+                      }}
+                    >
+                      Neon Glow
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 1: PRESET PALETTES */}
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="font-display font-bold text-xl flex items-center gap-2">
+                      <span>Palet Warna Unggulan (Presets)</span>
+                    </h3>
+                    <p className={`text-xs ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                      Koleksi 8 palet warna yang dirancang khusus dengan kontras visual tinggi dan estetika modern. Klik untuk mencoba langsung.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {THEME_COLOR_PRESETS.map((preset) => {
+                    const isSelected = selectedPresetId === preset.id && selectedThemeColor.toLowerCase() === preset.primary.toLowerCase();
+                    return (
+                      <div
+                        key={preset.id}
+                        onClick={() => handleSelectPresetColor(preset)}
+                        className={`group relative p-4 rounded-2xl border transition-all duration-200 cursor-pointer text-left flex flex-col justify-between ${
+                          isSelected
+                            ? isDark
+                              ? 'bg-[#151520] border-primary shadow-lg ring-2 ring-primary/30'
+                              : 'bg-white border-primary shadow-lg ring-2 ring-primary/30'
+                            : isDark
+                            ? 'bg-[#101016] border-white/10 hover:border-white/20 hover:bg-white/[0.03]'
+                            : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-sm'
+                        }`}
+                        style={{
+                          borderColor: isSelected ? preset.primary : undefined,
+                        }}
+                      >
+                        <div className="space-y-3">
+                          {/* Color Visual Swatch Row */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <div
+                                className="w-10 h-10 rounded-xl shadow-md border border-white/20 shrink-0 transition-transform group-hover:scale-110"
+                                style={{
+                                  background: `linear-gradient(135deg, ${preset.primary} 0%, ${preset.tertiary} 100%)`,
+                                  boxShadow: isSelected ? `0 4px 18px ${preset.primary}60` : undefined,
+                                }}
+                              />
+                              <div>
+                                <h4 className="font-display font-bold text-sm leading-tight">
+                                  {preset.name}
+                                </h4>
+                                <span className={`text-[11px] font-sans ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                                  {preset.label}
+                                </span>
+                              </div>
+                            </div>
+
+                            {isSelected && (
+                              <span
+                                className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs shadow-sm"
+                                style={{ backgroundColor: preset.primary }}
+                              >
+                                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Description */}
+                          <p className={`text-xs line-clamp-2 ${isDark ? 'text-neutral-400' : 'text-slate-600'}`}>
+                            {preset.description}
+                          </p>
+                        </div>
+
+                        {/* Footer Badges */}
+                        <div className="flex items-center justify-between pt-3 mt-3 border-t border-inherit text-[10px] font-mono">
+                          <span
+                            className="font-bold px-2 py-0.5 rounded-md"
+                            style={{
+                              backgroundColor: `${preset.primary}18`,
+                              color: preset.primary,
+                            }}
+                          >
+                            {preset.primary}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-md ${isDark ? 'bg-white/5 text-neutral-300' : 'bg-slate-100 text-slate-600'}`}>
+                            {preset.badge}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* SECTION 2: CUSTOM COLOR PICKER */}
+              <div
+                className={`p-6 rounded-3xl border space-y-6 ${
+                  isDark ? 'bg-[#101016] border-white/10' : 'bg-white border-slate-200 shadow-sm'
+                }`}
+              >
+                <div>
+                  <h3 className="font-display font-bold text-lg flex items-center gap-2">
+                    <Palette className="w-4 h-4 text-primary" />
+                    <span>Pemilih Warna Kustom (Custom Color Picker)</span>
+                  </h3>
+                  <p className={`text-xs mt-0.5 ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                    Ingin menggunakan warna spesifik atau warna brand sendiri? Pilih langsung melalui roda warna visual atau ketikkan kode HEX.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                  {/* Color Picker Input & Hex */}
+                  <div className="md:col-span-6 space-y-4">
+                    <div className="flex items-center gap-4">
+                      {/* Native HTML5 Color Picker styled */}
+                      <div className="relative group shrink-0">
+                        <input
+                          type="color"
+                          id="customThemeColorInput"
+                          value={selectedThemeColor}
+                          onChange={(e) => handleCustomHexChange(e.target.value)}
+                          className="w-16 h-16 rounded-2xl cursor-pointer border-2 border-white/20 bg-transparent opacity-0 absolute inset-0 z-10"
+                        />
+                        <div
+                          className="w-16 h-16 rounded-2xl border-2 border-white/20 shadow-lg flex items-center justify-center transition-transform group-hover:scale-105"
+                          style={{
+                            backgroundColor: selectedThemeColor,
+                            boxShadow: `0 6px 20px ${selectedThemeColor}40`,
+                          }}
+                        >
+                          <Palette className="w-6 h-6 text-white drop-shadow" />
+                        </div>
+                      </div>
+
+                      {/* HEX Text Input */}
+                      <div className="flex-1 space-y-1.5">
+                        <label className={`block text-xs font-mono font-semibold uppercase tracking-wider ${isDark ? 'text-neutral-300' : 'text-slate-700'}`}>
+                          Kode HEX Warna
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <div className={`flex items-center px-3.5 py-2.5 rounded-xl border font-mono text-sm flex-1 ${
+                            isDark ? 'bg-black/30 border-white/10 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                          }`}>
+                            <span className="text-neutral-500 select-none mr-1">#</span>
+                            <input
+                              type="text"
+                              value={customHexInput.replace(/^#/, '')}
+                              onChange={(e) => handleCustomHexChange('#' + e.target.value)}
+                              placeholder="FF5A1F"
+                              maxLength={7}
+                              className="bg-transparent border-none outline-none font-mono uppercase tracking-wider w-full"
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(selectedThemeColor);
+                              showNotice(`📋 Kode warna ${selectedThemeColor} berhasil disalin!`);
+                            }}
+                            className={`p-2.5 rounded-xl border text-xs font-mono transition-colors cursor-pointer ${
+                              isDark ? 'border-white/10 hover:bg-white/10 text-neutral-300' : 'border-slate-300 hover:bg-slate-100 text-slate-700'
+                            }`}
+                            title="Salin HEX Code"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Swatches row */}
+                    <div className="space-y-1.5">
+                      <span className={`text-[11px] font-mono ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                        Warna Cepat Populer:
+                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {[
+                          { name: 'Lime', hex: '#84CC16' },
+                          { name: 'Sky', hex: '#0EA5E9' },
+                          { name: 'Fuchsia', hex: '#D946EF' },
+                          { name: 'Teal', hex: '#14B8A6' },
+                          { name: 'Coral', hex: '#FB923C' },
+                          { name: 'Gold', hex: '#EAB308' },
+                          { name: 'Ruby', hex: '#E11D48' },
+                        ].map((swatch) => (
+                          <button
+                            key={swatch.hex}
+                            type="button"
+                            onClick={() => handleCustomHexChange(swatch.hex)}
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono transition-all hover:scale-105 cursor-pointer border-inherit"
+                            title={`Gunakan warna ${swatch.name} (${swatch.hex})`}
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: swatch.hex }} />
+                            <span>{swatch.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Auto-derived Tertiary Shade Preview */}
+                  <div className={`md:col-span-6 p-4 rounded-2xl border space-y-3 ${
+                    isDark ? 'bg-black/20 border-white/5' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
+                        Harmoni Turunan Warna (Tertiary)
+                      </span>
+                      <span className="text-[11px] font-mono text-neutral-400">
+                        {deriveTertiaryColor(selectedThemeColor)}
+                      </span>
+                    </div>
+
+                    <div className="h-10 rounded-xl overflow-hidden shadow-inner flex">
+                      <div
+                        className="flex-1 flex items-center justify-center text-[11px] font-mono font-bold text-white shadow-sm"
+                        style={{ backgroundColor: selectedThemeColor }}
+                      >
+                        Primary: {selectedThemeColor}
+                      </div>
+                      <div
+                        className="flex-1 flex items-center justify-center text-[11px] font-mono font-bold text-white shadow-sm"
+                        style={{ backgroundColor: deriveTertiaryColor(selectedThemeColor) }}
+                      >
+                        Tertiary: {deriveTertiaryColor(selectedThemeColor)}
+                      </div>
+                    </div>
+
+                    <p className={`text-[11px] leading-relaxed ${isDark ? 'text-neutral-400' : 'text-slate-600'}`}>
+                      Sistem kami otomatis menghitung varian warna turunan (tertiary tint) untuk menghasilkan gradasi lembut pada ombak animasi dan sorotan latar belakang secara harmonis.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 3: LIVE PREVIEW STUDIO */}
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-display font-bold text-xl flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    <span>Studio Pratinjau Komponen Langsung (Live Simulation)</span>
+                  </h3>
+                  <p className={`text-xs ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                    Simulasi tampilan komponen website dengan warna yang sedang dipilih secara real-time.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Dark Mode Simulation Card */}
+                  <div className="p-6 rounded-3xl bg-[#0A0A0C] border border-white/10 text-white space-y-5 relative overflow-hidden shadow-xl">
+                    <div
+                      className="absolute -top-20 -right-20 w-56 h-56 rounded-full blur-3xl pointer-events-none opacity-40"
+                      style={{ backgroundColor: selectedThemeColor }}
+                    />
+
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <span className="text-xs font-mono font-bold text-neutral-400 flex items-center gap-1.5">
+                        <Moon className="w-3.5 h-3.5" />
+                        <span>Simulasi di Dark Canvas</span>
+                      </span>
+                      <span
+                        className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
+                        style={{ backgroundColor: `${selectedThemeColor}20`, color: selectedThemeColor }}
+                      >
+                        #0A0A0A Mode
+                      </span>
+                    </div>
+
+                    <div className="space-y-4 relative z-10">
+                      <div>
+                        <span className="text-xs font-mono font-semibold" style={{ color: selectedThemeColor }}>
+                          About &bull; Behind the Code &amp; Canvas
+                        </span>
+                        <h4 className="font-display font-bold text-xl tracking-tight text-white mt-1">
+                          Shaping Digital Experiences That Make Web Simpler
+                        </h4>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <button
+                          type="button"
+                          className="px-4 py-2 rounded-xl text-xs font-mono font-bold text-white shadow-lg transition-transform hover:scale-105"
+                          style={{
+                            backgroundColor: selectedThemeColor,
+                            boxShadow: `0 4px 18px ${selectedThemeColor}50`,
+                          }}
+                        >
+                          Lihat Selected Works
+                        </button>
+
+                        <span
+                          className="px-3 py-1.5 rounded-xl text-xs font-mono border"
+                          style={{
+                            borderColor: `${selectedThemeColor}40`,
+                            backgroundColor: `${selectedThemeColor}10`,
+                            color: selectedThemeColor,
+                          }}
+                        >
+                          SMK Negeri 1 Depok &bull; PPLG
+                        </span>
+                      </div>
+
+                      {/* Mock Project Bento Card */}
+                      <div
+                        className="p-4 rounded-2xl bg-[#141414] border border-white/10 transition-all hover:translate-y-[-2px]"
+                        style={{
+                          boxShadow: `0 8px 24px -10px ${selectedThemeColor}20`,
+                        }}
+                      >
+                        <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400 mb-1">
+                          <span style={{ color: selectedThemeColor }}>01 &bull; Fullstack</span>
+                          <span>2026</span>
+                        </div>
+                        <h5 className="font-display font-bold text-sm text-white">
+                          Portfolio Website Case Study
+                        </h5>
+                        <p className="text-xs text-neutral-400 mt-1 line-clamp-2">
+                          Next.js 15, TypeScript, Tailwind CSS, dan Supabase backend dengan estetika editorial tinggi.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Light Mode Simulation Card */}
+                  <div className="p-6 rounded-3xl bg-[#FAFAFA] border border-slate-200 text-slate-900 space-y-5 relative overflow-hidden shadow-xl">
+                    <div
+                      className="absolute -top-20 -right-20 w-56 h-56 rounded-full blur-3xl pointer-events-none opacity-25"
+                      style={{ backgroundColor: selectedThemeColor }}
+                    />
+
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                      <span className="text-xs font-mono font-bold text-slate-500 flex items-center gap-1.5">
+                        <Sun className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Simulasi di Light Canvas</span>
+                      </span>
+                      <span
+                        className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
+                        style={{ backgroundColor: `${selectedThemeColor}20`, color: selectedThemeColor }}
+                      >
+                        #FAFAFA Mode
+                      </span>
+                    </div>
+
+                    <div className="space-y-4 relative z-10">
+                      <div>
+                        <span className="text-xs font-mono font-bold" style={{ color: selectedThemeColor }}>
+                          About &bull; Behind the Code &amp; Canvas
+                        </span>
+                        <h4 className="font-display font-bold text-xl tracking-tight text-slate-900 mt-1">
+                          Shaping Digital Experiences That Make Web Simpler
+                        </h4>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <button
+                          type="button"
+                          className="px-4 py-2 rounded-xl text-xs font-mono font-bold text-white shadow-md transition-transform hover:scale-105"
+                          style={{
+                            backgroundColor: selectedThemeColor,
+                            boxShadow: `0 4px 18px ${selectedThemeColor}40`,
+                          }}
+                        >
+                          Lihat Selected Works
+                        </button>
+
+                        <span
+                          className="px-3 py-1.5 rounded-xl text-xs font-mono border"
+                          style={{
+                            borderColor: `${selectedThemeColor}40`,
+                            backgroundColor: `${selectedThemeColor}10`,
+                            color: selectedThemeColor,
+                          }}
+                        >
+                          SMK Negeri 1 Depok &bull; PPLG
+                        </span>
+                      </div>
+
+                      {/* Mock Project Bento Card in Light */}
+                      <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all hover:translate-y-[-2px]">
+                        <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 mb-1">
+                          <span style={{ color: selectedThemeColor }}>01 &bull; Fullstack</span>
+                          <span>2026</span>
+                        </div>
+                        <h5 className="font-display font-bold text-sm text-slate-900">
+                          Portfolio Website Case Study
+                        </h5>
+                        <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                          Next.js 15, TypeScript, Tailwind CSS, dan Supabase backend dengan estetika editorial tinggi.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* TAB 3: CONTACTS */}
