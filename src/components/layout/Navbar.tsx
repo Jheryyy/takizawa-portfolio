@@ -106,33 +106,33 @@ export function Navbar() {
       <div className="relative w-full flex items-center justify-between px-4 sm:px-8 lg:px-12 h-18 sm:h-20">
         {/* Left Side: Desktop Links (Home, Project, Contact) or Mobile Theme Toggler */}
         <div className="flex items-center">
-          {/* Mobile Only: Theme Toggler & Palette on Left (Admin Only) */}
+          {/* Mobile Only: Theme Toggler (Always visible) & Palette on Left (Admin Only) */}
           <div className="md:hidden flex items-center gap-2">
+            {mounted && (
+              <AnimatedThemeToggler
+                theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
+                onThemeChange={setTheme}
+                className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full border transition-all duration-300 shadow-sm ${
+                  resolvedTheme === 'dark'
+                    ? 'bg-[#1C1C1C]/70 border-amber-400/30 text-amber-400 hover:border-amber-400 hover:bg-[#252525] hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]'
+                    : 'bg-white/80 border-neutral-300 text-black hover:border-black hover:bg-neutral-50 shadow-sm'
+                }`}
+              />
+            )}
             {mounted && isAdmin && (
-              <>
-                <AnimatedThemeToggler
-                  theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
-                  onThemeChange={setTheme}
-                  className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full border transition-all duration-300 shadow-sm ${
-                    resolvedTheme === 'dark'
-                      ? 'bg-[#1C1C1C]/70 border-amber-400/30 text-amber-400 hover:border-amber-400 hover:bg-[#252525] hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]'
-                      : 'bg-white/80 border-neutral-300 text-black hover:border-black hover:bg-neutral-50 shadow-sm'
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new CustomEvent('open-theme-customizer'))}
-                  className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full border transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer active:scale-95 ${
-                    resolvedTheme === 'dark'
-                      ? 'bg-[#1C1C1C]/70 border-white/15 text-white hover:border-primary/60'
-                      : 'bg-white/80 border-neutral-300 text-black hover:border-primary/60 shadow-sm'
-                  }`}
-                  title="Kustomisasi Warna & Tema Web (Admin)"
-                  aria-label="Kustomisasi Warna & Tema Web"
-                >
-                  <Palette className="w-4 h-4 text-primary" />
-                </button>
-              </>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-theme-customizer'))}
+                className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full border transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer active:scale-95 ${
+                  resolvedTheme === 'dark'
+                    ? 'bg-[#1C1C1C]/70 border-white/15 text-white hover:border-primary/60'
+                    : 'bg-white/80 border-neutral-300 text-black hover:border-primary/60 shadow-sm'
+                }`}
+                title="Kustomisasi Warna & Tema Web (Admin)"
+                aria-label="Kustomisasi Warna & Tema Web"
+              >
+                <Palette className="w-4 h-4 text-primary" />
+              </button>
             )}
           </div>
 
@@ -224,31 +224,31 @@ export function Navbar() {
             >
               Guestbook
             </Link>
+            {mounted && (
+              <AnimatedThemeToggler
+                theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
+                onThemeChange={setTheme}
+                className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full border transition-all duration-300 shadow-sm ${
+                  resolvedTheme === 'dark'
+                    ? 'bg-[#1C1C1C]/70 border-amber-400/30 text-amber-400 hover:border-amber-400 hover:bg-[#252525] hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]'
+                    : 'bg-white/80 border-neutral-300 text-black hover:border-black hover:bg-neutral-50 shadow-sm'
+                }`}
+              />
+            )}
             {mounted && isAdmin && (
-              <>
-                <AnimatedThemeToggler
-                  theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
-                  onThemeChange={setTheme}
-                  className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full border transition-all duration-300 shadow-sm ${
-                    resolvedTheme === 'dark'
-                      ? 'bg-[#1C1C1C]/70 border-amber-400/30 text-amber-400 hover:border-amber-400 hover:bg-[#252525] hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]'
-                      : 'bg-white/80 border-neutral-300 text-black hover:border-black hover:bg-neutral-50 shadow-sm'
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new CustomEvent('open-theme-customizer'))}
-                  className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full border transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 ${
-                    resolvedTheme === 'dark'
-                      ? 'bg-[#1C1C1C]/70 border-white/15 text-white hover:border-primary/60 hover:shadow-[0_0_16px_rgba(255,255,255,0.15)]'
-                      : 'bg-white/80 border-neutral-300 text-black hover:border-primary/60 shadow-sm'
-                  }`}
-                  title="Kustomisasi Warna & Tema Web (Admin)"
-                  aria-label="Kustomisasi Warna & Tema Web"
-                >
-                  <Palette className="w-4 h-4 text-primary" />
-                </button>
-              </>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-theme-customizer'))}
+                className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full border transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 ${
+                  resolvedTheme === 'dark'
+                    ? 'bg-[#1C1C1C]/70 border-white/15 text-white hover:border-primary/60 hover:shadow-[0_0_16px_rgba(255,255,255,0.15)]'
+                    : 'bg-white/80 border-neutral-300 text-black hover:border-primary/60 shadow-sm'
+                }`}
+                title="Kustomisasi Warna & Tema Web (Admin)"
+                aria-label="Kustomisasi Warna & Tema Web"
+              >
+                <Palette className="w-4 h-4 text-primary" />
+              </button>
             )}
           </div>
 
