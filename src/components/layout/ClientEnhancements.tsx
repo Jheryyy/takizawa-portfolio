@@ -5,6 +5,10 @@ import dynamic from 'next/dynamic';
 
 const MusicPlayer = dynamic(() => import('@/components/ui/MusicPlayer'), { ssr: false });
 const TargetCursor = dynamic(() => import('@/components/ui/TargetCursor'), { ssr: false });
+const WebThemeCustomizer = dynamic(
+  () => import('@/components/theme/WebThemeCustomizer').then((m) => m.WebThemeCustomizer),
+  { ssr: false }
+);
 
 export function ClientEnhancements() {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -21,6 +25,7 @@ export function ClientEnhancements() {
   return (
     <>
       <MusicPlayer />
+      <WebThemeCustomizer />
       {isDesktop && (
         <TargetCursor
           spinDuration={0}
