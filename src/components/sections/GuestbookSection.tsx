@@ -80,6 +80,10 @@ export function GuestbookSection({ onNotifyToast }: GuestbookSectionProps) {
         const repliesList: GuestbookReply[] = [];
 
         rawData.forEach((item: any) => {
+          if (item.handle === '__takizawa_theme_config__') {
+            return;
+          }
+
           if (item.is_approved === false && !item.message?.includes('[reply:')) {
             return;
           }

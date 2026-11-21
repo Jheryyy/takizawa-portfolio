@@ -55,6 +55,7 @@ import {
   normalizeHex,
   applyThemeStyle,
   getStoredThemeStyle,
+  syncThemeToSupabase,
 } from '@/lib/theme-colors';
 
 type ActiveTab = 'overview' | 'projects' | 'content' | 'theme' | 'contacts' | 'guestbook';
@@ -244,19 +245,29 @@ export default function AdminDashboardPage() {
     showNotice(mode === 'dark' ? '🌙 Berpindah ke Dark Mode' : '☀️ Berpindah ke Light Mode');
   };
 
-  const handleToggleThemeStyle = (style: 'solid' | 'glass') => {
+  const handleToggleThemeStyle = async (style: 'solid' | 'glass') => {
     setThemeStyle(style);
     applyThemeStyle(style);
+    const tertiary = deriveTertiaryColor(selectedThemeColor);
     const updated = {
       ...siteContentForm,
+      primaryColor: selectedThemeColor,
+      tertiaryColor: tertiary,
+      colorPresetId: selectedPresetId,
       themeStyle: style,
     };
     setSiteContentForm(updated);
     saveStoredSiteContent(updated);
+    await syncThemeToSupabase({
+      primaryColor: selectedThemeColor,
+      tertiaryColor: tertiary,
+      colorPresetId: selectedPresetId,
+      themeStyle: style,
+    });
     showNotice(
       style === 'glass'
-        ? '✨ Mode Frosted Glassmorphism aktif! Kartu & elemen kini bernuansa kaca transparan berkilau.'
-        : '🏛️ Mode Solid Minimalist aktif! Kartu pekat editorial standar.'
+        ? '✨ Mode Liquid Glass aktif & live ke seluruh pengunjung website!'
+        : '🏛️ Mode Solid Minimalist aktif & live ke seluruh pengunjung website!'
     );
   };
 
@@ -299,7 +310,16 @@ export default function AdminDashboardPage() {
       };
       setSiteContentForm(updated);
       await saveStoredSiteContent(updated);
-      showNotice(`✅ Tema & warna website berhasil disimpan (${selectedThemeColor} • ${themeStyle.toUpperCase()})!`);
+
+      // Persist to Supabase so EVERY visitor sees it on all browsers/devices
+      await syncThemeToSupabase({
+        primaryColor: selectedThemeColor,
+        tertiaryColor: tertiary,
+        colorPresetId: selectedPresetId,
+        themeStyle: themeStyle,
+      });
+
+      showNotice(`✅ Tema & warna website berhasil disimpan ke Cloud Supabase (${selectedThemeColor} • ${themeStyle.toUpperCase()}) dan live ke seluruh pengunjung!`);
     } catch (err: any) {
       showNotice(`❌ Gagal menyimpan warna: ${err.message || 'Error'}`);
     } finally {
@@ -319,10 +339,17 @@ export default function AdminDashboardPage() {
       primaryColor: def.primary,
       tertiaryColor: def.tertiary,
       colorPresetId: def.id,
+      themeStyle: themeStyle,
     };
     setSiteContentForm(updated);
     await saveStoredSiteContent(updated);
-    showNotice(`🔄 Berhasil reset warna ke Signature Orange (${def.primary})!`);
+    await syncThemeToSupabase({
+      primaryColor: def.primary,
+      tertiaryColor: def.tertiary,
+      colorPresetId: def.id,
+      themeStyle: themeStyle,
+    });
+    showNotice(`🔄 Berhasil reset warna ke Signature Orange (${def.primary}) dan disinkronkan ke seluruh pengunjung!`);
   };
 
   // 2. Fetch local folder images from public/projects
@@ -503,7 +530,9 @@ export default function AdminDashboardPage() {
       // 3. Guestbook
       const gbAllRes = await supabase.from('guestbook').select('*').order('created_at', { ascending: false });
       if (gbAllRes.data) {
-        const rawItems = gbAllRes.data as GuestbookRecord[];
+        const rawItems = (gbAllRes.data as GuestbookRecord[]).filter(
+          (item) => item.handle !== '__takizawa_theme_config__'
+        );
         const parentMap = new Map<string, ParsedGuestbookItem>();
         const repliesList: ParsedGuestbookItem[] = [];
 

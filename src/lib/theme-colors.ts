@@ -1,3 +1,5 @@
+import { supabase } from '@/lib/supabase';
+
 export interface ThemeColorPreset {
   id: string;
   name: string;
@@ -376,4 +378,97 @@ export function getStoredThemeStyle(): 'solid' | 'glass' {
     // Ignored
   }
   return 'glass';
+}
+
+/**
+ * Checks if the current browser user is authenticated as administrator
+ */
+export function isUserAdmin(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const s = sessionStorage.getItem('takizawa_admin_auth');
+    const l = localStorage.getItem('takizawa_admin_auth');
+    return s === 'authenticated_jheryco_2026' || l === 'authenticated_jheryco_2026';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Persists theme configuration to Supabase so that all public visitors on all devices
+ * see the active theme & color choice live!
+ */
+export async function syncThemeToSupabase(config: {
+  primaryColor: string;
+  tertiaryColor?: string;
+  colorPresetId?: string;
+  themeStyle?: 'solid' | 'glass';
+}): Promise<boolean> {
+  try {
+    const primary = normalizeHex(config.primaryColor);
+    const tertiary = config.tertiaryColor ? normalizeHex(config.tertiaryColor) : deriveTertiaryColor(primary);
+    const presetId = config.colorPresetId || 'custom';
+    const style = config.themeStyle || 'glass';
+
+    const payload = JSON.stringify({
+      primaryColor: primary,
+      tertiaryColor: tertiary,
+      colorPresetId: presetId,
+      themeStyle: style,
+      updated_at: new Date().toISOString(),
+    });
+
+    const { data: existing } = await supabase
+      .from('guestbook')
+      .select('id')
+      .eq('handle', '__takizawa_theme_config__')
+      .maybeSingle();
+
+    if (existing && existing.id) {
+      const { error } = await supabase
+        .from('guestbook')
+        .update({ message: payload })
+        .eq('id', existing.id);
+      return !error;
+    } else {
+      const { error } = await supabase.from('guestbook').insert({
+        name: 'Site Theme Config',
+        handle: '__takizawa_theme_config__',
+        role: 'System',
+        message: payload,
+        likes: 0,
+        is_approved: false,
+      });
+      return !error;
+    }
+  } catch (err) {
+    console.error('Failed to sync theme config to Supabase:', err);
+    return false;
+  }
+}
+
+/**
+ * Fetches the global theme configuration from Supabase for all public visitors
+ */
+export async function fetchRemoteThemeFromSupabase(): Promise<{
+  primaryColor?: string;
+  tertiaryColor?: string;
+  colorPresetId?: string;
+  themeStyle?: 'solid' | 'glass';
+} | null> {
+  try {
+    const { data, error } = await supabase
+      .from('guestbook')
+      .select('message')
+      .eq('handle', '__takizawa_theme_config__')
+      .maybeSingle();
+
+    if (!error && data && data.message) {
+      const parsed = typeof data.message === 'string' ? JSON.parse(data.message) : data.message;
+      return parsed;
+    }
+  } catch (err) {
+    console.warn('Could not read remote theme from Supabase:', err);
+  }
+  return null;
 }
