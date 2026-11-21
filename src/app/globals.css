@@ -287,15 +287,13 @@ html.theme-glass.light body {
   color: #0A0A0A !important;
 }
 
-/* Make section wrappers transparent so Liquid Aurora & Gradients flow underneath */
-html.theme-glass .bg-canvas,
-html.theme-glass.light .bg-canvas,
-html.theme-glass section,
-html.theme-glass.light section,
+/* Make section wrappers transparent so Liquid Aurora & Gradients flow underneath (EXCEPT #about which is solid) */
+html.theme-glass .bg-canvas:not(.about-solid-bg),
+html.theme-glass.light .bg-canvas:not(.about-solid-bg),
+html.theme-glass section:not(#about):not(.about-solid-section),
+html.theme-glass.light section:not(#about):not(.about-solid-section),
 html.theme-glass #home,
 html.theme-glass.light #home,
-html.theme-glass #about,
-html.theme-glass.light #about,
 html.theme-glass #projects,
 html.theme-glass.light #projects,
 html.theme-glass #guestbook,
@@ -307,6 +305,81 @@ html.theme-glass.light .hero-logoloop-strip,
 html.theme-glass .hero-logoloop-strip > div,
 html.theme-glass.light .hero-logoloop-strip > div {
   background-color: transparent !important;
+}
+
+/* ========================================================
+   ABOUT SECTION: SOLID BACKGROUND (NO GLASSMORPHISM)
+   ======================================================== */
+html.theme-glass #about,
+html.theme-glass.light #about,
+html.theme-glass .about-solid-section,
+html.theme-glass.light .about-solid-section,
+html.theme-glass .about-solid-page,
+html.theme-glass.light .about-solid-page {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.theme-glass:not(.light) #about,
+html.theme-glass:not(.light) .about-solid-section,
+html.theme-glass:not(.light) .about-solid-page {
+  background-color: #08080C !important;
+}
+
+html.theme-glass.light #about,
+html.theme-glass.light .about-solid-section,
+html.theme-glass.light .about-solid-page {
+  background-color: #F8FAFC !important;
+}
+
+/* Solid background for cards inside About section */
+html.theme-glass:not(.light) #about .bg-surface,
+html.theme-glass:not(.light) .about-solid-section .bg-surface,
+html.theme-glass:not(.light) .about-solid-page .bg-surface {
+  background-color: #121218 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.theme-glass.light #about .bg-surface,
+html.theme-glass.light .about-solid-section .bg-surface,
+html.theme-glass.light .about-solid-page .bg-surface {
+  background-color: #FFFFFF !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.theme-glass:not(.light) #about .bg-canvas,
+html.theme-glass:not(.light) .about-solid-section .bg-canvas,
+html.theme-glass:not(.light) .about-solid-page .bg-canvas {
+  background-color: #0A0A0E !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.theme-glass.light #about .bg-canvas,
+html.theme-glass.light .about-solid-section .bg-canvas,
+html.theme-glass.light .about-solid-page .bg-canvas {
+  background-color: #F1F5F9 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* All boxes inside About section: remove glass blur & enhance rounded corners */
+#about .rounded-2xl,
+#about .rounded-3xl,
+#about .rounded-\[22px\],
+#about .rounded-\[36px\],
+.about-solid-section .rounded-2xl,
+.about-solid-section .rounded-3xl,
+.about-solid-page .rounded-2xl,
+.about-solid-page .rounded-3xl {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* Glass surfaces in Dark Mode */

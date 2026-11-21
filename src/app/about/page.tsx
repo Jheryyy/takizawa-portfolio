@@ -46,7 +46,7 @@ export default function AboutDetailPage() {
       : skillsData.filter((s) => s.category === activeSkillCategory);
 
   return (
-    <div className="relative min-h-screen w-full bg-canvas text-black dark:text-white pt-24 sm:pt-28 flex flex-col justify-between transition-colors">
+    <div className="relative min-h-screen w-full bg-canvas text-black dark:text-white pt-24 sm:pt-28 flex flex-col justify-between transition-colors about-solid-page bg-[#08080C] dark:bg-[#08080C] light:bg-[#F8FAFC]">
       {/* Container */}
       <main className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-10 py-10 space-y-14">
         {/* Top Back Navigation Bar & Breadcrumb */}
@@ -211,7 +211,7 @@ export default function AboutDetailPage() {
         {/* 2-Column Bento: Academic Track & Design/Dev Process */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Card 1: Academic Track */}
-          <div className="p-6 sm:p-8 rounded-2.5xl bg-surface border border-hairline space-y-6 shadow-sm">
+          <div className="p-6 sm:p-8 rounded-3xl sm:rounded-[36px] bg-surface border border-hairline space-y-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="w-10 h-10 rounded-full bg-primary/10 border border-primary/25 text-primary flex items-center justify-center">
@@ -242,19 +242,19 @@ export default function AboutDetailPage() {
                 Core Competencies &amp; Modules:
               </p>
               <div className="grid grid-cols-2 gap-2.5 text-xs text-black dark:text-white/90 font-semibold">
-                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-canvas border border-hairline">
+                <div className="flex items-center gap-2 p-3 rounded-2xl bg-canvas border border-hairline">
                   <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                   <span>Web App Architecture</span>
                 </div>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-canvas border border-hairline">
+                <div className="flex items-center gap-2 p-3 rounded-2xl bg-canvas border border-hairline">
                   <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                   <span>Database Normalization</span>
                 </div>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-canvas border border-hairline">
+                <div className="flex items-center gap-2 p-3 rounded-2xl bg-canvas border border-hairline">
                   <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                   <span>REST APIs &amp; Supabase</span>
                 </div>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-canvas border border-hairline">
+                <div className="flex items-center gap-2 p-3 rounded-2xl bg-canvas border border-hairline">
                   <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                   <span>UI/UX &amp; Design Tokens</span>
                 </div>
@@ -306,7 +306,7 @@ export default function AboutDetailPage() {
           </div>
 
           {/* Card 2: 4-Step Design & Dev Workflow */}
-          <div className="p-6 sm:p-8 rounded-2.5xl bg-surface border border-hairline space-y-6 shadow-sm">
+          <div className="p-6 sm:p-8 rounded-3xl sm:rounded-[36px] bg-surface border border-hairline space-y-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="w-10 h-10 rounded-full bg-primary/10 border border-primary/25 text-primary flex items-center justify-center">
@@ -327,7 +327,7 @@ export default function AboutDetailPage() {
             </div>
 
             <ul className="space-y-4 text-xs sm:text-sm text-black/80 dark:text-muted font-medium">
-              <li className="flex items-start gap-3 p-3 rounded-xl bg-canvas border border-hairline">
+              <li className="flex items-start gap-3 p-3.5 rounded-2xl bg-canvas border border-hairline">
                 <span className="font-mono font-bold text-primary text-sm shrink-0">01.</span>
                 <div>
                   <strong className="text-black dark:text-white block font-bold">
@@ -336,7 +336,7 @@ export default function AboutDetailPage() {
                   <span>Strict 8px layout grid, content hierarchy, and interactive prototypes.</span>
                 </div>
               </li>
-              <li className="flex items-start gap-3 p-3 rounded-xl bg-canvas border border-hairline">
+              <li className="flex items-start gap-3 p-3.5 rounded-2xl bg-canvas border border-hairline">
                 <span className="font-mono font-bold text-primary text-sm shrink-0">02.</span>
                 <div>
                   <strong className="text-black dark:text-white block font-bold">
@@ -345,7 +345,7 @@ export default function AboutDetailPage() {
                   <span>Semantic color tokens, legible typography scales, and accessible focus states.</span>
                 </div>
               </li>
-              <li className="flex items-start gap-3 p-3 rounded-xl bg-canvas border border-hairline">
+              <li className="flex items-start gap-3 p-3.5 rounded-2xl bg-canvas border border-hairline">
                 <span className="font-mono font-bold text-primary text-sm shrink-0">03.</span>
                 <div>
                   <strong className="text-black dark:text-white block font-bold">
@@ -354,7 +354,7 @@ export default function AboutDetailPage() {
                   <span>Zero-clutter component structure, Tailwind v4 styling, and Server Actions.</span>
                 </div>
               </li>
-              <li className="flex items-start gap-3 p-3 rounded-xl bg-canvas border border-hairline">
+              <li className="flex items-start gap-3 p-3.5 rounded-2xl bg-canvas border border-hairline">
                 <span className="font-mono font-bold text-primary text-sm shrink-0">04.</span>
                 <div>
                   <strong className="text-black dark:text-white block font-bold">
@@ -368,7 +368,7 @@ export default function AboutDetailPage() {
         </section>
 
         {/* Skills & Tech Stack Section */}
-        <section className="p-6 sm:p-10 rounded-2.5xl bg-surface border border-hairline space-y-8 shadow-sm">
+        <section className="p-6 sm:p-10 rounded-3xl sm:rounded-[36px] bg-surface border border-hairline space-y-8 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="w-10 h-10 rounded-full bg-primary/10 border border-primary/25 text-primary flex items-center justify-center">
@@ -385,7 +385,7 @@ export default function AboutDetailPage() {
             </div>
 
             {/* Filter Pills */}
-            <div className="inline-flex p-1 rounded-full bg-elevated border border-hairline self-start">
+            <div className="inline-flex p-1.5 rounded-full bg-elevated border border-hairline self-start">
               {(['all', 'frontend', 'uiux', 'backend'] as const).map((cat) => (
                 <button
                   key={cat}
@@ -402,12 +402,12 @@ export default function AboutDetailPage() {
             </div>
           </div>
 
-          {/* Skills Grid */}
+          {/* Skills Grid with Curved Corners */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {filteredSkills.map((skill) => (
               <div
                 key={skill.name}
-                className="group p-4 rounded-2xl bg-canvas border border-hairline hover:border-primary/60 transition-all shadow-sm flex flex-col justify-between"
+                className="group p-4 sm:p-5 rounded-2xl sm:rounded-[22px] bg-canvas border border-hairline hover:border-primary/60 hover:shadow-md transition-all shadow-xs flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between text-xs mb-2.5">
@@ -418,7 +418,7 @@ export default function AboutDetailPage() {
                       {skill.level}
                     </span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-elevated overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-elevated overflow-hidden">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-primary to-tertiary transition-all duration-500"
                       style={{ width: skill.level }}
@@ -434,9 +434,9 @@ export default function AboutDetailPage() {
             ))}
           </div>
 
-          {/* Metrics Strip */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-hairline">
-            <div>
+          {/* Metrics Strip with Curved Boxes */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8 border-t border-hairline">
+            <div className="p-4 sm:p-5 rounded-2xl bg-canvas border border-hairline transition-all hover:border-primary/40">
               <p className="font-mono text-2xl sm:text-3xl font-extrabold text-black dark:text-white">
                 15<span className="text-primary">+</span>
               </p>
@@ -444,7 +444,7 @@ export default function AboutDetailPage() {
                 Web &amp; UI Projects Built
               </p>
             </div>
-            <div>
+            <div className="p-4 sm:p-5 rounded-2xl bg-canvas border border-hairline transition-all hover:border-primary/40">
               <p className="font-mono text-2xl sm:text-3xl font-extrabold text-black dark:text-white">
                 99<span className="text-primary">%</span>
               </p>
@@ -452,7 +452,7 @@ export default function AboutDetailPage() {
                 Lighthouse A11y &amp; SEO Standard
               </p>
             </div>
-            <div>
+            <div className="p-4 sm:p-5 rounded-2xl bg-canvas border border-hairline transition-all hover:border-primary/40">
               <p className="font-mono text-2xl sm:text-3xl font-extrabold text-black dark:text-white">
                 100<span className="text-primary">%</span>
               </p>
@@ -460,7 +460,7 @@ export default function AboutDetailPage() {
                 Responsive &amp; Mobile-First
               </p>
             </div>
-            <div>
+            <div className="p-4 sm:p-5 rounded-2xl bg-canvas border border-hairline transition-all hover:border-primary/40">
               <p className="font-mono text-2xl sm:text-3xl font-extrabold text-black dark:text-white">
                 24<span className="text-primary">/7</span>
               </p>
@@ -488,7 +488,7 @@ export default function AboutDetailPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-2.5xl bg-surface border border-hairline space-y-3 shadow-sm hover:border-primary/50 transition-colors">
+            <div className="p-6 rounded-3xl bg-surface border border-hairline space-y-3 shadow-sm hover:border-primary/50 transition-colors">
               <span className="w-8 h-8 rounded-full bg-primary/10 text-primary font-mono text-xs font-bold flex items-center justify-center">
                 01
               </span>
@@ -500,7 +500,7 @@ export default function AboutDetailPage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2.5xl bg-surface border border-hairline space-y-3 shadow-sm hover:border-primary/50 transition-colors">
+            <div className="p-6 rounded-3xl bg-surface border border-hairline space-y-3 shadow-sm hover:border-primary/50 transition-colors">
               <span className="w-8 h-8 rounded-full bg-primary/10 text-primary font-mono text-xs font-bold flex items-center justify-center">
                 02
               </span>
@@ -512,7 +512,7 @@ export default function AboutDetailPage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2.5xl bg-surface border border-hairline space-y-3 shadow-sm hover:border-primary/50 transition-colors">
+            <div className="p-6 rounded-3xl bg-surface border border-hairline space-y-3 shadow-sm hover:border-primary/50 transition-colors">
               <span className="w-8 h-8 rounded-full bg-primary/10 text-primary font-mono text-xs font-bold flex items-center justify-center">
                 03
               </span>
@@ -524,7 +524,7 @@ export default function AboutDetailPage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2.5xl bg-surface border border-hairline space-y-3 shadow-sm hover:border-primary/50 transition-colors">
+            <div className="p-6 rounded-3xl bg-surface border border-hairline space-y-3 shadow-sm hover:border-primary/50 transition-colors">
               <span className="w-8 h-8 rounded-full bg-primary/10 text-primary font-mono text-xs font-bold flex items-center justify-center">
                 04
               </span>
@@ -539,7 +539,7 @@ export default function AboutDetailPage() {
         </section>
 
         {/* Workstation & Setup */}
-        <section className="p-6 sm:p-10 rounded-2.5xl bg-surface border border-hairline space-y-6 shadow-sm">
+        <section className="p-6 sm:p-10 rounded-3xl sm:rounded-[36px] bg-surface border border-hairline space-y-6 shadow-sm">
           <div className="flex items-center gap-3">
             <span className="w-10 h-10 rounded-full bg-primary/10 border border-primary/25 text-primary flex items-center justify-center">
               <Terminal className="w-5 h-5" />
@@ -582,7 +582,7 @@ export default function AboutDetailPage() {
         </section>
 
         {/* Bottom Back Button & Action Strip */}
-        <section className="p-8 rounded-2.5xl bg-surface border border-hairline flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+        <section className="p-8 rounded-3xl sm:rounded-[36px] bg-surface border border-hairline flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
           <div className="space-y-1 text-center sm:text-left">
             <h3 className="font-display font-bold text-xl text-black dark:text-white">
               Interested in collaborating on your next project?

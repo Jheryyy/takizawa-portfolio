@@ -57,7 +57,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
   const isLight = mounted && resolvedTheme === 'light';
 
   return (
-    <section id="about" className="space-y-12 sm:space-y-16 scroll-mt-28 w-full pt-8 sm:pt-14">
+    <section id="about" className="space-y-12 sm:space-y-16 scroll-mt-28 w-full py-10 sm:py-16 about-solid-section bg-[#08080C] dark:bg-[#08080C] light:bg-[#F8FAFC] transition-colors">
       {/* Editorial 2-Column Bio Split */}
       <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
@@ -159,7 +159,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
 
       {/* SKILLS SECTION: Featuring MagicUI AnimatedBeam */}
       <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-10">
-        <div className="bg-surface border border-hairline rounded-2.5xl p-6 sm:p-10 space-y-8 shadow-sm card-glow-hover">
+        <div className="bg-surface border border-hairline rounded-3xl sm:rounded-[36px] p-6 sm:p-10 space-y-8 shadow-md">
           {/* Header + Category Tabs & Detail Link */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-hairline pb-6">
             <div className="flex items-center gap-3">
@@ -178,7 +178,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
 
             <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
               {/* Skill Filter Pills */}
-              <div className="inline-flex p-1 rounded-full bg-elevated border border-hairline">
+              <div className="inline-flex p-1.5 rounded-full bg-elevated border border-hairline">
                 {(['all', 'frontend', 'uiux', 'backend'] as const).map((cat) => (
                   <button
                     key={cat}
@@ -204,7 +204,7 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
           </div>
 
           {/* MagicUI AnimatedBeam Centerpiece: Center 'Skill' with Tech Nodes */}
-          <div className="rounded-2xl bg-canvas border border-hairline p-4 sm:p-6 overflow-hidden relative">
+          <div className="rounded-3xl bg-canvas border border-hairline p-5 sm:p-7 overflow-hidden relative shadow-xs">
             <div className="mb-2 text-center">
               <p className="font-sans text-xs uppercase tracking-wider text-primary font-bold">
                 INTERACTIVE ARCHITECTURE BEAM
@@ -216,28 +216,30 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
             <AnimatedBeamSkills />
           </div>
 
-          {/* Dynamic Skills Breakdown Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2">
+          {/* Dynamic Skills Breakdown Grid with curved rounded corners */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
             {filteredSkills.map((skill) => (
               <div
                 key={skill.name}
-                className="group p-3.5 rounded-xl bg-canvas border border-hairline hover:border-primary/60 transition-all shadow-xs"
+                className="group p-4 sm:p-5 rounded-2xl sm:rounded-[22px] bg-canvas border border-hairline hover:border-primary/60 hover:shadow-md transition-all shadow-xs flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between text-xs mb-2">
-                  <span className="font-bold text-black dark:text-white group-hover:text-primary transition-colors">
-                    {skill.name}
-                  </span>
-                  <span className="font-mono text-[11px] font-extrabold text-primary">
-                    {skill.level}
-                  </span>
+                <div>
+                  <div className="flex items-center justify-between text-xs mb-2.5">
+                    <span className="font-bold text-black dark:text-white group-hover:text-primary transition-colors">
+                      {skill.name}
+                    </span>
+                    <span className="font-mono text-[11px] font-extrabold text-primary">
+                      {skill.level}
+                    </span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-elevated overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-tertiary transition-all duration-500"
+                      style={{ width: skill.level }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-elevated overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-tertiary transition-all duration-500"
-                    style={{ width: skill.level }}
-                  />
-                </div>
-                <div className="mt-2 flex items-center justify-between text-[10px] font-mono text-black/70 dark:text-muted font-medium">
+                <div className="mt-3.5 pt-2.5 border-t border-hairline flex items-center justify-between text-[10px] font-mono text-black/70 dark:text-muted font-medium">
                   <span>{skill.tag}</span>
                   <span className="text-emerald-600 dark:text-emerald-400 font-bold">Verified</span>
                 </div>
@@ -245,29 +247,29 @@ export function AboutSection({ onOpenDetailAbout }: AboutSectionProps) {
             ))}
           </div>
 
-          {/* Bottom Metric Bar */}
-          <div className="grid grid-cols-3 gap-4 pt-6 border-t border-hairline">
-            <div>
+          {/* Bottom Metric Bar with Curved Boxes */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-6 border-t border-hairline">
+            <div className="p-4 sm:p-5 rounded-2xl bg-canvas border border-hairline transition-all hover:border-primary/40">
               <p className="font-mono text-xl sm:text-2xl font-extrabold text-black dark:text-white">
                 15<span className="text-primary">+</span>
               </p>
-              <p className="text-[11px] sm:text-xs text-black/70 dark:text-muted font-bold">
+              <p className="text-[11px] sm:text-xs text-black/70 dark:text-muted font-bold mt-1">
                 Web &amp; UI Projects
               </p>
             </div>
-            <div>
+            <div className="p-4 sm:p-5 rounded-2xl bg-canvas border border-hairline transition-all hover:border-primary/40">
               <p className="font-mono text-xl sm:text-2xl font-extrabold text-black dark:text-white">
                 99<span className="text-primary">%</span>
               </p>
-              <p className="text-[11px] sm:text-xs text-black/70 dark:text-muted font-bold">
+              <p className="text-[11px] sm:text-xs text-black/70 dark:text-muted font-bold mt-1">
                 Lighthouse A11y Goal
               </p>
             </div>
-            <div>
+            <div className="p-4 sm:p-5 rounded-2xl bg-canvas border border-hairline transition-all hover:border-primary/40">
               <p className="font-mono text-xl sm:text-2xl font-extrabold text-black dark:text-white">
                 24<span className="text-primary">/7</span>
               </p>
-              <p className="text-[11px] sm:text-xs text-black/70 dark:text-muted font-bold">
+              <p className="text-[11px] sm:text-xs text-black/70 dark:text-muted font-bold mt-1">
                 Clean Code Obsession
               </p>
             </div>
