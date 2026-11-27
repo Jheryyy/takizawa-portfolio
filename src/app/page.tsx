@@ -8,6 +8,7 @@ import { AboutSection } from '@/components/sections/AboutSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
 import { FooterSection } from '@/components/sections/FooterSection';
 import { Toast } from '@/components/ui/Toast';
+import { SectionDivider } from '@/components/ui/SectionDivider';
 import ScrollStack, { ScrollStackItem } from '@/components/ui/ScrollStack';
 
 const CrossedScrollVelocity = dynamic(
@@ -74,12 +75,14 @@ export default function HomePage() {
         <ScrollStackItem
           itemClassName="w-full bg-canvas rounded-t-[36px] sm:rounded-t-[44px] border-t border-hairline shadow-[0_-24px_60px_rgba(0,0,0,0.25)] dark:shadow-[0_-24px_60px_rgba(0,0,0,0.7)] !p-0 pt-20 sm:pt-28 lg:pt-36 pb-0"
         >
+          <SectionDivider index="01" label="Profile & Systems" />
           <AboutSection />
         </ScrollStackItem>
       </ScrollStack>
 
       {/* Projects Section - Full width with pinned horizontal scroll */}
       <main className="w-full">
+        <SectionDivider index="02" label="Selected Works" />
         <ProjectsSection
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
@@ -91,11 +94,13 @@ export default function HomePage() {
 
       {/* Guestbook / Threads Section - Pinned scroll until threads finish, then to Contacts */}
       <div className="w-full">
+        <SectionDivider index="03" label="Public Signatures" />
         <GuestbookSection onNotifyToast={showToast} />
       </div>
 
       {/* Contact Section: Directly beneath Guestbook */}
-      <div className="w-full px-4 sm:px-8 lg:px-12 pb-28 sm:pb-36">
+      <div className="w-full pb-20 sm:pb-28">
+        <SectionDivider index="04" label="Direct Contact" />
         <ContactSection onNotifyToast={showToast} />
       </div>
 

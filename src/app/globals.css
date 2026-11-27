@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
 
 :root {
   color-scheme: dark;
   --color-primary: #FF5A1F;
   --color-primary-rgb: 255, 90, 31;
   --color-tertiary: #FF8552;
+  --color-on-primary: #FFFFFF;
 }
 
 @theme {
@@ -44,13 +46,13 @@ html.light {
   --color-surface: #FFFFFF;
   --color-elevated: #F3F4F6;
   --color-hairline: #E5E7EB;
-  --color-muted: #171717;
-  color: #000000;
+  --color-muted: #52525B;
+  color: #111827;
 }
 
 html.light body {
   background-color: #FAFAFA;
-  color: #000000;
+  color: #111827;
 }
 
 html.light .bg-canvas {
@@ -69,40 +71,14 @@ html.light .border-hairline {
   border-color: #E5E7EB;
 }
 
-/* All font colors become black in Light Mode */
-html.light h1,
-html.light h2,
-html.light h3,
-html.light h4,
-html.light h5,
-html.light h6,
-html.light p,
-html.light li,
-html.light label,
-html.light input,
-html.light textarea,
-html.light select,
-html.light .text-muted,
-html.light .text-white,
-html.light .text-white\/95,
-html.light .text-white\/90,
-html.light .text-white\/85,
-html.light .text-white\/80,
-html.light .text-white\/75,
-html.light .text-white\/70,
-html.light .text-white\/60,
-html.light .text-neutral-900,
-html.light .text-neutral-800,
-html.light .text-neutral-700,
-html.light .text-neutral-600,
-html.light .text-neutral-500,
-html.light .text-neutral-400,
+html.light .text-muted {
+  color: #52525B;
+}
+
+html.light .scroll-reveal-text,
 html.light [data-piece],
-html.light [data-word],
-html.light span[data-piece],
-html.light span[data-word],
-html.light .scroll-reveal-text {
-  color: #000000 !important;
+html.light [data-word] {
+  color: #111827;
 }
 
 /* LogoLoop background is pure white in light mode */
@@ -117,8 +93,8 @@ html.light .hero-logoloop-strip [role="listitem"] {
 /* LogoLoop icons are solid black in light mode */
 html.light [role="listitem"] svg,
 html.light [role="listitem"] svg path {
-  color: #000000 !important;
-  fill: #000000 !important;
+  color: #111827 !important;
+  fill: #111827 !important;
 }
 
 /* Preserve crisp contrast on dark media cards */
@@ -131,10 +107,11 @@ html.light [class*="bg-black/"] * {
   color: #FFFFFF !important;
 }
 
-/* Ensure primary orange elements use high-contrast dark text in light mode */
-html.light .bg-primary,
-html.light .bg-primary * {
-  color: #0A0A0A !important;
+/* Accessible contrast for primary accent buttons/badges */
+.bg-primary,
+.bg-primary > span,
+.bg-primary > svg {
+  color: var(--color-on-primary, #FFFFFF);
 }
 
 html.light .text-primary,
@@ -144,27 +121,38 @@ html.light p.text-primary {
   color: var(--color-primary, #FF5A1F) !important;
 }
 
-/* Orange gradient graduating into pure white at the bottom in light mode */
-html.light .studio-hero-gradient {
-  background: linear-gradient(180deg,
-      #FF5A1F 0%,
-      #FF6E38 18%,
-      #FF8859 36%,
-      #FFA883 54%,
-      #FFCCA8 70%,
-      #FFE6D6 84%,
-      #FFF6F0 93%,
-      #FFFFFF 100%);
+/* Subtle editorial grid & studio hero backdrop */
+.studio-hero-gradient {
+  background:
+    radial-gradient(ellipse 75% 55% at 50% 0%,
+      rgba(var(--color-primary-rgb, 255, 90, 31), 0.16) 0%,
+      rgba(var(--color-primary-rgb, 255, 90, 31), 0.05) 45%,
+      transparent 75%),
+    #0A0A0C;
 }
 
-/* Ambient studio backdrop inspired by the Framer reference */
-.studio-hero-gradient {
-  background: radial-gradient(circle at 28% 22%,
-      rgba(var(--color-primary-rgb, 255, 90, 31), 0.95) 0%,
-      rgba(var(--color-primary-rgb, 255, 90, 31), 0.82) 25%,
-      rgba(var(--color-primary-rgb, 255, 90, 31), 0.40) 52%,
-      rgba(20, 12, 10, 0.96) 82%,
-      #0D0A09 100%);
+html.light .studio-hero-gradient {
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 0%,
+      rgba(var(--color-primary-rgb, 255, 90, 31), 0.14) 0%,
+      rgba(var(--color-primary-rgb, 255, 90, 31), 0.04) 48%,
+      transparent 78%),
+    #FAFAFA;
+}
+
+.hero-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 20%, transparent 80%);
+}
+
+html.light .hero-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.045) 1px, transparent 1px);
 }
 
 .orange-glow-hover:hover {
@@ -249,42 +237,39 @@ html.light ::-webkit-scrollbar-thumb {
 }
 
 /* ========================================================
-   LIQUID GLASSMORPHISM THEME STYLES (HIGH-IMPACT VISIBILITY)
+   REFINED FROSTED GLASSMORPHISM THEME STYLES
    ======================================================== */
 html.theme-glass {
-  --color-surface: rgba(16, 16, 26, 0.52);
-  --color-elevated: rgba(24, 24, 38, 0.68);
-  --color-hairline: rgba(255, 255, 255, 0.18);
+  --color-surface: rgba(18, 18, 26, 0.58);
+  --color-elevated: rgba(26, 26, 38, 0.72);
+  --color-hairline: rgba(255, 255, 255, 0.10);
 }
 
 html.theme-glass body {
-  background-color: #07070B;
-  background-image: 
-    radial-gradient(circle at 18% 18%, rgba(var(--color-primary-rgb, 56, 189, 248), 0.22) 0%, transparent 45%),
-    radial-gradient(circle at 82% 82%, rgba(139, 92, 246, 0.18) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.14) 0%, transparent 60%);
+  background-color: #08080C;
+  background-image:
+    radial-gradient(circle at 15% 15%, rgba(var(--color-primary-rgb, 255, 90, 31), 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(139, 92, 246, 0.09) 0%, transparent 50%);
   background-attachment: fixed;
 }
 
-/* Light Mode Liquid Glass - HIGH VISIBILITY REFRACTION & TRANSLUCENCY */
+/* Light Mode Liquid Glass */
 html.theme-glass.light {
   --color-canvas: transparent;
-  --color-surface: rgba(255, 255, 255, 0.58);
-  --color-elevated: rgba(245, 248, 252, 0.72);
-  --color-hairline: rgba(255, 255, 255, 0.88);
-  color: #0A0A0A;
+  --color-surface: rgba(255, 255, 255, 0.72);
+  --color-elevated: rgba(248, 250, 252, 0.85);
+  --color-hairline: rgba(15, 23, 42, 0.08);
+  color: #111827;
 }
 
 html.theme-glass.light body {
-  background-color: #EDF3F9 !important;
-  background-image: 
-    radial-gradient(circle at 12% 15%, rgba(var(--color-primary-rgb, 56, 189, 248), 0.32) 0%, transparent 48%),
-    radial-gradient(circle at 88% 22%, rgba(244, 63, 94, 0.20) 0%, transparent 48%),
-    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.25) 0%, transparent 52%),
-    radial-gradient(circle at 20% 78%, rgba(16, 185, 129, 0.20) 0%, transparent 52%),
-    radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.14) 0%, transparent 60%) !important;
+  background-color: #F4F6FA !important;
+  background-image:
+    radial-gradient(circle at 12% 14%, rgba(var(--color-primary-rgb, 255, 90, 31), 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 86% 24%, rgba(99, 102, 241, 0.08) 0%, transparent 48%),
+    radial-gradient(circle at 75% 82%, rgba(16, 185, 129, 0.07) 0%, transparent 50%) !important;
   background-attachment: fixed !important;
-  color: #0A0A0A !important;
+  color: #111827 !important;
 }
 
 /* Make section wrappers transparent so Liquid Aurora & Gradients flow underneath (EXCEPT #about which is solid) */
@@ -385,50 +370,50 @@ html.theme-glass.light .about-solid-page .bg-canvas {
 /* Glass surfaces in Dark Mode */
 html.theme-glass:not(.light) .bg-surface,
 html.theme-glass:not(.light) [class*="bg-surface"] {
-  background-color: rgba(16, 16, 26, 0.52) !important;
-  backdrop-filter: blur(34px) saturate(220%) contrast(106%) !important;
-  -webkit-backdrop-filter: blur(34px) saturate(220%) contrast(106%) !important;
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.65), inset 0 1.5px 0 0 rgba(255, 255, 255, 0.32), inset 0 0 24px 0 rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background-color: rgba(18, 18, 26, 0.62) !important;
+  backdrop-filter: blur(22px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(160%) !important;
+  box-shadow: 0 12px 36px -12px rgba(0, 0, 0, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
 }
 
 html.theme-glass:not(.light) .bg-elevated,
 html.theme-glass:not(.light) [class*="bg-elevated"] {
-  background-color: rgba(26, 26, 40, 0.65) !important;
-  backdrop-filter: blur(28px) saturate(210%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(210%) !important;
-  box-shadow: 0 14px 40px -6px rgba(0, 0, 0, 0.5), inset 0 1.5px 0 0 rgba(255, 255, 255, 0.25) !important;
+  background-color: rgba(28, 28, 40, 0.72) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.08) !important;
 }
 
-/* Glass surfaces in Light Mode - CRITICAL: OVERRIDE SOLID WHITE WITH CRYSTAL FROST */
+/* Glass surfaces in Light Mode */
 html.theme-glass.light .bg-surface,
 html.theme-glass.light [class*="bg-surface"] {
-  background-color: rgba(255, 255, 255, 0.58) !important;
-  backdrop-filter: blur(36px) saturate(230%) contrast(108%) !important;
-  -webkit-backdrop-filter: blur(36px) saturate(230%) contrast(108%) !important;
-  box-shadow: 0 22px 55px -10px rgba(20, 45, 95, 0.14), inset 0 2px 0 0 rgba(255, 255, 255, 1), inset 0 -1.5px 0 0 rgba(0, 0, 0, 0.04), inset 0 0 28px 0 rgba(255, 255, 255, 0.5) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.90) !important;
+  background-color: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(22px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(160%) !important;
+  box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 html.theme-glass.light .bg-elevated,
 html.theme-glass.light [class*="bg-elevated"] {
-  background-color: rgba(245, 248, 252, 0.72) !important;
-  backdrop-filter: blur(30px) saturate(220%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(220%) !important;
-  box-shadow: 0 14px 38px -6px rgba(15, 40, 85, 0.10), inset 0 1.5px 0 0 rgba(255, 255, 255, 0.95) !important;
+  background-color: rgba(248, 250, 252, 0.85) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+  box-shadow: 0 8px 24px -8px rgba(15, 23, 42, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.9) !important;
 }
 
 html.theme-glass .border-hairline,
 html.theme-glass [class*="border-hairline"] {
-  border-color: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
 }
 
 html.theme-glass.light .border-hairline,
 html.theme-glass.light [class*="border-hairline"] {
-  border-color: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
 }
 
-/* Liquid Glass Cards & Bento Containers across All Sections */
+/* Liquid Glass Cards & Bento Containers */
 html.theme-glass .p-6.rounded-2\.5xl,
 html.theme-glass .p-8.rounded-2\.5xl,
 html.theme-glass .p-6.rounded-3xl,
@@ -438,9 +423,9 @@ html.theme-glass .rounded-2xl.border,
 html.theme-glass .rounded-3xl.border,
 html.theme-glass .card-glow-hover,
 html.theme-glass .project-card-item {
-  backdrop-filter: blur(36px) saturate(230%) contrast(108%) !important;
-  -webkit-backdrop-filter: blur(36px) saturate(230%) contrast(108%) !important;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+  backdrop-filter: blur(20px) saturate(155%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(155%) !important;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 
 html.theme-glass:not(.light) .p-6.rounded-2\.5xl,
@@ -452,9 +437,9 @@ html.theme-glass:not(.light) .rounded-2xl.border,
 html.theme-glass:not(.light) .rounded-3xl.border,
 html.theme-glass:not(.light) .card-glow-hover,
 html.theme-glass:not(.light) .project-card-item {
-  background-color: rgba(14, 14, 24, 0.52) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  box-shadow: 0 22px 55px -10px rgba(0, 0, 0, 0.65), inset 0 1.5px 0 0 rgba(255, 255, 255, 0.35), inset 0 0 24px 0 rgba(255, 255, 255, 0.03) !important;
+  background-color: rgba(18, 18, 26, 0.60) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow: 0 14px 38px -14px rgba(0, 0, 0, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.08) !important;
 }
 
 html.theme-glass.light .p-6.rounded-2\.5xl,
@@ -466,22 +451,22 @@ html.theme-glass.light .rounded-2xl.border,
 html.theme-glass.light .rounded-3xl.border,
 html.theme-glass.light .card-glow-hover,
 html.theme-glass.light .project-card-item {
-  background-color: rgba(255, 255, 255, 0.58) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.90) !important;
-  box-shadow: 0 22px 55px -10px rgba(25, 50, 100, 0.15), inset 0 2px 0 0 rgba(255, 255, 255, 1), inset 0 -1.5px 0 0 rgba(0, 0, 0, 0.04), inset 0 0 25px 0 rgba(255, 255, 255, 0.5) !important;
+  background-color: rgba(255, 255, 255, 0.76) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.9) !important;
 }
 
 /* Glass shine on hover */
 html.theme-glass:not(.light) .card-glow-hover:hover,
 html.theme-glass:not(.light) .project-card-item:hover {
-  border-color: var(--color-primary, #38BDF8) !important;
-  box-shadow: 0 28px 70px -10px rgba(var(--color-primary-rgb, 56, 189, 248), 0.38), inset 0 1.5px 0 0 rgba(255, 255, 255, 0.55) !important;
+  border-color: rgba(var(--color-primary-rgb, 255, 90, 31), 0.45) !important;
+  box-shadow: 0 20px 48px -12px rgba(var(--color-primary-rgb, 255, 90, 31), 0.20), inset 0 1px 0 0 rgba(255, 255, 255, 0.16) !important;
 }
 
 html.theme-glass.light .card-glow-hover:hover,
 html.theme-glass.light .project-card-item:hover {
-  border-color: var(--color-primary, #38BDF8) !important;
-  box-shadow: 0 28px 65px -10px rgba(var(--color-primary-rgb, 56, 189, 248), 0.30), inset 0 2px 0 0 rgba(255, 255, 255, 1) !important;
+  border-color: rgba(var(--color-primary-rgb, 255, 90, 31), 0.45) !important;
+  box-shadow: 0 20px 44px -12px rgba(var(--color-primary-rgb, 255, 90, 31), 0.16), inset 0 1px 0 0 rgba(255, 255, 255, 1) !important;
 }
 
 /* Liquid Ambient Aurora Orbs */
@@ -556,4 +541,101 @@ html.light .glass-aurora-orb-3 {
   0% { transform: translate(0, 0) scale(0.95); }
   50% { transform: translate(45px, 45px) scale(1.08); }
   100% { transform: translate(-55px, -35px) scale(1.02); }
+}
+
+/* Linear-style 1px cursor-aware border spotlight */
+.spotlight-border {
+  position: relative;
+}
+
+.spotlight-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    240px circle at var(--spot-x, -999px) var(--spot-y, -999px),
+    rgba(var(--color-primary-rgb, 255, 90, 31), 0.72),
+    transparent 70%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 15;
+}
+
+.spotlight-border:hover::before {
+  opacity: 1;
+}
+
+/* Mobile GPU blur reduction for Liquid Glass */
+@media (max-width: 767px) {
+  html.theme-glass .bg-surface,
+  html.theme-glass [class*="bg-surface"],
+  html.theme-glass .bg-elevated,
+  html.theme-glass [class*="bg-elevated"],
+  html.theme-glass .rounded-2xl.border,
+  html.theme-glass .rounded-3xl.border,
+  html.theme-glass .card-glow-hover,
+  html.theme-glass .project-card-item {
+    backdrop-filter: blur(14px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+  }
+}
+
+/* Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .glass-aurora-orb-1,
+  .glass-aurora-orb-2,
+  .glass-aurora-orb-3,
+  .animate-pulse,
+  .animate-ping,
+  .animate-bounce {
+    animation: none !important;
+  }
+}
+
+/* Clean CV Print Styling (/about) */
+@media print {
+  nav,
+  footer,
+  .glass-aurora-bg,
+  .no-print,
+  button[aria-label*="music"],
+  button[aria-label*="Tema"] {
+    display: none !important;
+  }
+
+  html,
+  body,
+  .about-solid-page,
+  .bg-canvas,
+  .bg-surface {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    background-image: none !important;
+    padding-top: 0 !important;
+  }
+
+  [data-piece],
+  [data-word],
+  .scroll-reveal-text {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+    color: #000000 !important;
+  }
+
+  * {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
 }

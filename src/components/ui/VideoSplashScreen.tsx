@@ -78,11 +78,11 @@ export function VideoSplashScreen() {
     // Lock body scroll while splash screen is active
     document.body.style.overflow = 'hidden';
 
-    // Safety timeout: automatically open after 3.2s
+    // Safety timeout: automatically open after 2.2s
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       handleDismiss();
-    }, 3200);
+    }, 2200);
   }, [isDashboardRoute, handleDismiss]);
 
   useEffect(() => {
@@ -90,6 +90,16 @@ export function VideoSplashScreen() {
     if (isDashboardRoute) {
       setIsMounted(false);
       return;
+    }
+
+    // 2. Skip splash if user prefers reduced motion
+    try {
+      if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setIsMounted(false);
+        return;
+      }
+    } catch {
+      // Ignore
     }
 
     // 2. Check if already dismissed in current session
@@ -142,7 +152,7 @@ export function VideoSplashScreen() {
     };
   }, [isDashboardRoute, playSplash]);
 
-  // Multilingual greeting cycling (175ms per language ~2.1s sequence)
+  // Multilingual greeting cycling (115ms per language ~1.3s sequence)
   useEffect(() => {
     if (!isMounted || isDismissing) return;
 
@@ -154,11 +164,11 @@ export function VideoSplashScreen() {
           clearInterval(interval);
           setTimeout(() => {
             handleDismiss();
-          }, 260);
+          }, 180);
           return prev;
         }
       });
-    }, 175);
+    }, 115);
 
     return () => clearInterval(interval);
   }, [isMounted, isDismissing, handleDismiss]);

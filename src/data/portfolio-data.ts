@@ -22,7 +22,7 @@ export const projectsData: ProjectItem[] = [
     shortDesc:
       'A professional and interactive portfolio website for Jheryco Takizawa Natal Kristiawan — a Frontend Developer and UI/UX Architect from SMK Negeri 1 Depok, featuring modern editorial design, smooth cinematic motion, and high technical performance.',
     role: 'Lead Fullstack Developer',
-    timeline: '1 Weeks (2026)',
+    timeline: '1 Week (2026)',
     arch: 'Next.js 15 + Supabase + Tailwind',
     outcome: '99 Lighthouse Score',
     image: '/projects/portfolio-website.webp',
@@ -189,12 +189,75 @@ export const getStoredSiteContent = (): SiteContent => {
   return defaultSiteContent;
 };
 
-export const saveStoredSiteContent = async (content: SiteContent): Promise<void> => {
-  if (typeof window === 'undefined') return;
+const SITE_CONTENT_CACHE_TTL = 60_000;
+let cachedRemoteSiteContent: SiteContent | null = null;
+let cachedRemoteSiteContentAt = 0;
+let inFlightSiteContentPromise: Promise<SiteContent> | null = null;
+
+export const fetchRemoteSiteContent = async (force = false): Promise<SiteContent> => {
+  if (typeof window !== 'undefined' && !force) {
+    if (cachedRemoteSiteContent && Date.now() - cachedRemoteSiteContentAt < SITE_CONTENT_CACHE_TTL) {
+      return cachedRemoteSiteContent;
+    }
+    if (inFlightSiteContentPromise) {
+      return inFlightSiteContentPromise;
+    }
+  }
+
+  const request = (async (): Promise<SiteContent> => {
+    try {
+      const { data, error } = await supabase
+        .from('site_content')
+        .select('content')
+        .eq('id', 'primary')
+        .maybeSingle();
+
+      if (!error && data?.content) {
+        const parsed = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
+        const merged: SiteContent = {
+          ...defaultSiteContent,
+          ...parsed,
+          skills:
+            Array.isArray(parsed.skills) && parsed.skills.length > 0
+              ? parsed.skills
+              : defaultSiteContent.skills,
+        };
+        if (typeof window !== 'undefined') {
+          cachedRemoteSiteContent = merged;
+          cachedRemoteSiteContentAt = Date.now();
+          try {
+            localStorage.setItem('takizawa_site_content', JSON.stringify(merged));
+          } catch {
+            // Ignored
+          }
+        }
+        return merged;
+      }
+    } catch (err) {
+      console.warn('Could not fetch remote site content:', err);
+    }
+    return getStoredSiteContent();
+  })();
+
+  if (typeof window !== 'undefined') {
+    inFlightSiteContentPromise = request;
+    try {
+      return await request;
+    } finally {
+      inFlightSiteContentPromise = null;
+    }
+  }
+
+  return request;
+};
+
+export const saveStoredSiteContent = async (content: SiteContent): Promise<{ ok: boolean; error?: string }> => {
+  if (typeof window === 'undefined') return { ok: false };
   try {
+    cachedRemoteSiteContent = content;
+    cachedRemoteSiteContentAt = Date.now();
     localStorage.setItem('takizawa_site_content', JSON.stringify(content));
-    
-    // Apply theme colors globally if defined
+
     if (content.primaryColor) {
       applyThemeColors(content.primaryColor, content.tertiaryColor, content.colorPresetId);
     }
@@ -205,15 +268,30 @@ export const saveStoredSiteContent = async (content: SiteContent): Promise<void>
 
     window.dispatchEvent(new CustomEvent('site-content-updated', { detail: content }));
 
-    // Try saving to Supabase if site_content table exists
-    try {
-      await supabase
-        .from('site_content')
-        .upsert({ id: 'primary', content: JSON.stringify(content), updated_at: new Date().toISOString() });
-    } catch {
-      // Ignored if table doesn't exist
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+
+    const res = await fetch('/api/admin/data', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+      body: JSON.stringify({
+        action: 'save_site_content',
+        payload: content,
+      }),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      return { ok: false, error: errBody?.error || 'Gagal menyimpan ke database' };
     }
-  } catch (err) {
+
+    return { ok: true };
+  } catch (err: any) {
     console.error('Failed to save site content:', err);
+    return { ok: false, error: err?.message || 'Gagal menyimpan konten' };
   }
 };

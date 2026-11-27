@@ -109,6 +109,7 @@ export const DEFAULT_TERTIARY_COLOR = '#FF8552';
 export const THEME_COLOR_STORAGE_KEY = 'takizawa_theme_color';
 export const THEME_TERTIARY_STORAGE_KEY = 'takizawa_theme_tertiary';
 export const THEME_PRESET_STORAGE_KEY = 'takizawa_theme_preset_id';
+export const THEME_STYLE_STORAGE_KEY = 'takizawa_theme_style';
 
 /**
  * Normalizes hex code (e.g. "ff5a1f" -> "#FF5A1F" or "#abc" -> "#AABBCC")
@@ -144,6 +145,19 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number; rgbStr
 }
 
 /**
+ * Computes WCAG relative luminance and returns accessible text color (#0A0A0A or #FFFFFF)
+ */
+export function getContrastTextColor(hex: string): '#0A0A0A' | '#FFFFFF' {
+  const { r, g, b } = hexToRgb(hex);
+  const toLinear = (c: number) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  const luminance = 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+  return luminance > 0.38 ? '#0A0A0A' : '#FFFFFF';
+}
+
+/**
  * Adjusts color brightness (positive percent = lighter, negative = darker)
  */
 export function adjustBrightness(hex: string, percent: number): string {
@@ -159,7 +173,7 @@ export function adjustBrightness(hex: string, percent: number): string {
 }
 
 /**
- * Derives a harmonic tertiary color from a primary color (approx +25% lighter)
+ * Derives a harmonic tertiary color from a primary color (approx +24% lighter)
  */
 export function deriveTertiaryColor(primaryHex: string): string {
   const matched = THEME_COLOR_PRESETS.find(
@@ -170,11 +184,7 @@ export function deriveTertiaryColor(primaryHex: string): string {
 }
 
 /**
- * Applies the given theme colors to the document runtime:
- * 1. Sets CSS Custom Properties on :root and html
- * 2. Injects high-specificity dynamic CSS style for gradients, glow, and borders
- * 3. Persists to localStorage
- * 4. Dispatches CustomEvent 'theme-color-updated'
+ * Applies the given theme colors to the document runtime
  */
 export function applyThemeColors(primaryHex: string, tertiaryHex?: string, presetId?: string): void {
   if (typeof window === 'undefined') return;
@@ -182,14 +192,14 @@ export function applyThemeColors(primaryHex: string, tertiaryHex?: string, prese
   const validPrimary = normalizeHex(primaryHex);
   const validTertiary = tertiaryHex ? normalizeHex(tertiaryHex) : deriveTertiaryColor(validPrimary);
   const { rgbString } = hexToRgb(validPrimary);
+  const onPrimary = getContrastTextColor(validPrimary);
 
-  // Set CSS Custom Properties on documentElement
   const root = document.documentElement;
   root.style.setProperty('--color-primary', validPrimary);
   root.style.setProperty('--color-primary-rgb', rgbString);
   root.style.setProperty('--color-tertiary', validTertiary);
+  root.style.setProperty('--color-on-primary', onPrimary);
 
-  // Injected style tag for complex gradients and glow classes that use RGB strings
   const STYLE_ID = 'takizawa-dynamic-theme-colors';
   let styleEl = document.getElementById(STYLE_ID) as HTMLStyleElement | null;
   if (!styleEl) {
@@ -203,13 +213,20 @@ export function applyThemeColors(primaryHex: string, tertiaryHex?: string, prese
       --color-primary: ${validPrimary} !important;
       --color-primary-rgb: ${rgbString} !important;
       --color-tertiary: ${validTertiary} !important;
+      --color-on-primary: ${onPrimary} !important;
     }
     ::selection {
       background-color: ${validPrimary} !important;
-      color: #FFFFFF !important;
+      color: ${onPrimary} !important;
     }
     .bg-primary {
       background-color: ${validPrimary} !important;
+      color: ${onPrimary} !important;
+    }
+    .bg-primary,
+    .bg-primary > span,
+    .bg-primary > svg {
+      color: ${onPrimary};
     }
     .text-primary {
       color: ${validPrimary} !important;
@@ -234,23 +251,23 @@ export function applyThemeColors(primaryHex: string, tertiaryHex?: string, prese
       background: ${validPrimary} !important;
     }
     .studio-hero-gradient {
-      background: radial-gradient(circle at 28% 22%,
-          rgba(${rgbString}, 0.95) 0%,
-          rgba(${rgbString}, 0.82) 25%,
-          rgba(${rgbString}, 0.40) 52%,
-          rgba(20, 12, 10, 0.96) 82%,
-          #0D0A09 100%) !important;
+      background:
+        radial-gradient(ellipse 75% 55% at 50% 0%,
+          rgba(${rgbString}, 0.18) 0%,
+          rgba(${rgbString}, 0.05) 45%,
+          transparent 75%),
+        #0A0A0C !important;
     }
     html.light .studio-hero-gradient {
-      background: linear-gradient(180deg,
-          ${validPrimary} 0%,
-          ${validTertiary} 25%,
-          rgba(${rgbString}, 0.3) 54%,
-          #FFFFFF 100%) !important;
+      background:
+        radial-gradient(ellipse 80% 55% at 50% 0%,
+          rgba(${rgbString}, 0.14) 0%,
+          rgba(${rgbString}, 0.04) 48%,
+          transparent 78%),
+        #FAFAFA !important;
     }
   `;
 
-  // Persist to localStorage
   try {
     localStorage.setItem(THEME_COLOR_STORAGE_KEY, validPrimary);
     localStorage.setItem(THEME_TERTIARY_STORAGE_KEY, validTertiary);
@@ -260,17 +277,12 @@ export function applyThemeColors(primaryHex: string, tertiaryHex?: string, prese
       const match = THEME_COLOR_PRESETS.find(
         (p) => p.primary.toLowerCase() === validPrimary.toLowerCase()
       );
-      if (match) {
-        localStorage.setItem(THEME_PRESET_STORAGE_KEY, match.id);
-      } else {
-        localStorage.setItem(THEME_PRESET_STORAGE_KEY, 'custom');
-      }
+      localStorage.setItem(THEME_PRESET_STORAGE_KEY, match ? match.id : 'custom');
     }
   } catch {
-    // Ignore localStorage errors (e.g. private browsing restrictions)
+    // Ignore localStorage errors
   }
 
-  // Notify all components in the app
   window.dispatchEvent(
     new CustomEvent('theme-color-updated', {
       detail: {
@@ -300,7 +312,6 @@ export function getStoredThemeColor(): {
   }
 
   try {
-    // Check direct theme color storage
     const directColor = localStorage.getItem(THEME_COLOR_STORAGE_KEY);
     const directTertiary = localStorage.getItem(THEME_TERTIARY_STORAGE_KEY);
     const directPreset = localStorage.getItem(THEME_PRESET_STORAGE_KEY);
@@ -314,7 +325,6 @@ export function getStoredThemeColor(): {
       };
     }
 
-    // Check fallback inside takizawa_site_content
     const rawContent = localStorage.getItem('takizawa_site_content');
     if (rawContent) {
       const parsed = JSON.parse(rawContent);
@@ -337,8 +347,6 @@ export function getStoredThemeColor(): {
     presetId: 'orange',
   };
 }
-
-export const THEME_STYLE_STORAGE_KEY = 'takizawa_theme_style';
 
 /**
  * Toggles Glassmorphism style (.theme-glass class on html root)
@@ -381,69 +389,63 @@ export function getStoredThemeStyle(): 'solid' | 'glass' {
 }
 
 /**
- * Checks if the current browser user is authenticated as administrator
+ * Verifies admin session via server-signed HttpOnly cookie or active Supabase Auth session.
  */
-export function isUserAdmin(): boolean {
+export async function checkAdminSession(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
   try {
-    const s = sessionStorage.getItem('takizawa_admin_auth');
-    const l = localStorage.getItem('takizawa_admin_auth');
-    return s === 'authenticated_jheryco_2026' || l === 'authenticated_jheryco_2026';
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+
+    const res = await fetch('/api/admin/auth', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      cache: 'no-store',
+    });
+
+    if (!res.ok) return false;
+    const data = await res.json();
+    return Boolean(data?.authenticated);
   } catch {
     return false;
   }
 }
 
 /**
- * Persists theme configuration to Supabase so that all public visitors on all devices
- * see the active theme & color choice live!
+ * Persists global accent theme configuration via authenticated admin API
  */
 export async function syncThemeToSupabase(config: {
   primaryColor: string;
   tertiaryColor?: string;
   colorPresetId?: string;
   themeStyle?: 'solid' | 'glass';
-  mode?: 'dark' | 'light';
 }): Promise<boolean> {
   try {
     const primary = normalizeHex(config.primaryColor);
     const tertiary = config.tertiaryColor ? normalizeHex(config.tertiaryColor) : deriveTertiaryColor(primary);
     const presetId = config.colorPresetId || 'custom';
     const style = config.themeStyle || 'glass';
-    const activeMode = config.mode || (typeof document !== 'undefined' && document.documentElement.classList.contains('light') ? 'light' : 'dark');
 
-    const payload = JSON.stringify({
-      primaryColor: primary,
-      tertiaryColor: tertiary,
-      colorPresetId: presetId,
-      themeStyle: style,
-      mode: activeMode,
-      updated_at: new Date().toISOString(),
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+
+    const res = await fetch('/api/admin/theme', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+      body: JSON.stringify({
+        primaryColor: primary,
+        tertiaryColor: tertiary,
+        colorPresetId: presetId,
+        themeStyle: style,
+      }),
     });
 
-    const { data: existing } = await supabase
-      .from('guestbook')
-      .select('id')
-      .eq('handle', '__takizawa_theme_config__')
-      .maybeSingle();
-
-    if (existing && existing.id) {
-      const { error } = await supabase
-        .from('guestbook')
-        .update({ message: payload })
-        .eq('id', existing.id);
-      return !error;
-    } else {
-      const { error } = await supabase.from('guestbook').insert({
-        name: 'Site Theme Config',
-        handle: '__takizawa_theme_config__',
-        role: 'System',
-        message: payload,
-        likes: 0,
-        is_approved: false,
-      });
-      return !error;
-    }
+    return res.ok;
   } catch (err) {
     console.error('Failed to sync theme config to Supabase:', err);
     return false;
@@ -451,25 +453,35 @@ export async function syncThemeToSupabase(config: {
 }
 
 /**
- * Fetches the global theme configuration from Supabase for all public visitors
+ * Fetches the global theme configuration from Supabase (`site_content.theme_config` first,
+ * falling back to legacy `guestbook` row if present).
  */
 export async function fetchRemoteThemeFromSupabase(): Promise<{
   primaryColor?: string;
   tertiaryColor?: string;
   colorPresetId?: string;
   themeStyle?: 'solid' | 'glass';
-  mode?: 'dark' | 'light';
 } | null> {
   try {
+    const { data: scData, error: scError } = await supabase
+      .from('site_content')
+      .select('content')
+      .eq('id', 'theme_config')
+      .maybeSingle();
+
+    if (!scError && scData?.content) {
+      return typeof scData.content === 'string' ? JSON.parse(scData.content) : scData.content;
+    }
+
+    // Legacy fallback
     const { data, error } = await supabase
       .from('guestbook')
       .select('message')
       .eq('handle', '__takizawa_theme_config__')
       .maybeSingle();
 
-    if (!error && data && data.message) {
-      const parsed = typeof data.message === 'string' ? JSON.parse(data.message) : data.message;
-      return parsed;
+    if (!error && data?.message) {
+      return typeof data.message === 'string' ? JSON.parse(data.message) : data.message;
     }
   } catch (err) {
     console.warn('Could not read remote theme from Supabase:', err);

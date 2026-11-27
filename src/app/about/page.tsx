@@ -1,37 +1,50 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
   GraduationCap,
   Layers,
-  Code2,
   CheckCircle2,
   Sparkles,
-  Copy,
-  ExternalLink,
   Cpu,
   Terminal,
   ShieldCheck,
-  Monitor,
-  Heart,
-  Compass,
   Download,
 } from 'lucide-react';
-import { SkillCategory } from '@/types/portfolio';
-import { skillsData } from '@/data/portfolio-data';
+import { SkillCategory, SiteContent } from '@/types/portfolio';
+import { defaultSiteContent, fetchRemoteSiteContent, getStoredSiteContent } from '@/data/portfolio-data';
 import { FooterSection } from '@/components/sections/FooterSection';
 import { Toast } from '@/components/ui/Toast';
 import ScrollReveal from '@/components/ui/ScrollReveal';
 import { useThemeColor } from '@/components/theme/ThemeColorProvider';
+import { GithubActivityCard } from '@/components/about/GithubActivityCard';
+import { updateSpotlightPos } from '@/lib/utils';
 
 export default function AboutDetailPage() {
   const { primaryColor } = useThemeColor();
+  const [siteContent, setSiteContent] = useState<SiteContent>(defaultSiteContent);
   const [activeSkillCategory, setActiveSkillCategory] = useState<
     'all' | SkillCategory
   >('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSiteContent(getStoredSiteContent());
+    let cancelled = false;
+    fetchRemoteSiteContent().then((remote) => {
+      if (!cancelled) setSiteContent(remote);
+    });
+    const handleUpdate = (e: any) => {
+      if (e.detail) setSiteContent(e.detail);
+    };
+    window.addEventListener('site-content-updated', handleUpdate);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('site-content-updated', handleUpdate);
+    };
+  }, []);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -40,19 +53,20 @@ export default function AboutDetailPage() {
     }, 2800);
   };
 
+  const activeSkills = siteContent.skills?.length > 0 ? siteContent.skills : defaultSiteContent.skills;
   const filteredSkills =
     activeSkillCategory === 'all'
-      ? skillsData
-      : skillsData.filter((s) => s.category === activeSkillCategory);
+      ? activeSkills
+      : activeSkills.filter((s) => s.category === activeSkillCategory);
 
   return (
     <div className="relative min-h-screen w-full bg-canvas text-black dark:text-white pt-24 sm:pt-28 flex flex-col justify-between transition-colors about-solid-page bg-[#08080C] dark:bg-[#08080C] light:bg-[#F8FAFC]">
       {/* Container */}
       <main className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-10 py-10 space-y-14">
         {/* Top Back Navigation Bar & Breadcrumb */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-hairline">
+        <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-hairline">
           <Link
-            href="/#about"
+            href="/"
             className="group inline-flex items-center gap-2.5 text-xs sm:text-sm font-bold text-black dark:text-neutral-400 hover:text-primary transition-colors w-fit"
           >
             <span className="w-8 h-8 rounded-full bg-surface border border-hairline flex items-center justify-center group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all shadow-sm">
@@ -94,8 +108,8 @@ export default function AboutDetailPage() {
                 baseOpacity={0.16}
                 baseRotation={0}
                 baseOffset={0}
-                enableBlur={true}
-                blurStrength={4}
+                enableBlur={false}
+                blurStrength={0}
                 containerClassName="my-0"
                 textClassName="font-display font-extrabold text-3xl sm:text-5xl leading-tight text-black dark:text-white tracking-tight"
               >
@@ -117,10 +131,10 @@ export default function AboutDetailPage() {
                 containerClassName="my-0"
                 textClassName="text-base sm:text-lg text-black dark:text-white/85 leading-relaxed font-sans font-medium max-w-3xl"
               >
-                Hello! I am Jheryco Takizawa Natal Kristiawan, a Software Engineering (PPLG) student at SMK Negeri 1 Depok with an immense passion for Web Development and UI/UX Design. I thrive on exploring modern web technologies, untangling complex logic through clean, purposeful code, and crafting interactive digital interfaces that elevate visual aesthetics to the highest standard.
+                {siteContent.aboutBioP1}
               </ScrollReveal>
               <p className="text-sm sm:text-base text-black dark:text-muted leading-relaxed font-sans font-medium max-w-3xl">
-                From conceptual wireframes and Figma design tokens to scalable Next.js and TypeScript engineering, I am dedicated to bridging creative intuition with rigorous software craftsmanship to build seamless, high-performance web applications that leave a lasting impact.
+                {siteContent.aboutBioP2}
               </p>
             </div>
 
@@ -156,7 +170,7 @@ export default function AboutDetailPage() {
                 </li>
               </ul>
 
-              <div className="pt-2">
+              <div className="no-print pt-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -195,8 +209,8 @@ export default function AboutDetailPage() {
               baseOpacity={0.15}
               baseRotation={0}
               baseOffset={0}
-              enableBlur={true}
-              blurStrength={4}
+              enableBlur={false}
+              blurStrength={0}
               containerClassName="my-2"
               textClassName="font-display font-bold text-2xl sm:text-4xl leading-snug text-black dark:text-white"
             >
@@ -407,7 +421,8 @@ export default function AboutDetailPage() {
             {filteredSkills.map((skill) => (
               <div
                 key={skill.name}
-                className="group p-4 sm:p-5 rounded-2xl sm:rounded-[22px] bg-canvas border border-hairline hover:border-primary/60 hover:shadow-md transition-all shadow-xs flex flex-col justify-between"
+                onMouseMove={updateSpotlightPos}
+                className="spotlight-border group p-4 sm:p-5 rounded-2xl sm:rounded-[22px] bg-canvas border border-hairline hover:shadow-md transition-all shadow-xs flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between text-xs mb-2.5">
@@ -470,6 +485,9 @@ export default function AboutDetailPage() {
             </div>
           </div>
         </section>
+
+        {/* Live GitHub Engineering Activity */}
+        <GithubActivityCard />
 
         {/* Core Engineering Principles */}
         <section className="space-y-6">
@@ -582,7 +600,7 @@ export default function AboutDetailPage() {
         </section>
 
         {/* Bottom Back Button & Action Strip */}
-        <section className="p-8 rounded-3xl sm:rounded-[36px] bg-surface border border-hairline flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+        <section className="no-print p-8 rounded-3xl sm:rounded-[36px] bg-surface border border-hairline flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
           <div className="space-y-1 text-center sm:text-left">
             <h3 className="font-display font-bold text-xl text-black dark:text-white">
               Interested in collaborating on your next project?
@@ -594,7 +612,7 @@ export default function AboutDetailPage() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/#home"
+              href="/"
               className="px-5 py-2.5 rounded-full bg-surface border border-hairline hover:border-primary text-xs font-bold text-black dark:text-white transition-all shadow-sm"
             >
               Back to Home

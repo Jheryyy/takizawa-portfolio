@@ -14,6 +14,18 @@ import {
 import { SiInstagram, SiTiktok } from 'react-icons/si';
 import dynamic from 'next/dynamic';
 import { supabase } from '@/lib/supabase';
+import Magnetic from '@/components/ui/Magnetic';
+import { BlueprintCrosshairs } from '@/components/ui/BlueprintCrosshairs';
+import { updateSpotlightPos } from '@/lib/utils';
+
+type CardFinish = 'glossy' | 'holographic' | 'metallic' | 'matte';
+
+const FINISH_OPTIONS: { id: CardFinish; label: string }[] = [
+  { id: 'glossy', label: 'Glossy' },
+  { id: 'holographic', label: 'Holographic' },
+  { id: 'metallic', label: 'Metallic' },
+  { id: 'matte', label: 'Matte' },
+];
 
 const Lanyard = dynamic(() => import('@/components/ui/Lanyard'), {
   ssr: false,
@@ -34,6 +46,7 @@ interface ContactSectionProps {
 export function ContactSection({ onNotifyToast }: ContactSectionProps) {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [shouldLoadLanyard, setShouldLoadLanyard] = useState(false);
+  const [cardFinish, setCardFinish] = useState<CardFinish>('glossy');
   const lanyardContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -95,7 +108,9 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
       ]);
 
       if (error) {
-        console.warn('Supabase contacts insert error:', error.message);
+        console.error('Supabase contacts insert error:', error.message);
+        onNotifyToast?.('Gagal mengirim pesan. Silakan coba lagi atau hubungi lewat email langsung.');
+        return;
       }
 
       setFormState({
@@ -107,38 +122,38 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
       onNotifyToast?.('Pesan Anda berhasil dikirim ke Takizawa!');
     } catch (err) {
       console.error('Error submitting contact form:', err);
-      onNotifyToast?.('Pesan Anda berhasil dikirim!');
+      onNotifyToast?.('Terjadi gangguan jaringan saat mengirim pesan.');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <section id="contact" className="space-y-10 pt-8 scroll-mt-24">
+    <section id="contact" className="max-w-[1360px] mx-auto px-6 sm:px-8 lg:px-10 space-y-10 pt-8 scroll-mt-24">
       {/* Section Header */}
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-          <span className="font-sans text-xs uppercase tracking-wider text-primary font-bold">
-            CONTACT &bull; GET IN TOUCH
+          <span className="w-2 h-2 rounded-full bg-primary" />
+          <span className="font-mono text-xs uppercase tracking-wider text-primary font-semibold">
+            Contact &bull; Get In Touch
           </span>
         </div>
-        <h2 className="font-display font-bold text-3xl sm:text-4xl text-black dark:text-white tracking-tight">
+        <h2 className="font-display font-bold text-3xl sm:text-4xl lg:text-5xl text-neutral-950 dark:text-white tracking-tight">
           Let&apos;s Build Something Exceptional Together
         </h2>
-        <p className="text-sm sm:text-base text-black/80 dark:text-muted max-w-2xl font-sans font-medium">
+        <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 max-w-2xl font-sans">
           Have a project inquiry, internship opportunity, or want to exchange ideas on web craft?
           Reach out through the form below or connect directly across my active channels.
         </p>
       </div>
 
-      {/* 2-Column Split: Left (Lanyard Container) | Right (Form & Channels) */}
+      {/* 2-Column Split */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
-        {/* Left Column (5 Cols): Responsive 3D Lanyard Interactive Badge */}
+        {/* Left Column: 3D Lanyard */}
         <div className="lg:col-span-5 flex flex-col items-center justify-center relative select-none">
           <div
             ref={lanyardContainerRef}
-            className="relative w-full h-[480px] sm:h-[540px] lg:h-[600px] flex items-center justify-center"
+            className="relative w-full h-[460px] sm:h-[520px] lg:h-[560px] flex items-center justify-center"
           >
             {shouldLoadLanyard ? (
               <div className="w-full h-full relative flex items-center justify-center">
@@ -149,7 +164,7 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                   imageFit="cover"
                   cardColor="#ffffff"
                   orientation="portrait"
-                  finish="glossy"
+                  finish={cardFinish}
                   cornerRadius={0.3}
                   size={0.6}
                   anchor="center"
@@ -164,10 +179,9 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                   interactive
                   intro={false}
                 />
-                {/* Interactive Hint Pill on Bottom */}
                 <div className="pointer-events-none absolute bottom-2 inset-x-0 flex justify-center z-10">
-                  <span className="px-3.5 py-1.5 rounded-full bg-black/60 dark:bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-mono text-white/90 shadow-lg">
-                    Drag / Tap 3D badge to swing &bull; Interactive
+                  <span className="px-3.5 py-1.5 rounded-full bg-black/65 dark:bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-mono text-white/90">
+                    Drag / Tap 3D badge to swing
                   </span>
                 </div>
               </div>
@@ -175,14 +189,31 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
               <div className="w-full h-full flex items-center justify-center">
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  <span className="font-mono text-xs text-black/60 dark:text-muted">Loading 3D Canvas...</span>
+                  <span className="font-mono text-xs text-neutral-500">Loading 3D Canvas...</span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Clean Direct Contacts underneath without box */}
-          <div className="flex items-center justify-center gap-6 text-xs text-black/60 dark:text-muted font-medium pt-2">
+          {/* 3D Card Finish Switcher */}
+          <div className="mt-3 inline-flex flex-wrap items-center justify-center gap-1 p-1 rounded-full bg-surface border border-hairline">
+            {FINISH_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setCardFinish(opt.id)}
+                className={`px-3 py-1 rounded-full text-[11px] font-mono transition-all cursor-pointer ${
+                  cardFinish === opt.id
+                    ? 'bg-primary font-bold shadow-xs'
+                    : 'text-neutral-500 dark:text-neutral-400 hover:text-primary'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-center gap-6 text-xs text-neutral-500 dark:text-neutral-400 font-mono pt-3">
             <div className="flex items-center gap-2">
               <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
               <span>Depok, Indonesia</span>
@@ -194,12 +225,15 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
           </div>
         </div>
 
-        {/* Right Column (7 Cols): Contact Form & Direct Channels */}
-        <div className="lg:col-span-7 bg-surface border border-hairline rounded-2.5xl p-6 sm:p-8 space-y-6 shadow-sm flex flex-col justify-between">
+        {/* Right Column: Contact Form */}
+        <div
+          onMouseMove={updateSpotlightPos}
+          className="spotlight-border lg:col-span-7 bg-surface border border-hairline rounded-3xl p-6 sm:p-8 space-y-6 flex flex-col justify-between"
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label htmlFor="contact-name" className="block text-xs font-sans font-bold uppercase tracking-wider text-black dark:text-white/90 cursor-pointer">
+                <label htmlFor="contact-name" className="block text-xs font-sans font-semibold text-neutral-800 dark:text-neutral-200 cursor-pointer">
                   Your Name <span className="text-primary">*</span>
                 </label>
                 <input
@@ -209,12 +243,12 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                   placeholder="e.g. Alex Pratama"
                   value={formState.name}
                   onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                  className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors font-sans"
+                  className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 text-sm transition-all font-sans"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="contact-email" className="block text-xs font-sans font-bold uppercase tracking-wider text-black dark:text-white/90 cursor-pointer">
+                <label htmlFor="contact-email" className="block text-xs font-sans font-semibold text-neutral-800 dark:text-neutral-200 cursor-pointer">
                   Email Address <span className="text-primary">*</span>
                 </label>
                 <input
@@ -224,13 +258,13 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                   placeholder="alex@company.com"
                   value={formState.email}
                   onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                  className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors font-sans"
+                  className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 text-sm transition-all font-sans"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="contact-subject" className="block text-xs font-sans font-bold uppercase tracking-wider text-black dark:text-white/90 cursor-pointer">
+              <label htmlFor="contact-subject" className="block text-xs font-sans font-semibold text-neutral-800 dark:text-neutral-200 cursor-pointer">
                 Subject / Project Interest
               </label>
               <input
@@ -239,12 +273,12 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 placeholder="e.g. Frontend Engineering Collaboration"
                 value={formState.subject}
                 onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
-                className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm transition-colors font-sans"
+                className="w-full px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 text-sm transition-all font-sans"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="contact-message" className="block text-xs font-sans font-bold uppercase tracking-wider text-black dark:text-white/90 cursor-pointer">
+              <label htmlFor="contact-message" className="block text-xs font-sans font-semibold text-neutral-800 dark:text-neutral-200 cursor-pointer">
                 Message <span className="text-primary">*</span>
               </label>
               <textarea
@@ -254,70 +288,70 @@ export function ContactSection({ onNotifyToast }: ContactSectionProps) {
                 placeholder="Tell me about your idea, timeline, or requirements..."
                 value={formState.message}
                 onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                className="w-full px-4 py-3 min-h-[120px] rounded-xl bg-canvas border border-hairline text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:border-primary text-sm resize-none transition-colors font-sans leading-relaxed"
+                className="w-full px-4 py-3 min-h-[120px] rounded-xl bg-canvas border border-hairline text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 text-sm resize-none transition-all font-sans leading-relaxed"
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3 min-h-[48px] rounded-full bg-primary hover:bg-tertiary text-neutral-950 font-bold text-sm transition-all duration-300 orange-glow-hover cursor-pointer shadow-md disabled:opacity-60"
-            >
-              <span className="font-bold text-neutral-950">{submitting ? 'Sending...' : 'Send Message'}</span>
-              <Send className="w-4 h-4 text-neutral-950" />
-            </button>
+            <Magnetic strength={0.22}>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3 min-h-[46px] rounded-full bg-primary hover:bg-tertiary font-bold text-sm transition-all duration-300 orange-glow-hover cursor-pointer shadow-md disabled:opacity-60 active:scale-[0.97]"
+              >
+                <span>{submitting ? 'Sending...' : 'Send Message'}</span>
+                <Send className="w-4 h-4" />
+              </button>
+            </Magnetic>
           </form>
 
-          {/* Direct Communication Channels Strip */}
+          {/* Direct Channels */}
           <div className="pt-6 border-t border-hairline space-y-3">
-            <p className="text-xs font-sans font-bold uppercase tracking-wider text-black dark:text-white/80">
-              Or Connect Directly:
+            <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+              Or Connect Directly
             </p>
 
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Email Link & Copy */}
+            <div className="flex flex-wrap items-center gap-2.5">
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-primary/60 text-xs font-sans text-black dark:text-white transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-2 px-4 py-2 min-h-[40px] rounded-full bg-canvas border border-hairline hover:border-primary/50 text-xs font-sans text-neutral-900 dark:text-white transition-all cursor-pointer"
                 title="Click to copy email address"
               >
-                <Mail className="w-3.5 h-3.5 text-black dark:text-primary" />
-                <span className="text-black dark:text-white font-medium">{emailAddress}</span>
+                <Mail className="w-3.5 h-3.5 text-primary" />
+                <span className="font-medium">{emailAddress}</span>
                 {copiedEmail ? (
                   <Check className="w-3.5 h-3.5 text-emerald-500" />
                 ) : (
-                  <Copy className="w-3.5 h-3.5 text-black/70 dark:text-neutral-400 group-hover:text-primary" />
+                  <Copy className="w-3.5 h-3.5 text-neutral-400" />
                 )}
               </button>
 
-              {/* Instagram Link */}
               <a
                 href="https://instagram.com/abcdefghijherr"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram"
-                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-[#E4405F]/60 text-xs font-sans text-black dark:text-white transition-all shadow-xs group"
+                className="inline-flex items-center gap-2 px-4 py-2 min-h-[40px] rounded-full bg-canvas border border-hairline hover:border-[#E4405F]/50 text-xs font-sans text-neutral-900 dark:text-white transition-all group"
               >
-                <SiInstagram aria-hidden="true" title="Instagram" className="w-3.5 h-3.5 text-[#E4405F]" />
-                <span className="text-black dark:text-white font-medium">@abcdefghijherr</span>
-                <ArrowUpRight className="w-3 h-3 text-black dark:text-neutral-400 group-hover:text-[#E4405F]" />
+                <SiInstagram aria-hidden="true" className="w-3.5 h-3.5 text-[#E4405F]" />
+                <span className="font-medium">@abcdefghijherr</span>
+                <ArrowUpRight className="w-3 h-3 text-neutral-400 group-hover:text-[#E4405F]" />
               </a>
 
-              {/* TikTok Link */}
               <a
                 href="https://www.tiktok.com/@abcdefghijherr"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="TikTok"
-                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-canvas border border-hairline hover:border-black/60 dark:hover:border-white/60 text-xs font-sans text-black dark:text-white transition-all shadow-xs group"
+                className="inline-flex items-center gap-2 px-4 py-2 min-h-[40px] rounded-full bg-canvas border border-hairline hover:border-primary/50 text-xs font-sans text-neutral-900 dark:text-white transition-all group"
               >
-                <SiTiktok aria-hidden="true" title="TikTok" className="w-3.5 h-3.5 text-black dark:text-white" />
-                <span className="text-black dark:text-white font-medium">abcdefghijherr</span>
-                <ArrowUpRight className="w-3 h-3 text-black dark:text-neutral-400 group-hover:text-primary" />
+                <SiTiktok aria-hidden="true" className="w-3.5 h-3.5 text-neutral-800 dark:text-white" />
+                <span className="font-medium">abcdefghijherr</span>
+                <ArrowUpRight className="w-3 h-3 text-neutral-400 group-hover:text-primary" />
               </a>
             </div>
           </div>
+          <BlueprintCrosshairs />
         </div>
       </div>
     </section>

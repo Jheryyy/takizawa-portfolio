@@ -13,7 +13,7 @@ import {
   getStoredThemeStyle,
   syncThemeToSupabase,
   fetchRemoteThemeFromSupabase,
-  isUserAdmin,
+  checkAdminSession,
 } from '@/lib/theme-colors';
 import { supabase } from '@/lib/supabase';
 
@@ -32,7 +32,7 @@ interface ThemeColorContextType {
 const ThemeColorContext = createContext<ThemeColorContextType>({
   primaryColor: DEFAULT_THEME_COLOR,
   tertiaryColor: DEFAULT_TERTIARY_COLOR,
-  presetId: 'crystal-glass',
+  presetId: 'orange',
   presets: THEME_COLOR_PRESETS,
   themeStyle: 'glass',
   isAdmin: false,
@@ -44,14 +44,42 @@ const ThemeColorContext = createContext<ThemeColorContextType>({
 export function ThemeColorProvider({ children }: { children: React.ReactNode }) {
   const [primaryColor, setPrimaryColor] = useState<string>(DEFAULT_THEME_COLOR);
   const [tertiaryColor, setTertiaryColor] = useState<string>(DEFAULT_TERTIARY_COLOR);
-  const [presetId, setPresetId] = useState<string>('crystal-glass');
+  const [presetId, setPresetId] = useState<string>('orange');
   const [themeStyle, setThemeStyleState] = useState<'solid' | 'glass'>('glass');
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
-  // Initialize and apply theme colors and glass style on mount
+  const applyRemoteConfig = useCallback(
+    (config: {
+      primaryColor?: string;
+      tertiaryColor?: string;
+      colorPresetId?: string;
+      themeStyle?: 'solid' | 'glass';
+    }) => {
+      if (config.primaryColor && config.primaryColor.startsWith('#')) {
+        const p = config.primaryColor;
+        const t = config.tertiaryColor || deriveTertiaryColor(p);
+        const pr = config.colorPresetId || 'custom';
+        setPrimaryColor(p);
+        setTertiaryColor(t);
+        setPresetId(pr);
+        applyThemeColors(p, t, pr);
+      }
+      if (config.themeStyle === 'solid' || config.themeStyle === 'glass') {
+        setThemeStyleState(config.themeStyle);
+        applyThemeStyle(config.themeStyle);
+      }
+    },
+    []
+  );
+
   useEffect(() => {
-    // 0. Check admin authentication state
-    setIsAdmin(isUserAdmin());
+    let isCancelled = false;
+
+    const refreshAdminState = async () => {
+      const ok = await checkAdminSession();
+      if (!isCancelled) setIsAdmin(ok);
+    };
+    refreshAdminState();
 
     // 1. Immediately read from localStorage
     const stored = getStoredThemeColor();
@@ -65,33 +93,12 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
     applyThemeColors(stored.primary, stored.tertiary, stored.presetId);
     applyThemeStyle(storedStyle);
 
-    // 2. Fetch from Supabase global config (persisted cross-device for all public visitors)
-    let isCancelled = false;
+    // 2. Fetch global accent & glass style from Supabase (never overrides visitor's own light/dark mode)
     const fetchRemoteTheme = async () => {
       try {
         const remote = await fetchRemoteThemeFromSupabase();
         if (remote && !isCancelled) {
-          if (remote.primaryColor && remote.primaryColor.startsWith('#')) {
-            const remotePrimary = remote.primaryColor;
-            const remoteTertiary = remote.tertiaryColor || deriveTertiaryColor(remotePrimary);
-            const remotePreset = remote.colorPresetId || 'custom';
-
-            setPrimaryColor(remotePrimary);
-            setTertiaryColor(remoteTertiary);
-            setPresetId(remotePreset);
-            applyThemeColors(remotePrimary, remoteTertiary, remotePreset);
-          }
-          if (remote.themeStyle === 'solid' || remote.themeStyle === 'glass') {
-            setThemeStyleState(remote.themeStyle);
-            applyThemeStyle(remote.themeStyle);
-          }
-          if (remote.mode === 'light') {
-            document.documentElement.classList.add('light');
-            document.documentElement.classList.remove('dark');
-          } else if (remote.mode === 'dark') {
-            document.documentElement.classList.add('dark');
-            document.documentElement.classList.remove('light');
-          }
+          applyRemoteConfig(remote);
         }
       } catch (err) {
         console.warn('Could not read remote theme from Supabase:', err);
@@ -100,7 +107,7 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
 
     fetchRemoteTheme();
 
-    // 3. Supabase Realtime channel subscription for immediate live updates across all active visitors!
+    // 3. Realtime subscription on site_content.theme_config
     const themeChannel = supabase
       .channel('takizawa-global-theme-channel')
       .on(
@@ -108,35 +115,17 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
         {
           event: '*',
           schema: 'public',
-          table: 'guestbook',
-          filter: 'handle=eq.__takizawa_theme_config__',
+          table: 'site_content',
+          filter: 'id=eq.theme_config',
         },
         (payload: any) => {
-          if (payload.new && payload.new.message) {
+          if (payload.new?.content) {
             try {
-              const msg = typeof payload.new.message === 'string'
-                ? JSON.parse(payload.new.message)
-                : payload.new.message;
-              if (msg.primaryColor && msg.primaryColor.startsWith('#')) {
-                const p = msg.primaryColor;
-                const t = msg.tertiaryColor || deriveTertiaryColor(p);
-                const pr = msg.colorPresetId || 'custom';
-                setPrimaryColor(p);
-                setTertiaryColor(t);
-                setPresetId(pr);
-                applyThemeColors(p, t, pr);
-              }
-              if (msg.themeStyle === 'solid' || msg.themeStyle === 'glass') {
-                setThemeStyleState(msg.themeStyle);
-                applyThemeStyle(msg.themeStyle);
-              }
-              if (msg.mode === 'light') {
-                document.documentElement.classList.add('light');
-                document.documentElement.classList.remove('dark');
-              } else if (msg.mode === 'dark') {
-                document.documentElement.classList.add('dark');
-                document.documentElement.classList.remove('light');
-              }
+              const msg =
+                typeof payload.new.content === 'string'
+                  ? JSON.parse(payload.new.content)
+                  : payload.new.content;
+              applyRemoteConfig(msg);
             } catch (err) {
               console.warn('Error applying realtime theme update:', err);
             }
@@ -145,27 +134,24 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
       )
       .subscribe();
 
-    // 4. Fallback interval & visibility listeners
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        setIsAdmin(isUserAdmin());
+        refreshAdminState();
         fetchRemoteTheme();
       }
     };
     const handleAuthChange = () => {
-      setIsAdmin(isUserAdmin());
+      refreshAdminState();
     };
     document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener('admin-auth-updated', handleAuthChange);
 
-    // Heartbeat poll every 45s as network fallback
     const intervalId = setInterval(() => {
       fetchRemoteTheme();
-    }, 45000);
+    }, 60000);
 
-    // 5. Listen to local broadcast events
     const handleThemeUpdate = (e: any) => {
-      if (e.detail && e.detail.primary) {
+      if (e.detail?.primary) {
         setPrimaryColor(e.detail.primary);
         if (e.detail.tertiary) setTertiaryColor(e.detail.tertiary);
         if (e.detail.presetId) setPresetId(e.detail.presetId);
@@ -173,13 +159,13 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
     };
 
     const handleThemeStyleUpdate = (e: any) => {
-      if (e.detail && (e.detail.style === 'solid' || e.detail.style === 'glass')) {
+      if (e.detail?.style === 'solid' || e.detail?.style === 'glass') {
         setThemeStyleState(e.detail.style);
       }
     };
 
     const handleSiteContentUpdate = (e: any) => {
-      if (e.detail && e.detail.primaryColor) {
+      if (e.detail?.primaryColor) {
         const pColor = e.detail.primaryColor;
         const tColor = e.detail.tertiaryColor || deriveTertiaryColor(pColor);
         const pPreset = e.detail.colorPresetId || 'custom';
@@ -187,7 +173,7 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
         setTertiaryColor(tColor);
         setPresetId(pPreset);
       }
-      if (e.detail && (e.detail.themeStyle === 'solid' || e.detail.themeStyle === 'glass')) {
+      if (e.detail?.themeStyle === 'solid' || e.detail?.themeStyle === 'glass') {
         setThemeStyleState(e.detail.themeStyle);
       }
     };
@@ -206,101 +192,106 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
       window.removeEventListener('theme-style-updated', handleThemeStyleUpdate);
       window.removeEventListener('site-content-updated', handleSiteContentUpdate);
     };
-  }, []);
+  }, [applyRemoteConfig]);
 
-  const setColor = useCallback(async (hex: string, newPresetId?: string) => {
-    // Permission check: Only administrators can modify & save theme colors
-    if (!isUserAdmin()) {
-      console.warn('Perubahan tema hanya dapat dilakukan oleh Administrator setelah login.');
-      return;
-    }
-
-    const tertiary = deriveTertiaryColor(hex);
-    const resolvedPreset = newPresetId || (
-      THEME_COLOR_PRESETS.find((p) => p.primary.toLowerCase() === hex.toLowerCase())?.id || 'custom'
-    );
-
-    setPrimaryColor(hex);
-    setTertiaryColor(tertiary);
-    setPresetId(resolvedPreset);
-
-    // Apply to DOM immediately
-    applyThemeColors(hex, tertiary, resolvedPreset);
-
-    // Update takizawa_site_content in localStorage
-    try {
-      const rawContent = localStorage.getItem('takizawa_site_content');
-      let currentContent: any = {};
-      if (rawContent) {
-        try {
-          currentContent = JSON.parse(rawContent);
-        } catch {
-          currentContent = {};
-        }
+  const setColor = useCallback(
+    async (hex: string, newPresetId?: string) => {
+      const authorized = await checkAdminSession();
+      if (!authorized) {
+        console.warn('Perubahan tema hanya dapat dilakukan oleh Administrator setelah login.');
+        return;
       }
-      const updatedContent = {
-        ...currentContent,
-        primaryColor: hex,
-        tertiaryColor: tertiary,
-        colorPresetId: resolvedPreset,
-        themeStyle: themeStyle,
-      };
 
-      localStorage.setItem('takizawa_site_content', JSON.stringify(updatedContent));
+      const tertiary = deriveTertiaryColor(hex);
+      const resolvedPreset =
+        newPresetId ||
+        THEME_COLOR_PRESETS.find((p) => p.primary.toLowerCase() === hex.toLowerCase())?.id ||
+        'custom';
 
-      // Sync to Supabase so EVERY visitor sees it live!
-      await syncThemeToSupabase({
-        primaryColor: hex,
-        tertiaryColor: tertiary,
-        colorPresetId: resolvedPreset,
-        themeStyle: themeStyle,
-      });
-    } catch {
-      // Ignored
-    }
-  }, [themeStyle]);
+      setPrimaryColor(hex);
+      setTertiaryColor(tertiary);
+      setPresetId(resolvedPreset);
+      applyThemeColors(hex, tertiary, resolvedPreset);
 
-  const setThemeStyle = useCallback(async (style: 'solid' | 'glass') => {
-    // Permission check: Only administrators can modify & save theme style
-    if (!isUserAdmin()) {
-      console.warn('Perubahan tema hanya dapat dilakukan oleh Administrator setelah login.');
-      return;
-    }
-
-    setThemeStyleState(style);
-    applyThemeStyle(style);
-
-    try {
-      const rawContent = localStorage.getItem('takizawa_site_content');
-      let currentContent: any = {};
-      if (rawContent) {
-        try {
-          currentContent = JSON.parse(rawContent);
-        } catch {
-          currentContent = {};
+      try {
+        const rawContent = localStorage.getItem('takizawa_site_content');
+        let currentContent: any = {};
+        if (rawContent) {
+          try {
+            currentContent = JSON.parse(rawContent);
+          } catch {
+            currentContent = {};
+          }
         }
+        localStorage.setItem(
+          'takizawa_site_content',
+          JSON.stringify({
+            ...currentContent,
+            primaryColor: hex,
+            tertiaryColor: tertiary,
+            colorPresetId: resolvedPreset,
+            themeStyle,
+          })
+        );
+
+        await syncThemeToSupabase({
+          primaryColor: hex,
+          tertiaryColor: tertiary,
+          colorPresetId: resolvedPreset,
+          themeStyle,
+        });
+      } catch {
+        // Ignored
       }
-      const updatedContent = {
-        ...currentContent,
-        themeStyle: style,
-      };
+    },
+    [themeStyle]
+  );
 
-      localStorage.setItem('takizawa_site_content', JSON.stringify(updatedContent));
+  const setThemeStyle = useCallback(
+    async (style: 'solid' | 'glass') => {
+      const authorized = await checkAdminSession();
+      if (!authorized) {
+        console.warn('Perubahan tema hanya dapat dilakukan oleh Administrator setelah login.');
+        return;
+      }
 
-      // Sync to Supabase so EVERY visitor sees it live!
-      await syncThemeToSupabase({
-        primaryColor: primaryColor,
-        tertiaryColor: tertiaryColor,
-        colorPresetId: presetId,
-        themeStyle: style,
-      });
-    } catch {
-      // Ignored
-    }
-  }, [primaryColor, tertiaryColor, presetId]);
+      setThemeStyleState(style);
+      applyThemeStyle(style);
+
+      try {
+        const rawContent = localStorage.getItem('takizawa_site_content');
+        let currentContent: any = {};
+        if (rawContent) {
+          try {
+            currentContent = JSON.parse(rawContent);
+          } catch {
+            currentContent = {};
+          }
+        }
+        localStorage.setItem(
+          'takizawa_site_content',
+          JSON.stringify({
+            ...currentContent,
+            themeStyle: style,
+          })
+        );
+
+        await syncThemeToSupabase({
+          primaryColor,
+          tertiaryColor,
+          colorPresetId: presetId,
+          themeStyle: style,
+        });
+      } catch {
+        // Ignored
+      }
+    },
+    [primaryColor, tertiaryColor, presetId]
+  );
 
   const resetColor = useCallback(async () => {
-    if (!isUserAdmin()) return;
+    const authorized = await checkAdminSession();
+    if (!authorized) return;
     await setColor('#38BDF8', 'crystal-glass');
     await setThemeStyle('glass');
   }, [setColor, setThemeStyle]);
@@ -319,7 +310,6 @@ export function ThemeColorProvider({ children }: { children: React.ReactNode }) 
         resetColor,
       }}
     >
-      {/* Ambient background aura when liquid glass theme is active */}
       {themeStyle === 'glass' && (
         <div className="glass-aurora-bg" aria-hidden="true">
           <div className="glass-aurora-orb-1" />

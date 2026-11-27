@@ -1,11 +1,12 @@
 import type { MetadataRoute } from 'next';
-import { projectsData } from '@/data/portfolio-data';
+import { fetchAllProjects } from '@/lib/projects';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export const revalidate = 300;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://jtakizawa.my.id';
   const lastModified = new Date();
 
-  // Static portfolio pages
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}`,
@@ -21,8 +22,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Dynamic project case study pages
-  const projectRoutes: MetadataRoute.Sitemap = projectsData.map((project) => ({
+  const projects = await fetchAllProjects();
+  const projectRoutes: MetadataRoute.Sitemap = projects.map((project) => ({
     url: `${baseUrl}/projects/${project.id}`,
     lastModified,
     changeFrequency: 'weekly',

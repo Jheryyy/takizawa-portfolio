@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 
 const MusicPlayer = dynamic(() => import('@/components/ui/MusicPlayer'), { ssr: false });
 const TargetCursor = dynamic(() => import('@/components/ui/TargetCursor'), { ssr: false });
+const ScrollProgressRail = dynamic(() => import('@/components/ui/ScrollProgressRail'), { ssr: false });
 const WebThemeCustomizer = dynamic(
   () => import('@/components/theme/WebThemeCustomizer').then((m) => m.WebThemeCustomizer),
   { ssr: false }
@@ -24,6 +25,7 @@ export function ClientEnhancements() {
 
   return (
     <>
+      <ScrollProgressRail />
       <MusicPlayer />
       <WebThemeCustomizer />
       {isDesktop && (

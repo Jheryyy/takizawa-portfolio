@@ -18,7 +18,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { useThemeColor } from './ThemeColorProvider';
-import { ThemeColorPreset, normalizeHex, isUserAdmin, syncThemeToSupabase } from '@/lib/theme-colors';
+import { ThemeColorPreset, normalizeHex, syncThemeToSupabase } from '@/lib/theme-colors';
 
 export function WebThemeCustomizer() {
   const pathname = usePathname();
@@ -31,6 +31,7 @@ export function WebThemeCustomizer() {
     presetId,
     presets,
     themeStyle,
+    isAdmin,
     setColor,
     setThemeStyle,
     resetColor,
@@ -40,7 +41,6 @@ export function WebThemeCustomizer() {
   const [mounted, setMounted] = useState(false);
   const [customHex, setCustomHex] = useState(primaryColor);
   const [copyNotice, setCopyNotice] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'saved'>('idle');
 
   const panelRef = useRef<HTMLDivElement>(null);
@@ -48,25 +48,7 @@ export function WebThemeCustomizer() {
   useEffect(() => {
     setMounted(true);
     setCustomHex(primaryColor);
-    setIsAdmin(isUserAdmin());
-
-    const handleAuthChange = () => setIsAdmin(isUserAdmin());
-    window.addEventListener('admin-auth-updated', handleAuthChange);
-    window.addEventListener('storage', handleAuthChange);
-    window.addEventListener('focus', handleAuthChange);
-    return () => {
-      window.removeEventListener('admin-auth-updated', handleAuthChange);
-      window.removeEventListener('storage', handleAuthChange);
-      window.removeEventListener('focus', handleAuthChange);
-    };
   }, [primaryColor]);
-
-  // Update isAdmin whenever panel opens
-  useEffect(() => {
-    if (isOpen) {
-      setIsAdmin(isUserAdmin());
-    }
-  }, [isOpen]);
 
   // Close when pressing Escape
   useEffect(() => {
@@ -74,8 +56,7 @@ export function WebThemeCustomizer() {
       if (e.key === 'Escape') setIsOpen(false);
     };
     const handleOpen = () => {
-      if (isUserAdmin()) {
-        setIsAdmin(true);
+      if (isAdmin) {
         setIsOpen(true);
       }
     };
@@ -86,7 +67,7 @@ export function WebThemeCustomizer() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('open-theme-customizer', handleOpen);
     };
-  }, []);
+  }, [isAdmin]);
 
   // Close when clicking outside panel
   useEffect(() => {
@@ -139,7 +120,6 @@ export function WebThemeCustomizer() {
         tertiaryColor,
         colorPresetId: presetId,
         themeStyle,
-        mode: resolvedTheme === 'dark' ? 'dark' : 'light',
       });
       setSyncStatus('saved');
       setTimeout(() => setSyncStatus('idle'), 3000);
@@ -315,15 +295,8 @@ export function WebThemeCustomizer() {
               }`}>
                 <button
                   type="button"
-                  onClick={async () => {
+                  onClick={() => {
                     setTheme('dark');
-                    await syncThemeToSupabase({
-                      primaryColor,
-                      tertiaryColor,
-                      colorPresetId: presetId,
-                      themeStyle,
-                      mode: 'dark',
-                    });
                     triggerSyncFeedback();
                   }}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all cursor-pointer ${
@@ -338,15 +311,8 @@ export function WebThemeCustomizer() {
 
                 <button
                   type="button"
-                  onClick={async () => {
+                  onClick={() => {
                     setTheme('light');
-                    await syncThemeToSupabase({
-                      primaryColor,
-                      tertiaryColor,
-                      colorPresetId: presetId,
-                      themeStyle,
-                      mode: 'light',
-                    });
                     triggerSyncFeedback();
                   }}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all cursor-pointer ${

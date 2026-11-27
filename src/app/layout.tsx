@@ -34,7 +34,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://jtakizawa.my.id';
 
 export const viewport: Viewport = {
   themeColor: '#0A0A0A',
-  colorScheme: 'dark',
+  colorScheme: 'dark light',
 };
 
 export const metadata: Metadata = {
@@ -115,7 +115,7 @@ export const metadata: Metadata = {
     apple: '/card-front.webp',
   },
   verification: {
-    google: ['google285a3d20eceda9a1', 'google285a3d20eceda9a1.html'],
+    google: 'google285a3d20eceda9a1',
   },
 };
 
@@ -248,13 +248,19 @@ export default function RootLayout({
       <body
         className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable} bg-canvas text-neutral-900 dark:text-white antialiased selection:bg-primary selection:text-white transition-colors duration-300 min-h-screen flex flex-col font-sans`}
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100000] focus:px-4 focus:py-2 focus:rounded-xl focus:bg-primary focus:text-white focus:font-bold focus:text-xs focus:shadow-lg"
+        >
+          Skip to main content
+        </a>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <ThemeColorProvider>
             <LiquidTransitionProvider>
               <VideoSplashScreen />
               <ClientEnhancements />
               <Navbar />
-              <div className="flex-1 w-full">
+              <div id="main-content" className="flex-1 w-full">
                 {children}
               </div>
               <SpeedInsights />

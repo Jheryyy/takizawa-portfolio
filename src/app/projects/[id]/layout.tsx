@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { projectsData } from '@/data/portfolio-data';
+import { fetchProjectContext } from '@/lib/projects';
 
 interface ProjectLayoutProps {
   children: React.ReactNode;
@@ -12,7 +12,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const project = projectsData.find((p) => p.id === id);
+  const { project } = await fetchProjectContext(id);
 
   if (!project) {
     return {
@@ -22,8 +22,10 @@ export async function generateMetadata({
   }
 
   const title = `${project.title} (${project.category}) — Case Study | Jheryco Takizawa`;
-  const description = project.shortDesc || `Detailed case study and technical architecture of ${project.title}.`;
+  const description =
+    project.shortDesc || `Detailed case study and technical architecture of ${project.title}.`;
   const canonicalUrl = `/projects/${project.id}`;
+  const isDataUrl = project.image?.startsWith('data:');
 
   return {
     title,
@@ -36,20 +38,24 @@ export async function generateMetadata({
       description,
       url: canonicalUrl,
       type: 'article',
-      images: [
-        {
-          url: project.image,
-          width: 1200,
-          height: 630,
-          alt: project.title,
-        },
-      ],
+      ...(isDataUrl
+        ? {}
+        : {
+            images: [
+              {
+                url: project.image,
+                width: 1200,
+                height: 630,
+                alt: project.title,
+              },
+            ],
+          }),
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [project.image],
+      ...(isDataUrl ? {} : { images: [project.image] }),
     },
   };
 }
